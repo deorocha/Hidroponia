@@ -21,6 +21,16 @@ largura_valor_percent = 30
 # CSS para responsividade e formatação mobile
 st.markdown(f"""
     <style>
+    /* Centraliza a coluna 'Símbolo' */
+    th:nth-child(3), td:nth-child(3) {{
+        text-align: center !important;
+    }}
+
+    /* Alinha à direita a coluna 'Valor Previsto (mg/L)' */
+    th:nth-child(4), td:nth-child(4) {{
+        text-align: right !important;
+    }}
+    
     /* Reduz altura das linhas */
     tbody th {{vertical-align: middle;}}
     tbody td {{vertical-align: middle; padding-top: 4px; padding-bottom: 4px;}}
@@ -130,7 +140,7 @@ if st.button("🔍 Realizar Previsão"):
     resultados = pd.DataFrame({
         "Nome do Nutriente": nomes_completos,
         "Símbolo": colunas_saida,
-        "Valor Previsto (mg/L)": saida
+        "Valor Previsto": saida
     })
 
     resultados["Valor Previsto (mg/L)"] = resultados["Valor Previsto (mg/L)"].apply(lambda x: format(x, ".4f"))
