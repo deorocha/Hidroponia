@@ -13,7 +13,7 @@ st.set_page_config(
 
 # 🔧 Definir larguras percentuais das colunas para mobile
 largura_nome_percent = 20
-largura_simbolo_percent = 20
+largura_simbolo_percent = 30
 largura_valor_percent = 30
 
 # ------------------------------
@@ -66,7 +66,7 @@ st.markdown(f"""
 # ------------------------------
 # Título com fonte menor
 st.markdown(
-    "<h2 style='font-size:26px; font-weight:bold;'>🔬 Previsão de Nutrientes na Solução</h2>",
+    "<h2 style='font-size:26px; font-weight:bold; margin-top:10px;'>🔬 Previsão de Nutrientes na Solução</h2>",
     unsafe_allow_html=True
 )
 st.write("Preencha os parâmetros para obter a estimativa dos nutrientes.")
