@@ -9,7 +9,11 @@ import joblib
 # Configurações iniciais
 st.set_page_config(page_title="Previsão de Nutrientes", layout="centered")
 
-st.title("🔬 Previsão de Nutrientes na Solução")
+# Título com fonte levemente menor usando Markdown com HTML
+st.markdown(
+    "<h2 style='font-size:32px; font-weight:bold;'>🔬 Previsão de Nutrientes na Solução</h2>",
+    unsafe_allow_html=True
+)
 st.write("Preencha os valores abaixo para obter a estimativa dos nutrientes.")
 
 # ------------------------------
@@ -25,6 +29,12 @@ modelo = carregar_modelo('./hidroponia_modelo.pkl')
 colunas_entrada = ['Temp', 'pH', 'EC', 'O2']
 colunas_saida = ['N', 'P', 'K', 'Ca', 'Mg', 'S', 'B', 'Cl', 'Co', 'Cu', 
                   'Fe', 'Mn', 'Mo', 'Na', 'Ni', 'Si', 'Zn']
+
+nomes_completos = [
+    "Nitrogênio", "Fósforo", "Potássio", "Cálcio", "Magnésio", "Enxofre",
+    "Boro", "Cloro", "Cobalto", "Cobre", "Ferro", "Manganês",
+    "Molibdênio", "Sódio", "Níquel", "Silício", "Zinco"
+]
 
 st.sidebar.header("⚙️ Parâmetros de Entrada")
 
@@ -44,16 +54,14 @@ entrada = pd.DataFrame(
 # Botão de previsão
 if st.button("🔍 Realizar Previsão"):
     # Fazer a previsão
-    saida = modelo.predict(entrada)
-    print(saida)
+    saida = modelo.predict(entrada)[0]
 
     # Montar dataframe de saída
-    resultados = pd.DataFrame(
-        data=saida,
-        columns=colunas_saida
-    ).T.reset_index()
-
-    resultados.columns = ["Nutriente", "Valor Previsto"]
+    resultados = pd.DataFrame({
+        "Nome do Nutriente": nomes_completos,
+        "Símbolo": colunas_saida,
+        "Valor Previsto": saida
+    })
 
     st.subheader("🧪 Resultados da Previsão")
     st.table(resultados.style.format({"Valor Previsto": "{:.4f}"}))
