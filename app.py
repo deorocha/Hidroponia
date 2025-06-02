@@ -118,7 +118,7 @@ if st.button("🔍 Realizar Previsão"):
     resultados = pd.DataFrame({
         "Nome do Nutriente": nomes_completos,
         "Símbolo": colunas_saida,
-        "Valor Previsto": saida
+        "Valor Previsto (mg/L)": saida
     })
 
     # Formatar a exibição para 4 casas decimais (mantendo como float)
@@ -126,10 +126,9 @@ if st.button("🔍 Realizar Previsão"):
         resultados
         .style
         .apply(aplicar_estilo, axis=1)
-        .format({"Valor Previsto": "{:.4f}"})
+        .format({"Valor Previsto (mg/L)": "{:.4f}"})
     )
 
     st.subheader("🧪 Resultados da Previsão")
     st.table(styled_resultados)
-    st.write("Valores em mg/L")
     st.success("✅ Previsão realizada com sucesso!")
