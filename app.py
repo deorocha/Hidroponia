@@ -13,8 +13,8 @@ st.set_page_config(
 
 # 🔧 Definir larguras percentuais das colunas para mobile
 largura_nome_percent = 20
-largura_simbolo_percent = 30
-largura_valor_percent = 30
+largura_simbolo_percent = 20
+largura_valor_percent = 20
 
 # ------------------------------
 # CSS para responsividade e formatação mobile
