@@ -8,6 +8,7 @@ import joblib
 # Configurações iniciais
 st.set_page_config(
     page_title="Previsão de Nutrientes",
+    page_icon=":herb:",
     layout="centered"  # Melhor para smartphone
 )
 
@@ -132,9 +133,9 @@ if st.button("🔍 Realizar Previsão"):
         "Valor Previsto (mg/L)": saida
     })
 
+    resultados["Valor Previsto (mg/L)"] = resultados["Valor Previsto (mg/L)"].apply(lambda x: format(x, ".4f"))
     styled_resultados = resultados.style.apply(aplicar_estilo, axis=1).format({"Valor Previsto": "{:.4f}"})
-
     st.subheader("🧪 Resultados da Previsão")
     st.table(styled_resultados)
-
+    
     st.success("Previsão realizada com sucesso!")
