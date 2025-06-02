@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 import pandas as pd
 import joblib
@@ -9,10 +7,10 @@ import joblib
 st.set_page_config(
     page_title="Previsão de Nutrientes",
     page_icon=":herb:",
-    layout="centered"  # Melhor para smartphone
+    layout="centered"
 )
 
-# 🔧 Definir larguras percentuais das colunas para mobile
+# 🔧 Definir larguras percentuais das colunas
 largura_nome_percent = 15
 largura_simbolo_percent = 30
 largura_valor_percent = 30
@@ -21,50 +19,31 @@ largura_valor_percent = 30
 # CSS para responsividade e formatação mobile
 st.markdown(f"""
     <style>
-    /* Centraliza a coluna 'Símbolo' */
-    th:nth-child(3), td:nth-child(3) {{
-        text-align: center !important;
-    }}
-
-    /* Alinha à direita a coluna 'Valor Previsto (mg/L)' */
-    th:nth-child(4), td:nth-child(4) {{
-        text-align: right !important;
-    }}
-    
-    /* Reduz altura das linhas */
     tbody th {{vertical-align: middle;}}
     tbody td {{vertical-align: middle; padding-top: 4px; padding-bottom: 4px;}}
     thead th {{vertical-align: middle; padding-top: 6px; padding-bottom: 6px;}}
 
-    /* Fontes menores no mobile */
     html, body, [class*="css"] {{
         font-size: 15px;
     }}
 
-    /* Tabela responsiva */
     table {{
         width: 100% !important;
     }}
 
-    /* Coluna Nome */
     th:nth-child(1), td:nth-child(1) {{
         width: {largura_nome_percent}%;
         word-wrap: break-word;
     }}
-
-    /* Coluna Símbolo */
     th:nth-child(2), td:nth-child(2) {{
         width: {largura_simbolo_percent}%;
         text-align: center;
     }}
-
-    /* Coluna Valor */
     th:nth-child(3), td:nth-child(3) {{
         width: {largura_valor_percent}%;
-        text-align: center;
+        text-align: right;
     }}
 
-    /* Reduz margem lateral */
     .block-container {{
         padding-top: 1rem;
         padding-bottom: 1rem;
@@ -75,7 +54,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ------------------------------
-# Título com fonte menor
+# Título
 st.markdown(
     "<h2 style='font-size:26px; font-weight:bold; margin-top:10px;'>🔬 Previsão de Nutrientes na Solução</h2>",
     unsafe_allow_html=True
@@ -88,7 +67,6 @@ st.write("Preencha os parâmetros para obter a estimativa dos nutrientes.")
 def carregar_modelo(caminho):
     return joblib.load(caminho)
 
-# 🔥 Nome do modelo alterado aqui
 modelo = carregar_modelo('hidroponia_modelo.pkl')
 
 # ------------------------------
@@ -107,7 +85,7 @@ macronutrientes = ['N', 'P', 'K', 'Ca', 'Mg', 'S']
 micronutrientes = ['B', 'Cl', 'Co', 'Cu', 'Fe', 'Mn', 'Mo', 'Na', 'Ni', 'Si', 'Zn']
 
 # ------------------------------
-# Sidebar (fica como menu suspenso no celular)
+# Sidebar (menu)
 st.sidebar.header("⚙️ Parâmetros de Entrada")
 
 Temp = st.sidebar.number_input("Temperatura (°C)", min_value=0.0, max_value=50.0, value=25.0, step=0.1)
@@ -143,9 +121,15 @@ if st.button("🔍 Realizar Previsão"):
         "Valor Previsto": saida
     })
 
-    resultados["Valor Previsto (mg/L)"] = resultados["Valor Previsto (mg/L)"].apply(lambda x: format(x, ".4f"))
-    styled_resultados = resultados.style.apply(aplicar_estilo, axis=1).format({"Valor Previsto": "{:.4f}"})
+    # Formatar a exibição para 4 casas decimais (mantendo como float)
+    styled_resultados = (
+        resultados
+        .style
+        .apply(aplicar_estilo, axis=1)
+        .format({"Valor Previsto": "{:.4f}"})
+    )
+
     st.subheader("🧪 Resultados da Previsão")
     st.table(styled_resultados)
-    
-    st.success("Previsão realizada com sucesso!")
+    st.write("Valores em mg/L")
+    st.success("✅ Previsão realizada com sucesso!")
