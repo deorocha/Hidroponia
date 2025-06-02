@@ -35,11 +35,11 @@ st.markdown(f"""
         width: {largura_nome_percent}%;
         word-wrap: break-word;
     }}
-    th:nth-child(2), td:nth-child(2) {{
+    th:nth-child(3), td:nth-child(3) {{
         width: {largura_simbolo_percent}%;
         text-align: center;
     }}
-    th:nth-child(3), td:nth-child(3) {{
+    th:nth-child(4), td:nth-child(4) {{
         width: {largura_valor_percent}%;
         text-align: right;
     }}
@@ -130,5 +130,6 @@ if st.button("🔍 Realizar Previsão"):
     )
 
     st.subheader("🧪 Resultados da Previsão")
-    st.table(styled_resultados)
+    #st.table(styled_resultados)
+    st.markdown(styled_resultados.to_html(), unsafe_allow_html=True)
     st.success("✅ Previsão realizada com sucesso!")
