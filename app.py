@@ -6,24 +6,70 @@ import joblib
 
 # ------------------------------
 # Configurações iniciais
-st.set_page_config(page_title="Previsão de Nutrientes", layout="centered")
-
-# Título com fonte menor
-st.markdown(
-    "<h2 style='font-size:32px; font-weight:bold;'>🔬 Previsão de Nutrientes na Solução</h2>",
-    unsafe_allow_html=True
+st.set_page_config(
+    page_title="Previsão de Nutrientes",
+    layout="centered"  # Melhor para smartphone
 )
-st.write("Preencha os valores abaixo para obter a estimativa dos nutrientes.")
+
+# 🔧 Definir larguras percentuais das colunas para mobile
+largura_nome_percent = 20
+largura_simbolo_percent = 20
+largura_valor_percent = 30
 
 # ------------------------------
-# CSS para reduzir altura das linhas
-st.markdown("""
+# CSS para responsividade e formatação mobile
+st.markdown(f"""
     <style>
-    tbody th {vertical-align: middle;}
-    tbody td {vertical-align: middle; padding-top: 2px; padding-bottom: 2px;}
-    thead th {vertical-align: middle; padding-top: 2px; padding-bottom: 2px;}
+    /* Reduz altura das linhas */
+    tbody th {{vertical-align: middle;}}
+    tbody td {{vertical-align: middle; padding-top: 4px; padding-bottom: 4px;}}
+    thead th {{vertical-align: middle; padding-top: 6px; padding-bottom: 6px;}}
+
+    /* Fontes menores no mobile */
+    html, body, [class*="css"] {{
+        font-size: 15px;
+    }}
+
+    /* Tabela responsiva */
+    table {{
+        width: 100% !important;
+    }}
+
+    /* Coluna Nome */
+    th:nth-child(1), td:nth-child(1) {{
+        width: {largura_nome_percent}%;
+        word-wrap: break-word;
+    }}
+
+    /* Coluna Símbolo */
+    th:nth-child(2), td:nth-child(2) {{
+        width: {largura_simbolo_percent}%;
+        text-align: center;
+    }}
+
+    /* Coluna Valor */
+    th:nth-child(3), td:nth-child(3) {{
+        width: {largura_valor_percent}%;
+        text-align: center;
+    }}
+
+    /* Reduz margem lateral */
+    .block-container {{
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }}
     </style>
 """, unsafe_allow_html=True)
+
+# ------------------------------
+# Título com fonte menor
+st.markdown(
+    "<h2 style='font-size:26px; font-weight:bold;'>🔬 Previsão de Nutrientes na Solução</h2>",
+    unsafe_allow_html=True
+)
+st.write("Preencha os parâmetros para obter a estimativa dos nutrientes.")
 
 # ------------------------------
 # Carregar o modelo
@@ -31,6 +77,7 @@ st.markdown("""
 def carregar_modelo(caminho):
     return joblib.load(caminho)
 
+# 🔥 Nome do modelo alterado aqui
 modelo = carregar_modelo('hidroponia_modelo.pkl')
 
 # ------------------------------
@@ -49,7 +96,7 @@ macronutrientes = ['N', 'P', 'K', 'Ca', 'Mg', 'S']
 micronutrientes = ['B', 'Cl', 'Co', 'Cu', 'Fe', 'Mn', 'Mo', 'Na', 'Ni', 'Si', 'Zn']
 
 # ------------------------------
-# Sidebar
+# Sidebar (fica como menu suspenso no celular)
 st.sidebar.header("⚙️ Parâmetros de Entrada")
 
 Temp = st.sidebar.number_input("Temperatura (°C)", min_value=0.0, max_value=50.0, value=25.0, step=0.1)
@@ -59,7 +106,10 @@ O2 = st.sidebar.number_input("Oxigênio Dissolvido (O₂)", min_value=0.0, max_v
 
 # ------------------------------
 # Entrada
-entrada = pd.DataFrame([[Temp, pH, EC, O2]], columns=colunas_entrada)
+entrada = pd.DataFrame(
+    [[Temp, pH, EC, O2]],
+    columns=colunas_entrada
+)
 
 # ------------------------------
 # Função de estilo da tabela
@@ -86,4 +136,5 @@ if st.button("🔍 Realizar Previsão"):
 
     st.subheader("🧪 Resultados da Previsão")
     st.table(styled_resultados)
+
     st.success("Previsão realizada com sucesso!")
