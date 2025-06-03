@@ -67,7 +67,7 @@ st.write("Preencha os parâmetros para obter a estimativa dos nutrientes.")
 def carregar_modelo(caminho):
     return joblib.load(caminho)
 
-modelo = carregar_modelo('hidroponia_modelo.pkl')
+modelo = carregar_modelo('../hidroponia_modelo.pkl')
 
 # ------------------------------
 # Variáveis
@@ -89,9 +89,9 @@ micronutrientes = ['B', 'Cl', 'Co', 'Cu', 'Fe', 'Mn', 'Mo', 'Na', 'Ni', 'Si', 'Z
 st.sidebar.header("⚙️ Parâmetros de Entrada")
 
 Temp = st.sidebar.number_input("Temperatura (°C)", min_value=0.0, max_value=50.0, value=25.0, step=0.1)
-pH = st.sidebar.number_input("pH", min_value=0.0, max_value=14.0, value=6.0, step=0.1)
-EC = st.sidebar.number_input("Condutividade (EC)", min_value=0.0, max_value=10.0, value=2.0, step=0.01)
-O2 = st.sidebar.number_input("Oxigênio Dissolvido (O₂)", min_value=0.0, max_value=20.0, value=8.0, step=0.1)
+pH = st.sidebar.number_input("pH", min_value=0.0, max_value=14.0, value=5.5, step=0.1)
+EC = st.sidebar.number_input("Condutividade (EC)", min_value=0.0, max_value=10.0, value=1.0, step=0.01)
+O2 = st.sidebar.number_input("Oxigênio Dissolvido (O₂)", min_value=0.0, max_value=20.0, value=4.0, step=0.1)
 
 # ------------------------------
 # Entrada
