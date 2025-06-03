@@ -67,7 +67,7 @@ st.write("Preencha os parâmetros para obter a estimativa dos nutrientes.")
 def carregar_modelo(caminho):
     return joblib.load(caminho)
 
-modelo = carregar_modelo('../hidroponia_modelo.pkl')
+modelo = carregar_modelo('./hidroponia_modelo.pkl')
 
 # ------------------------------
 # Variáveis
