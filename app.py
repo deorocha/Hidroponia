@@ -207,7 +207,7 @@ def aplicar_estilo(linha):
     else:
         return [''] * len(linha)
 
-# ------------------------------
+
 # Botão e previsão
 if st.button("🔍 Realizar Previsão"):
     entrada = pd.DataFrame([[Temp, pH, EC, O2]], columns=colunas_entrada)
@@ -223,16 +223,18 @@ if st.button("🔍 Realizar Previsão"):
         # Verifica se há dados de faixas para esse cultivar
         if not faixa_dict:
             st.warning("⚠️ Nenhuma faixa definida para este cultivar. Preencha os dados na tabela tbl_faixas.")
-            # Exibe apenas os valores previstos
+            # Exibe apenas os valores previstos formatados com 3 casas
+            valores_previstos_formatados = [f"{v:.4f}" for v in saida]
             resultados = pd.DataFrame({
                 "Nutriente": nutriente,
-                "Valor Previsto": saida
+                "Valor Previsto": valores_previstos_formatados
             })
         else:
             # Obter valores mínimos, máximos e determinar ícones
             minimos = []
             maximos = []
             icones = []
+            valores_previstos_formatados = []  # Nome corrigido
             
             for i, nut_id in enumerate(ids_nutrientes):
                 # Verificar se o nutriente existe no dicionário
@@ -241,8 +243,14 @@ if st.button("🔍 Realizar Previsão"):
                     maximo = faixa_dict[nut_id][2]
                     valor_previsto = saida[i]
                     
-                    minimos.append(minimo)
-                    maximos.append(maximo)
+                    # Formatar valores com 3 casas decimais
+                    valor_formatado = f"{valor_previsto:.4f}"  # Variável temporária
+                    minimo_formatado = f"{minimo:.4f}"
+                    maximo_formatado = f"{maximo:.4f}"
+                    
+                    valores_previstos_formatados.append(valor_formatado)
+                    minimos.append(minimo_formatado)
+                    maximos.append(maximo_formatado)
                     
                     # Determinar o ícone baseado nos valores
                     if valor_previsto < minimo:
@@ -252,33 +260,32 @@ if st.button("🔍 Realizar Previsão"):
                     else:
                         icones.append('👍')  # like
                 else:
+                    # Formatar o valor previsto mesmo sem faixa definida
+                    valores_previstos_formatados.append(f"{saida[i]:.4f}")
                     minimos.append("N/A")
                     maximos.append("N/A")
                     icones.append('')  # vazio se não houver dados
 
             resultados = pd.DataFrame({
                 "Nutriente": nutriente,
-                "Previsto": saida,
+                "Previsto": valores_previstos_formatados,
                 "Mínimo": minimos,
                 "Máximo": maximos,
                 "Status": icones  # Coluna de status com ícones
             })
     else:
+        # Caso sem cultivar selecionado: apenas valor previsto formatado
+        valores_previstos_formatados = [f"{v:.4f}" for v in saida]
         resultados = pd.DataFrame({
             "Nutriente": nutriente,
-            "Valor Previsto": saida
+            "Valor Previsto": valores_previstos_formatados
         })
 
-    # Aplicar estilo e formatação
+    # Aplicar estilo
     styled_resultados = (
         resultados
         .style
         .apply(aplicar_estilo, axis=1)
-        .format({
-            "Valor Previsto": "{:.4f}",
-            "Valor Mínimo": lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x,
-            "Valor Máximo": lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x
-        })
     )
 
     st.subheader("🧪 Resultados da Previsão")
