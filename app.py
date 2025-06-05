@@ -78,12 +78,6 @@ def load_cultivar_faixas(cultivar_id):
     
     return faixa_dict
 
-# ------------------------------
-# Carregar dados com cache
-@st.cache_data
-def load_faixas(cultivar_id):
-    return load_cultivar_faixas(cultivar_id)
-
 
 # ------------------------------
 # 🔧 Definir larguras percentuais das colunas
