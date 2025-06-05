@@ -93,11 +93,6 @@ def load_cultivar_faixas(cultivar_id):
 
 
 # ------------------------------
-# 🔧 Definir larguras percentuais das colunas
-largura_nome_percent = 40
-largura_valor_percent = 20
-
-# ------------------------------
 # CSS para responsividade e formatação mobile
 st.markdown(f"""
     <style>
@@ -114,20 +109,25 @@ st.markdown(f"""
     }}
 
     th:nth-child(1), td:nth-child(1) {{
-        width: {largura_nome_percent}%;
+        width: {30}%;
+        text-align: left;
         word-wrap: break-word;
     }}
     th:nth-child(2), td:nth-child(2) {{
-        width: {largura_valor_percent}%;
+        width: {20}%;
         text-align: right;
     }}
     th:nth-child(3), td:nth-child(3) {{
-        width: {largura_valor_percent}%;
+        width: {20}%;
         text-align: right;
     }}
     th:nth-child(4), td:nth-child(4) {{
-        width: {largura_valor_percent}%;
+        width: {20}%;
         text-align: right;
+    }}
+    th:nth-child(5), td:nth-child(5) {{
+        width: {10}%;
+        text-align: center;
     }}
 
     .block-container {{
@@ -191,8 +191,7 @@ cultivar = st.sidebar.selectbox(
 
 if cultivar is not None:
     cultivar_id = cultivares[cultivar][0]
-    # st.markdown(f"Cultivar selecionado: :red[{cultivares[cultivar][1]}]")
-    st.subheader(f"Cultivar selecionado: :red[{cultivares[cultivar][1]}]")
+    st.subheader(f"Cultivar: :red[{cultivares[cultivar][1]}]")
     faixa_dict = load_cultivar_faixas(cultivar_id)
 
 # ------------------------------
