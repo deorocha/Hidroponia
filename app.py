@@ -156,6 +156,12 @@ def carregar_modelo(caminho):
 modelo = carregar_modelo('./hidroponia_modelo.pkl')
 
 data = load_data()
+# Verifica se as listas essenciais estão preenchidas
+if not data['ids_nutrientes']:
+    st.error("Erro crítico: Não foi possível carregar os IDs dos nutrientes. "
+             "Verifique o banco de dados e a estrutura das tabelas.")
+    st.stop()  # Impede a execução do resto do app
+
 colunas_entrada = ['Temp', 'pH', 'EC', 'O2']
 colunas_saida = data['colunas_saida']
 nomes_completos = data['nomes_completos']
