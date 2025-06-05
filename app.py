@@ -11,35 +11,33 @@ st.set_page_config(
     layout="centered"
 )
 
-import sqlite3
-
 def load_hydroponics_data():
     conn = sqlite3.connect('hidroponia.db')
     cursor = conn.cursor()
     
     # Carregar dados da tabela tbl_nutrientes
-    cursor.execute("SELECT nut_simbolo, nut_nome, nut_tipo FROM tbl_nutrientes")
-    # cursor.execute("SELECT* FROM tbl_nutrientes")
+    cursor.execute("SELECT nut_simbolo, nut_nome, nut_tipo, nut_id FROM tbl_nutrientes")
     nutrientes = cursor.fetchall()
     
     # Inicializar listas
     colunas_saida = []
     nomes_completos = []
+    ids_nutrientes = []
     macronutrientes = []
     micronutrientes = []
     
     # Processar nutrientes
-    for simbolo, nome, tipo in nutrientes:
+    for simbolo, nome, tipo, nut_id in nutrientes:
         colunas_saida.append(simbolo)
         nomes_completos.append(nome)
+        ids_nutrientes.append(nut_id)
         if tipo == 1:
             macronutrientes.append(simbolo)
         elif tipo == 2:
             micronutrientes.append(simbolo)
     
-    # Carregar dados da tabela tbl_cultivar (se necessário)
+    # Carregar dados da tabela tbl_cultivar
     cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivar")
-    # cursor.execute("SELECT * FROM tbl_cultivar")
     cultivares = cursor.fetchall()
     
     conn.close()
@@ -47,6 +45,7 @@ def load_hydroponics_data():
     return {
         'colunas_saida': colunas_saida,
         'nomes_completos': nomes_completos,
+        'ids_nutrientes': ids_nutrientes,
         'macronutrientes': macronutrientes,
         'micronutrientes': micronutrientes,
         'cultivares': cultivares
@@ -58,30 +57,33 @@ def load_hydroponics_data():
 def load_data():
     return load_hydroponics_data()
 
-
 def load_cultivar_faixas(cultivar_id):
     conn = sqlite3.connect('hidroponia.db')
     cursor = conn.cursor()
     
-    # Correção: Usar parâmetros SQL para evitar injection e corrigir sintaxe
+    # Carregar faixas para todos os nutrientes do cultivar
     cursor.execute(
-        "SELECT fax_minimo, fax_maximo FROM tbl_faixas WHERE fax_clt_id = ?",
+        """
+        SELECT fax_nut_id, fax_minimo, fax_maximo 
+        FROM tbl_faixas 
+        WHERE fax_clt_id = ?
+        """,
         (cultivar_id,)
     )
     
     faixas = cursor.fetchall()
     conn.close()
-
-    return {'faixas': faixas}
+    
+    # Criar dicionário com as faixas por ID do nutriente
+    faixa_dict = {}
+    for nut_id, minimo, maximo in faixas:
+        faixa_dict[nut_id] = (minimo, maximo)
+    
+    return faixa_dict
 
 # ------------------------------
-# Configuração da página
-#st.set_page_config(page_title="Seleção de Cultivar", layout="wide")
-#st.title("🌱 Sistema de Gestão Hidropônica")
-
 # 🔧 Definir larguras percentuais das colunas
-largura_nome_percent = 15
-largura_simbolo_percent = 30
+largura_nome_percent = 40
 largura_valor_percent = 20
 
 # ------------------------------
@@ -104,9 +106,13 @@ st.markdown(f"""
         width: {largura_nome_percent}%;
         word-wrap: break-word;
     }}
+    th:nth-child(2), td:nth-child(2) {{
+        width: {largura_valor_percent}%;
+        text-align: right;
+    }}
     th:nth-child(3), td:nth-child(3) {{
-        width: {largura_simbolo_percent}%;
-        text-align: center;
+        width: {largura_valor_percent}%;
+        text-align: right;
     }}
     th:nth-child(4), td:nth-child(4) {{
         width: {largura_valor_percent}%;
@@ -142,6 +148,7 @@ data = load_data()
 colunas_entrada = ['Temp', 'pH', 'EC', 'O2']
 colunas_saida = data['colunas_saida']
 nomes_completos = data['nomes_completos']
+ids_nutrientes = data['ids_nutrientes']
 macronutrientes = data['macronutrientes']
 micronutrientes = data['micronutrientes']
 cultivares = data['cultivares']
@@ -157,21 +164,18 @@ O2 = st.sidebar.number_input("Oxigênio Dissolvido (O₂)", min_value=0.0, max_v
 
 #-------------------------------
 # Criar selectbox
-#st.subheader("Selecione um Cultivar")
 cultivar = st.sidebar.selectbox(
     label="Selecione um cultivar:",
-    options=range(len(cultivares)),  # Índices como valores
+    options=range(len(cultivares)),
     format_func=lambda idx: f"{cultivares[idx][1]}",
-    index=None,  # Seleciona o primeiro por padrão
+    index=None,
     help="Selecione um cultivar para configurar a solução nutritiva"
 )
 
-
 if cultivar is not None:
-    # Certifique-se que cultivar é o ID (não o objeto/tupla completa)
-    result = load_cultivar_faixas(cultivar)
-    faixas = result['faixas']
-    st.write(f"Cultivar pesquisada: {cultivares[cultivar][1]}")
+    cultivar_id = cultivares[cultivar][0]
+    faixa_dict = load_cultivar_faixas(cultivar_id)
+    st.write(f"Cultivar selecionado: {cultivares[cultivar][1]}")
 
 # ------------------------------
 # Entrada
@@ -180,9 +184,12 @@ entrada = pd.DataFrame([[Temp, pH, EC, O2]],columns=colunas_entrada)
 # ------------------------------
 # Função de estilo da tabela
 def aplicar_estilo(linha):
-    if linha['Símbolo'] in macronutrientes:
+    idx = linha.name
+    simbolo = colunas_saida[idx]
+    
+    if simbolo in macronutrientes:
         return ['background-color: #E2EFDA'] * len(linha)
-    elif linha['Símbolo'] in micronutrientes:
+    elif simbolo in micronutrientes:
         return ['background-color: #DDEBF7'] * len(linha)
     else:
         return [''] * len(linha)
@@ -192,30 +199,47 @@ def aplicar_estilo(linha):
 if st.button("🔍 Realizar Previsão"):
     saida = modelo.predict(entrada)[0]
 
+    # Combinar nutriente e símbolo
+    nutriente_completo = [f"{nome} ({simbolo})" for nome, simbolo in zip(nomes_completos, colunas_saida)]
+    
     if cultivar is not None:
+        # Obter valores mínimos e máximos específicos para cada nutriente
+        minimos = []
+        maximos = []
+        for nut_id in ids_nutrientes:
+            if nut_id in faixa_dict:
+                minimo, maximo = faixa_dict[nut_id]
+                minimos.append(minimo)
+                maximos.append(maximo)
+            else:
+                minimos.append(None)
+                maximos.append(None)
+        
         resultados = pd.DataFrame({
-            "Nutriente": nomes_completos,
-            "Símbolo": colunas_saida,
+            "Nutriente": nutriente_completo,
             "Valor Previsto": saida,
-            "Valor Mínimo": faixas[0][0],
-            "Valor Máximo": faixas[0][1]
+            "Valor Mínimo": minimo,
+            "Valor Máximo": maximo
         })
     else:
         resultados = pd.DataFrame({
-            "Nutriente": nomes_completos,
-            "Símbolo": colunas_saida,
+            "Nutriente": nutriente_completo,
             "Valor Previsto": saida
         })
-
-    # Formatar a exibição para 4 casas decimais (mantendo como float)
+    
+    # Formatar os valores numéricos
     styled_resultados = (
         resultados
         .style
         .apply(aplicar_estilo, axis=1)
-        .format({"Valor Previsto (mg/L)": "{:.4f}"})
+        .format({
+            "Valor Previsto": "{:.4f}",
+            "Valor Mínimo": "{:.4f}",
+            "Valor Máximo": "{:.4f}"
+        })
     )
 
     st.subheader("🧪 Resultados da Previsão")
-    #st.table(styled_resultados)
-    st.markdown(styled_resultados.to_html(), unsafe_allow_html=True)
+    # st.markdown(styled_resultados.to_html(), unsafe_allow_html=True)
+    st.markdown(styled_resultados.hide(axis="index").to_html(), unsafe_allow_html=True)
     st.success("✅ Previsão realizada com sucesso!")
