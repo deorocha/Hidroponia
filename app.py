@@ -12,44 +12,57 @@ st.set_page_config(
 )
 
 def load_hydroponics_data():
-    conn = sqlite3.connect('hidroponia.db')
-    cursor = conn.cursor()
+    try:
+        conn = sqlite3.connect('hidroponia.db')
+        cursor = conn.cursor()
+        
+        # Tenta carregar dados da tabela tbl_nutrientes
+        cursor.execute("SELECT nut_simbolo, nut_nome, nut_tipo, nut_id FROM tbl_nutrientes")
+        nutrientes = cursor.fetchall()
+        
+        # Inicializar listas (garante que existirão mesmo sem dados)
+        colunas_saida = []
+        nomes_completos = []
+        ids_nutrientes = []
+        macronutrientes = []
+        micronutrientes = []
+        
+        if nutrientes:
+            for simbolo, nome, tipo, nut_id in nutrientes:
+                colunas_saida.append(simbolo)
+                nomes_completos.append(nome)
+                ids_nutrientes.append(nut_id)
+                if tipo == 1:
+                    macronutrientes.append(simbolo)
+                elif tipo == 2:
+                    micronutrientes.append(simbolo)
+        
+        # Carregar dados da tabela tbl_cultivar
+        cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivar")
+        cultivares = cursor.fetchall() or []  # Garante lista vazia se None
+        
+        conn.close()
+        
+        return {
+            'colunas_saida': colunas_saida,
+            'nomes_completos': nomes_completos,
+            'ids_nutrientes': ids_nutrientes,
+            'macronutrientes': macronutrientes,
+            'micronutrientes': micronutrientes,
+            'cultivares': cultivares
+        }
     
-    # Carregar dados da tabela tbl_nutrientes
-    cursor.execute("SELECT nut_simbolo, nut_nome, nut_tipo, nut_id FROM tbl_nutrientes")
-    nutrientes = cursor.fetchall()
-    
-    # Inicializar listas
-    colunas_saida = []
-    nomes_completos = []
-    ids_nutrientes = []
-    macronutrientes = []
-    micronutrientes = []
-    
-    # Processar nutrientes
-    for simbolo, nome, tipo, nut_id in nutrientes:
-        colunas_saida.append(simbolo)
-        nomes_completos.append(nome)
-        ids_nutrientes.append(nut_id)
-        if tipo == 1:
-            macronutrientes.append(simbolo)
-        elif tipo == 2:
-            micronutrientes.append(simbolo)
-    
-    # Carregar dados da tabela tbl_cultivar
-    cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivar")
-    cultivares = cursor.fetchall()
-    
-    conn.close()
-    
-    return {
-        'colunas_saida': colunas_saida,
-        'nomes_completos': nomes_completos,
-        'ids_nutrientes': ids_nutrientes,
-        'macronutrientes': macronutrientes,
-        'micronutrientes': micronutrientes,
-        'cultivares': cultivares
-    }
+    except Exception as e:
+        st.error(f"Erro ao carregar dados: {str(e)}")
+        # Retorna estruturas vazias em caso de erro
+        return {
+            'colunas_saida': [],
+            'nomes_completos': [],
+            'ids_nutrientes': [],
+            'macronutrientes': [],
+            'micronutrientes': [],
+            'cultivares': []
+        }
 
 # ------------------------------
 # Carregar dados com cache
