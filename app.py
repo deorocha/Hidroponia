@@ -172,7 +172,6 @@ if cultivar is not None:
     result = load_cultivar_faixas(cultivar)
     faixas = result['faixas']
     st.write(f"Cultivar pesquisada: {cultivares[cultivar][1]}")
-    st.write(f"Faixas: {faixas}")
 
 # ------------------------------
 # Entrada
@@ -195,15 +194,14 @@ if st.button("🔍 Realizar Previsão"):
 
     if cultivar is not None:
         resultados = pd.DataFrame({
-            "Nome do Nutriente": nomes_completos,
-            "Símbolo": colunas_saida,
+            "Nutriente": nomes_completos,
             "Valor Previsto": saida,
             "Valor Mínimo": faixas[0][0],
             "Valor Máximo": faixas[0][1]
         })
     else:
         resultados = pd.DataFrame({
-            "Nome do Nutriente": nomes_completos,
+            "Nutriente": nomes_completos,
             "Símbolo": colunas_saida,
             "Valor Previsto (mg/L)": saida
         })
