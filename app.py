@@ -109,24 +109,24 @@ st.markdown(f"""
     }}
 
     th:nth-child(1), td:nth-child(1) {{
-        width: {38}%;
+        width: {43}%;
         text-align: left;
         word-wrap: break-word;
     }}
     th:nth-child(2), td:nth-child(2) {{
-        width: {18}%;
+        width: {17}%;
         text-align: right;
     }}
     th:nth-child(3), td:nth-child(3) {{
-        width: {18}%;
+        width: {17}%;
         text-align: right;
     }}
     th:nth-child(4), td:nth-child(4) {{
-        width: {18}%;
+        width: {17}%;
         text-align: right;
     }}
     th:nth-child(5), td:nth-child(5) {{
-        width: {8}%;
+        width: {6}%;
         text-align: center;
     }}
 
