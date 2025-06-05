@@ -195,6 +195,7 @@ if st.button("🔍 Realizar Previsão"):
     if cultivar is not None:
         resultados = pd.DataFrame({
             "Nutriente": nomes_completos,
+            "Símbolo": colunas_saida,
             "Valor Previsto": saida,
             "Valor Mínimo": faixas[0][0],
             "Valor Máximo": faixas[0][1]
@@ -203,7 +204,7 @@ if st.button("🔍 Realizar Previsão"):
         resultados = pd.DataFrame({
             "Nutriente": nomes_completos,
             "Símbolo": colunas_saida,
-            "Valor Previsto (mg/L)": saida
+            "Valor Previsto": saida
         })
 
     # Formatar a exibição para 4 casas decimais (mantendo como float)
