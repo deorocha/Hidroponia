@@ -191,7 +191,8 @@ cultivar = st.sidebar.selectbox(
 
 if cultivar is not None:
     cultivar_id = cultivares[cultivar][0]
-    st.write(f"Cultivar selecionado: {cultivares[cultivar][1]}")
+    # st.markdown(f"Cultivar selecionado: :red[{cultivares[cultivar][1]}]")
+    st.subheader(f"Cultivar selecionado: :red[{cultivares[cultivar][1]}]")
     faixa_dict = load_cultivar_faixas(cultivar_id)
 
 # ------------------------------
@@ -229,25 +230,39 @@ if st.button("🔍 Realizar Previsão"):
                 "Valor Previsto": saida
             })
         else:
-            # Obter valores mínimos e máximos
+            # Obter valores mínimos, máximos e determinar ícones
             minimos = []
             maximos = []
-            for nut_id in ids_nutrientes:
-                # CORREÇÃO: Verificar se o nutriente existe no dicionário
+            icones = []
+            
+            for i, nut_id in enumerate(ids_nutrientes):
+                # Verificar se o nutriente existe no dicionário
                 if nut_id in faixa_dict:
                     minimo = faixa_dict[nut_id][1]
                     maximo = faixa_dict[nut_id][2]
+                    valor_previsto = saida[i]
+                    
                     minimos.append(minimo)
                     maximos.append(maximo)
+                    
+                    # Determinar o ícone baseado nos valores
+                    if valor_previsto < minimo:
+                        icones.append('🔻')  # seta para baixo
+                    elif valor_previsto > maximo:
+                        icones.append('🔺')  # seta para cima
+                    else:
+                        icones.append('👍')  # like
                 else:
                     minimos.append("N/A")
                     maximos.append("N/A")
+                    icones.append('')  # vazio se não houver dados
 
             resultados = pd.DataFrame({
                 "Nutriente": nutriente,
                 "Valor Previsto": saida,
                 "Valor Mínimo": minimos,
-                "Valor Máximo": maximos
+                "Valor Máximo": maximos,
+                "Status": icones  # Coluna de status com ícones
             })
     else:
         resultados = pd.DataFrame({
