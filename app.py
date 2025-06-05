@@ -218,8 +218,8 @@ if st.button("🔍 Realizar Previsão"):
         resultados = pd.DataFrame({
             "Nutriente": nutriente_completo,
             "Valor Previsto": saida,
-            "Valor Mínimo": minimo,
-            "Valor Máximo": maximo
+            "Valor Mínimo": minimos,
+            "Valor Máximo": maximos
         })
     else:
         resultados = pd.DataFrame({
@@ -240,5 +240,6 @@ if st.button("🔍 Realizar Previsão"):
     )
 
     st.subheader("🧪 Resultados da Previsão")
+    # st.markdown(styled_resultados.to_html(), unsafe_allow_html=True)
     st.markdown(styled_resultados.hide(axis="index").to_html(), unsafe_allow_html=True)
     st.success("✅ Previsão realizada com sucesso!")
