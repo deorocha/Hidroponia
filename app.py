@@ -240,6 +240,5 @@ if st.button("🔍 Realizar Previsão"):
     )
 
     st.subheader("🧪 Resultados da Previsão")
-    # st.markdown(styled_resultados.to_html(), unsafe_allow_html=True)
     st.markdown(styled_resultados.hide(axis="index").to_html(), unsafe_allow_html=True)
     st.success("✅ Previsão realizada com sucesso!")
