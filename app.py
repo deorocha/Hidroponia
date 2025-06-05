@@ -57,17 +57,14 @@ def load_hydroponics_data():
 def load_data():
     return load_hydroponics_data()
 
+
 def load_cultivar_faixas(cultivar_id):
     conn = sqlite3.connect('hidroponia.db')
     cursor = conn.cursor()
     
     # Carregar faixas para todos os nutrientes do cultivar
     cursor.execute(
-        """
-        SELECT fax_nut_id, fax_minimo, fax_maximo 
-        FROM tbl_faixas 
-        WHERE fax_clt_id = ?
-        """,
+        "SELECT fax_nut_id, fax_minimo, fax_maximo FROM tbl_faixas WHERE fax_clt_id = ?",
         (cultivar_id,)
     )
     
@@ -77,9 +74,16 @@ def load_cultivar_faixas(cultivar_id):
     # Criar dicionário com as faixas por ID do nutriente
     faixa_dict = {}
     for nut_id, minimo, maximo in faixas:
-        faixa_dict[nut_id] = (minimo, maximo)
+        faixa_dict[nut_id] = (nut_id, minimo, maximo)
     
     return faixa_dict
+
+# ------------------------------
+# Carregar dados com cache
+@st.cache_data
+def load_faixas(cultivar_id):
+    return load_cultivar_faixas(cultivar_id)
+
 
 # ------------------------------
 # 🔧 Definir larguras percentuais das colunas
@@ -166,20 +170,16 @@ O2 = st.sidebar.number_input("Oxigênio Dissolvido (O₂)", min_value=0.0, max_v
 # Criar selectbox
 cultivar = st.sidebar.selectbox(
     label="Selecione um cultivar:",
-    options=range(len(cultivares)),
+    options=range(len(cultivares)),  # Índices como valores
     format_func=lambda idx: f"{cultivares[idx][1]}",
-    index=None,
+    index=None,  # Seleciona o primeiro por padrão
     help="Selecione um cultivar para configurar a solução nutritiva"
 )
 
 if cultivar is not None:
     cultivar_id = cultivares[cultivar][0]
-    faixa_dict = load_cultivar_faixas(cultivar_id)
     st.write(f"Cultivar selecionado: {cultivares[cultivar][1]}")
-
-# ------------------------------
-# Entrada
-entrada = pd.DataFrame([[Temp, pH, EC, O2]],columns=colunas_entrada)
+    faixa_dict = load_cultivar_faixas(cultivar_id)
 
 # ------------------------------
 # Função de estilo da tabela
@@ -197,49 +197,63 @@ def aplicar_estilo(linha):
 # ------------------------------
 # Botão e previsão
 if st.button("🔍 Realizar Previsão"):
+    entrada = pd.DataFrame([[Temp, pH, EC, O2]], columns=colunas_entrada)
     saida = modelo.predict(entrada)[0]
 
     # Combinar nutriente e símbolo
-    nutriente_completo = [f"{nome} ({simbolo})" for nome, simbolo in zip(nomes_completos, colunas_saida)]
-    
+    nutriente = [f"{nome} ({simbolo})" for nome, simbolo in zip(nomes_completos, colunas_saida)]
+
     if cultivar is not None:
-        # Obter valores mínimos e máximos específicos para cada nutriente
-        minimos = []
-        maximos = []
-        for nut_id in ids_nutrientes:
-            if nut_id in faixa_dict:
-                minimo, maximo = faixa_dict[nut_id]
-                minimos.append(minimo)
-                maximos.append(maximo)
-            else:
-                minimos.append(None)
-                maximos.append(None)
-        
-        resultados = pd.DataFrame({
-            "Nutriente": nutriente_completo,
-            "Valor Previsto": saida,
-            "Valor Mínimo": minimos,
-            "Valor Máximo": maximos
-        })
+        cultivar_id = cultivares[cultivar][0]
+        faixa_dict = load_cultivar_faixas(cultivar_id)
+
+        # Verifica se há dados de faixas para esse cultivar
+        if not faixa_dict:
+            st.warning("⚠️ Nenhuma faixa definida para este cultivar. Preencha os dados na tabela tbl_faixas.")
+            # Exibe apenas os valores previstos
+            resultados = pd.DataFrame({
+                "Nutriente": nutriente,
+                "Valor Previsto": saida
+            })
+        else:
+            # Obter valores mínimos e máximos
+            minimos = []
+            maximos = []
+            for nut_id in ids_nutrientes:
+                # CORREÇÃO: Verificar se o nutriente existe no dicionário
+                if nut_id in faixa_dict:
+                    minimo = faixa_dict[nut_id][1]
+                    maximo = faixa_dict[nut_id][2]
+                    minimos.append(minimo)
+                    maximos.append(maximo)
+                else:
+                    minimos.append("N/A")
+                    maximos.append("N/A")
+
+            resultados = pd.DataFrame({
+                "Nutriente": nutriente,
+                "Valor Previsto": saida,
+                "Valor Mínimo": minimos,
+                "Valor Máximo": maximos
+            })
     else:
         resultados = pd.DataFrame({
-            "Nutriente": nutriente_completo,
+            "Nutriente": nutriente,
             "Valor Previsto": saida
         })
-    
-    # Formatar os valores numéricos
+
+    # Aplicar estilo e formatação
     styled_resultados = (
         resultados
         .style
         .apply(aplicar_estilo, axis=1)
         .format({
             "Valor Previsto": "{:.4f}",
-            "Valor Mínimo": "{:.4f}",
-            "Valor Máximo": "{:.4f}"
+            "Valor Mínimo": lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x,
+            "Valor Máximo": lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x
         })
     )
 
     st.subheader("🧪 Resultados da Previsão")
-    # st.markdown(styled_resultados.to_html(), unsafe_allow_html=True)
     st.markdown(styled_resultados.hide(axis="index").to_html(), unsafe_allow_html=True)
     st.success("✅ Previsão realizada com sucesso!")
