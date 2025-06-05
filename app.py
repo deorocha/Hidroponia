@@ -258,9 +258,9 @@ if st.button("🔍 Realizar Previsão"):
 
             resultados = pd.DataFrame({
                 "Nutriente": nutriente,
-                "Valor Previsto": saida,
-                "Valor Mínimo": minimos,
-                "Valor Máximo": maximos,
+                "Previsto": saida,
+                "Mínimo": minimos,
+                "Máximo": maximos,
                 "Status": icones  # Coluna de status com ícones
             })
     else:
