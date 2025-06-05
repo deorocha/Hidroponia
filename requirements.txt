@@ -3,4 +3,4 @@ pandas
 numpy
 scikit-learn
 joblib
-sqlite3
+db-sqlite3
