@@ -114,7 +114,7 @@ def home_page():
         st.markdown('<div class="header-container">', unsafe_allow_html=True)
         
         # Título principal
-        st.title("📱 Aplicativo Multifuncional")
+        st.title("📱 HortaTec")
         
         # Botão de menu
         st.markdown(
@@ -175,7 +175,7 @@ def home_page():
     
     # Rodapé
     st.divider()
-    st.caption("© 2025 Aplicativo Multifuncional | Versão 1.0")
+    st.caption("© 2025 HortaTec | Versão 1.0")
     
     # JavaScript para o menu
     st.markdown(
