@@ -5,3 +5,4 @@ joblib==1.4.2
 sqlite3==0.0.1
 db-sqlite3
 numpy
+importlib
