@@ -1,3 +1,4 @@
+pip install --upgrade pip
 streamlit
 pandas
 numpy
@@ -5,4 +6,3 @@ scikit-learn
 joblib
 sqlite3
 importlib
-os-sys
