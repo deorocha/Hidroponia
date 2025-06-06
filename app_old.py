@@ -13,14 +13,14 @@ st.set_page_config(
 # Sistema de navegação entre páginas
 PAGES = {
     "home": "🏠 Menu Principal",
-    "calculadora": "<li><span class='menu-icon'>🧮</span> Calculadora</li>",
-    "chatbot": "<li><span class='menu-icon'>🤖</span> Chatbot</li>",
-    "monitor": "<li><span class='menu-icon'>🧮</span> Monitor</li>",
-    "graficos": "<li><span class='menu-icon'>🧮</span> Gráficos</li>",
-    "tabelas": "<li><span class='menu-icon'>📋</span> Tabelas</li>"
+    "calculadora": "🧮 Calculadora",
+    "chatbot": "🤖 Chatbot",
+    "monitor": "📺 Monitor",
+    "graficos": "📊 Gráficos",
+    "tabelas": "📋 Tabelas"
 }
 
-# CSS personalizado com ícones maiores
+# CSS personalizado
 st.markdown(
     """
     <style>
@@ -29,106 +29,64 @@ st.markdown(
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 70vh;
-    }
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
+        height: 80vh;
     }
     .feature-card {
         transition: transform 0.3s;
         text-align: center;
-        padding: 25px 15px;
+        padding: 30px;
         border-radius: 15px;
-        box-shadow: 0 4px 12px 0 rgba(0,0,0,0.15);
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        margin: 20px auto;
         background-color: white;
         cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
+        width: 200px;
     }
     .feature-card:hover {
         transform: scale(1.05);
-        box-shadow: 0 8px 20px 0 rgba(0,0,0,0.2);
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
     }
     .feature-icon {
-        font-size: 80px;  /* Tamanho aumentado */
+        font-size: 70px;
         margin-bottom: 15px;
-        line-height: 1;
-    }
-    .feature-name {
-        font-size: 18px;
-        font-weight: 600;
-        margin-top: 10px;
-    }
-    .menu-icon {
-        font-size: 64px;
-        line-height: 64px;
-        vertical-align: middle;
     }
     .menu-button {
         position: absolute;
-        top: 20px;
-        right: 20px;
+        top: 10px;
+        right: 10px;
         z-index: 100;
     }
     .menu-options {
         position: absolute;
-        top: 60px;
-        right: 20px;
+        top: 50px;
+        right: 10px;
         background-color: white;
         border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        padding: 10px 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        padding: 10px;
         z-index: 100;
         display: none;
-        min-width: 150px;
     }
     .menu-option {
-        padding: 12px 20px;
+        padding: 10px 20px;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 16px;
-        transition: background-color 0.2s;
+        gap: 10px;
     }
     .menu-option:hover {
-        background-color: #f5f5f5;
-    }
-    .menu-option span {
-        font-size: 20px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
     }
     .header-container {
         position: relative;
-        margin-bottom: 0px;
-        padding-top: 0px;
+        margin-bottom: 50px;
     }
     .back-button {
         position: absolute;
-        top: 20px;
-        left: 20px;
+        top: 10px;
+        left: 10px;
         z-index: 100;
-        font-size: 18px;
-    }
-    @media (max-width: 768px) {
-        .features-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    @media (max-width: 480px) {
-        .features-grid {
-            grid-template-columns: 1fr;
-        }
-        .feature-icon {
-            font-size: 70px;
-        }
     }
     </style>
     """,
@@ -153,34 +111,42 @@ def home_page():
     """Página inicial com ícones centralizados"""
     # Header com título e botão de menu
     with st.container():
+        st.markdown('<div class="header-container">', unsafe_allow_html=True)
+        
         # Título principal
-        st.title("🌱 HortaTec")
-        st.markdown("**Soluções inteligentes para agricultura moderna**")
+        st.title("📱 Aplicativo Multifuncional")
         
         # Botão de menu
         st.markdown(
             """
+            <div class="menu-button" onclick="toggleMenu()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                </svg>
+            </div>
+            
             <div class="menu-options">
                 <div class="menu-option" onclick="handleMenuOption('settings')">
-                    <span>⚙️</span> Configurações
+                    <span>⚙️</span> Settings
                 </div>
                 <div class="menu-option" onclick="handleMenuOption('print')">
-                    <span>🖨️</span> Imprimir
+                    <span>🖨️</span> Print
                 </div>
                 <div class="menu-option" onclick="handleMenuOption('share')">
-                    <span>🔗</span> Compartilhar
+                    <span>🔗</span> Share
                 </div>
                 <div class="menu-option" onclick="handleMenuOption('about')">
-                    <span>ℹ️</span> Sobre
+                    <span>ℹ️</span> About
                 </div>
                 <div class="menu-option" onclick="handleMenuOption('exit')">
-                    <span>🚪</span> Sair
+                    <span>🚪</span> Exit
                 </div>
             </div>
             """,
             unsafe_allow_html=True
         )
         
+        st.markdown('</div>', unsafe_allow_html=True)
         st.divider()
 
     # Container centralizado verticalmente
@@ -194,27 +160,24 @@ def home_page():
         {"icon": "📋", "name": "Tabelas", "page": "tabelas"}
     ]
 
-    # Usar grid para os ícones
-    st.markdown('<div class="features-grid">', unsafe_allow_html=True)
-    
     for feature in features:
-        # Usar botão do Streamlit para garantir a navegação
+        # Usar st.link_button para navegação confiável
         if st.button(
             label=f"{feature['icon']} {feature['name']}",
             key=f"btn_{feature['page']}",
-            use_container_width=True
+            use_container_width=True,
+            help=f"Acessar {feature['name']}"
         ):
             st.session_state.current_page = feature['page']
             st.rerun()
-
-    st.markdown('</div>', unsafe_allow_html=True)  # Fecha features-grid
-    st.markdown('</div>', unsafe_allow_html=True)  # Fecha container
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Rodapé
     st.divider()
-    st.caption("© 2025 HortaTec | Versão 2.0")
+    st.caption("© 2025 Aplicativo Multifuncional | Versão 1.0")
     
-    # JavaScript para navegação e menu
+    # JavaScript para o menu
     st.markdown(
         """
         <script>
@@ -229,6 +192,7 @@ def home_page():
             
             if(option === 'exit') {
                 if(confirm('Tem certeza que deseja sair?')) {
+                    // Envia o comando de saída para o Streamlit
                     Streamlit.setComponentValue('exit');
                 }
             } else {
@@ -254,8 +218,8 @@ def home_page():
 
 # Sistema de navegação
 # Verificar se recebemos um comando de saída
-if 'exit' in st.session_state and st.session_state.exit:
-    st.success("Obrigado por usar o HortaTec!")
+if st.session_state.get('exit', False):
+    st.success("Obrigado por usar nosso aplicativo!")
     st.stop()
 
 # Carregar a página atual
@@ -263,12 +227,9 @@ if st.session_state.current_page == "home":
     home_page()
 else:
     # Adicionar botão de voltar
-    if st.button("← Voltar ao Menu", key="btn_back", use_container_width=True):
+    if st.button("← Voltar", key="btn_back"):
         st.session_state.current_page = "home"
         st.rerun()
-    
-    # Espaçamento
-    st.write("")
     
     # Carregar o módulo correspondente
     try:
@@ -281,7 +242,6 @@ else:
             st.error(f"O módulo {st.session_state.current_page} não tem uma função 'main' definida")
     except Exception as e:
         st.error(f"Erro ao carregar o módulo {st.session_state.current_page}: {str(e)}")
-        if st.button("Voltar ao menu principal", use_container_width=True):
+        if st.button("Voltar ao menu principal"):
             st.session_state.current_page = "home"
             st.rerun()
-
