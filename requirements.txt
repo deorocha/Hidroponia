@@ -5,4 +5,4 @@ scikit-learn
 joblib
 sqlite3
 importlib
-sys
+os-sys
