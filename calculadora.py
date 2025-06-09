@@ -109,20 +109,20 @@ def main():
         }}
 
         th:nth-child(1), td:nth-child(1) {{
-            width: {47}%;
+            width: {50}%;
             text-align: left;
             word-wrap: break-word;
         }}
         th:nth-child(2), td:nth-child(2) {{
-            width: {16}%;
+            width: {15}%;
             text-align: right;
         }}
         th:nth-child(3), td:nth-child(3) {{
-            width: {16}%;
+            width: {15}%;
             text-align: right;
         }}
         th:nth-child(4), td:nth-child(4) {{
-            width: {16}%;
+            width: {15}%;
             text-align: right;
         }}
         th:nth-child(5), td:nth-child(5) {{
