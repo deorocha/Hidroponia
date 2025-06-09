@@ -5,6 +5,7 @@ import sqlite3
 
 # ------------------------------
 # Configurações iniciais
+
 #st.set_page_config(
 #    page_title="Previsão de Nutrientes",
 #    page_icon=":herb:",
@@ -94,6 +95,7 @@ def load_cultivar_faixas(cultivar_id):
 def main():
     # ------------------------------
     # CSS para responsividade e formatação mobile
+
     st.markdown(f"""
         <style>
         tbody th {{vertical-align: middle;}}
@@ -109,20 +111,20 @@ def main():
         }}
 
         th:nth-child(1), td:nth-child(1) {{
-            width: {50}%;
+            width: {47}%;
             text-align: left;
             word-wrap: break-word;
         }}
         th:nth-child(2), td:nth-child(2) {{
-            width: {15}%;
+            width: {16}%;
             text-align: right;
         }}
         th:nth-child(3), td:nth-child(3) {{
-            width: {15}%;
+            width: {16}%;
             text-align: right;
         }}
         th:nth-child(4), td:nth-child(4) {{
-            width: {15}%;
+            width: {16}%;
             text-align: right;
         }}
         th:nth-child(5), td:nth-child(5) {{
@@ -135,6 +137,12 @@ def main():
             padding-bottom: 1rem;
             padding-left: 0.5rem;
             padding-right: 0.5rem;
+        }}
+
+        .st-emotion-cache-1f3w014 {{
+                height: 2rem;
+                width : 2rem;
+                background-color: GREEN;
         }}
         </style>
     """, unsafe_allow_html=True)
@@ -183,7 +191,6 @@ def main():
     # Criar selectbox
     cultivar = st.sidebar.selectbox(
         label="Selecione um cultivar:",
-        accept_new_options=False,
         options=range(len(cultivares)),  # Índices como valores
         format_func=lambda idx: f"{cultivares[idx][1]}",
         index=None,  # Seleciona o primeiro por padrão
@@ -225,7 +232,7 @@ def main():
             if not faixa_dict:
                 st.warning("⚠️ Nenhuma faixa definida para este cultivar. Preencha os dados na tabela tbl_faixas.")
                 # Exibe apenas os valores previstos formatados com 3 casas
-                valores_previstos_formatados = [f"{v:.3f}" for v in saida]
+                valores_previstos_formatados = [f"{v:.4f}" for v in saida]
                 resultados = pd.DataFrame({
                     "Nutriente": nutriente,
                     "Valor Previsto": valores_previstos_formatados
@@ -245,9 +252,9 @@ def main():
                         valor_previsto = saida[i]
                         
                         # Formatar valores com 3 casas decimais
-                        valor_formatado = f"{valor_previsto:.3f}"  # Variável temporária
-                        minimo_formatado = f"{minimo:.3f}"
-                        maximo_formatado = f"{maximo:.3f}"
+                        valor_formatado = f"{valor_previsto:.4f}"  # Variável temporária
+                        minimo_formatado = f"{minimo:.4f}"
+                        maximo_formatado = f"{maximo:.4f}"
                         
                         valores_previstos_formatados.append(valor_formatado)
                         minimos.append(minimo_formatado)
@@ -262,7 +269,7 @@ def main():
                             icones.append('👍')  # like
                     else:
                         # Formatar o valor previsto mesmo sem faixa definida
-                        valores_previstos_formatados.append(f"{saida[i]:.3f}")
+                        valores_previstos_formatados.append(f"{saida[i]:.4f}")
                         minimos.append("N/A")
                         maximos.append("N/A")
                         icones.append('')  # vazio se não houver dados
@@ -289,9 +296,22 @@ def main():
             .apply(aplicar_estilo, axis=1)
         )
 
-        st.subheader("🧪 Resultados da Previsão")
         st.markdown(styled_resultados.hide(axis="index").to_html(), unsafe_allow_html=True)
         st.success("✅ Previsão realizada com sucesso!")
+
+        st.markdown(
+            """
+            <style>
+            textarea {
+                font-size: 1rem !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        label = '🧪 Relatório dos Nutrientes:'
+        text = 'Este é um texto de teste.'
+        st.text_area(label, value=text, height=300) 
 
 if __name__ == "__main__":
     main()

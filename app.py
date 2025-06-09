@@ -5,7 +5,7 @@ import sys
 # Configuração da página
 st.set_page_config(
     page_title="HortaTec",
-    page_icon="🚀",
+    page_icon="🌿",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -114,17 +114,11 @@ def home_page():
         st.markdown('<div class="header-container">', unsafe_allow_html=True)
         
         # Título principal
-        st.title("📱 HortaTec")
+        st.title("🌿 HortaTec")
         
         # Botão de menu
         st.markdown(
             """
-            <div class="menu-button" onclick="toggleMenu()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-                </svg>
-            </div>
-            
             <div class="menu-options">
                 <div class="menu-option" onclick="handleMenuOption('settings')">
                     <span>⚙️</span> Settings
@@ -199,18 +193,6 @@ def home_page():
                 alert('Opção selecionada: ' + option);
             }
         }
-        
-        // Fechar o menu ao clicar fora
-        document.addEventListener('click', function(event) {
-            const menuButton = document.querySelector('.menu-button');
-            const menuOptions = document.querySelector('.menu-options');
-            
-            if (menuButton && menuOptions) {
-                if (!menuButton.contains(event.target) && !menuOptions.contains(event.target)) {
-                    menuOptions.style.display = 'none';
-                }
-            }
-        });
         </script>
         """,
         unsafe_allow_html=True
