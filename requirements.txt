@@ -1,14 +1,14 @@
 streamlit
 pandas
+numpy
+torch
 scikit-learn
 joblib
 db-sqlite3
-numpy
 importlib
 langchain-community
 langchain_huggingface
 faiss-cpu
 transformers
-torch
 sentence-transformers
 tqdm
