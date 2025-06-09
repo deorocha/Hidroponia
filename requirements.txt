@@ -6,6 +6,7 @@ db-sqlite3
 numpy
 importlib
 langchain-community
+langchain_huggingface
 faiss-cpu
 transformers
 torch
