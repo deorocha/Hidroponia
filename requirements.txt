@@ -1,7 +1,7 @@
-streamlit==1.36.0
-pandas==2.2.2
-joblib==1.4.2
-scikit-learn==1.5.0
-langchain-huggingface==0.0.3
+streamlit
+pandas
+joblib
+scikit-learn
+langchain-huggingface
 faiss-cpu
-transformers==4.41.2
+transformers
