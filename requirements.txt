@@ -5,3 +5,4 @@ scikit-learn
 langchain-huggingface
 faiss-cpu
 transformers
+sqlite3
