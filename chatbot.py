@@ -3,7 +3,7 @@ import os
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from transformers import AutoModelForQuestionAnswering, AutoTokenizer, pipeline
-import torch
+# import torch
 import re
 
 # --- Configurações ---
@@ -62,7 +62,7 @@ def carregar_recursos():
         model = AutoModelForQuestionAnswering.from_pretrained(QA_MODEL)
 
         # --- 5. Inicialização do Pipeline de QA ---
-        device = 0 if torch.cuda.is_available() else -1
+        device = -1 # if torch.cuda.is_available() else -1
         qa_pipeline = pipeline(
             "question-answering",
             model=model,
