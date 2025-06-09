@@ -225,7 +225,7 @@ def main():
             if not faixa_dict:
                 st.warning("⚠️ Nenhuma faixa definida para este cultivar. Preencha os dados na tabela tbl_faixas.")
                 # Exibe apenas os valores previstos formatados com 3 casas
-                valores_previstos_formatados = [f"{v:.4f}" for v in saida]
+                valores_previstos_formatados = [f"{v:.3f}" for v in saida]
                 resultados = pd.DataFrame({
                     "Nutriente": nutriente,
                     "Valor Previsto": valores_previstos_formatados
@@ -245,9 +245,9 @@ def main():
                         valor_previsto = saida[i]
                         
                         # Formatar valores com 3 casas decimais
-                        valor_formatado = f"{valor_previsto:.4f}"  # Variável temporária
-                        minimo_formatado = f"{minimo:.4f}"
-                        maximo_formatado = f"{maximo:.4f}"
+                        valor_formatado = f"{valor_previsto:.3f}"  # Variável temporária
+                        minimo_formatado = f"{minimo:.3f}"
+                        maximo_formatado = f"{maximo:.3f}"
                         
                         valores_previstos_formatados.append(valor_formatado)
                         minimos.append(minimo_formatado)
@@ -262,7 +262,7 @@ def main():
                             icones.append('👍')  # like
                     else:
                         # Formatar o valor previsto mesmo sem faixa definida
-                        valores_previstos_formatados.append(f"{saida[i]:.4f}")
+                        valores_previstos_formatados.append(f"{saida[i]:.3f}")
                         minimos.append("N/A")
                         maximos.append("N/A")
                         icones.append('')  # vazio se não houver dados
