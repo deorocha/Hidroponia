@@ -6,4 +6,3 @@ langchain-huggingface
 langchain-community
 faiss-cpu
 transformers
-sqlite3
