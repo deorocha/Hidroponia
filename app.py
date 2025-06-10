@@ -97,18 +97,6 @@ st.markdown(
         left: 10px;
         z-index: 100;
     }
-    #MainMenu {
-        visibility: hidden;
-    }
-    footer {
-        visibility: hidden;
-    }
-    header {
-        visibility: hidden;
-    }
-    div.embeddedAppMetaInfoBar_container__DxxL1 {
-        visibility: hidden;
-    }
     </style>
     """,
     unsafe_allow_html=True
