@@ -6,11 +6,11 @@ import google.generativeai as genai
 import time
 
 # --- CONFIGURAÇÕES DA PÁGINA ---
-st.set_page_config(
-    page_title="Chatbot Gemini",
-    page_icon="🤖",
-    layout="wide"
-)
+#st.set_page_config(
+#    page_title="Chatbot Gemini",
+#    page_icon="🤖",
+#    layout="wide"
+#)
 
 # --- CONFIGURAÇÃO DO MODELO GEMINI ---
 try:
