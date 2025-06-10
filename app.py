@@ -20,16 +20,6 @@ PAGES = {
     "tabelas": "📋 Tabelas"
 }
 
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            div.embeddedAppMetaInfoBar_container__DxxL1 {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
-
 # CSS personalizado
 st.markdown(
     """
@@ -106,6 +96,18 @@ st.markdown(
         top: 10px;
         left: 10px;
         z-index: 100;
+    }
+    #MainMenu {
+        visibility: hidden;
+    }
+    footer {
+        visibility: hidden;
+    }
+    header {
+        visibility: hidden;
+    }
+    div.embeddedAppMetaInfoBar_container__DxxL1 {
+        visibility: hidden;
     }
     </style>
     """,
