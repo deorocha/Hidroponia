@@ -137,6 +137,12 @@ def main():
         st.markdown(
             """
             <style>
+            /* Adicione isto para reduzir o espaço acima do botão */
+            [data-testid="stSidebar"] > div:first-child > div:first-child {
+                padding-top: 0.0rem !important;
+                margin-top: 0.0rem !important;
+            }
+            
             /* Estilo específico para o botão Nova Conversa */
             [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"]:first-child button {
                 background-color: #0d0d0d !important;
