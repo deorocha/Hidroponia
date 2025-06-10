@@ -6,3 +6,4 @@ langchain-huggingface
 langchain-community
 faiss-cpu
 transformers
+google-generativeai
