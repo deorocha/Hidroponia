@@ -14,7 +14,7 @@ st.set_page_config(
 PAGES = {
     "home": "🏠 Menu Principal",
     "calculadora": "🧮 Calculadora",
-    "chatbot_openia": "🤖 Chatbot",
+    "chatbot_gemini": "🤖 Chatbot",
     "monitor": "📺 Monitor",
     "graficos": "📊 Gráficos",
     "tabelas": "📋 Tabelas"
@@ -157,7 +157,7 @@ def home_page():
     
     features = [
         {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
-        {"icon": "🤖", "name": "Chatbot", "page": "chatbot_openia"},
+        {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
         {"icon": "📺", "name": "Monitor", "page": "monitor"},
         {"icon": "📊", "name": "Gráficos", "page": "graficos"},
         {"icon": "📋", "name": "Tabelas", "page": "tabelas"}
