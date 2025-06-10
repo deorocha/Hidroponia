@@ -24,32 +24,62 @@ def main():
             /* Ajusta o container principal */
             .main .block-container {
                 max-width: 100% !important;
-                padding-left: 2% !important;
-                padding-right: 2% !important;
+                padding: 0 !important;
+            }
+
+            /* Container principal do chat */
+            [data-testid="stVerticalBlock"]:has([data-testid="stChatMessage"]) {
+                padding: 0 5px !important;
             }
             
-            /* Ajusta as mensagens do chat */
+            /* Mensagens do chat - layout geral */
             [data-testid="stChatMessage"] {
                 width: 100% !important;
-                padding: 10px 0 !important;
+                padding: 8px 0 !important;
             }
             
-            /* Ajusta os balões de mensagem */
+            /* Balões de mensagem */
             [data-testid="stChatMessageContent"] {
-                width: 100% !important;
-                max-width: 100% !important;
+                max-width: 95% !important;
+                width: auto !important;
             }
-            
-            /* Remove espaçamento entre mensagens */
+
+            /* Remover espaçamento entre mensagens */
             [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
                 gap: 0 !important;
             }
             
-            /* Ajusta a área de input */
+            /* Área de input */
             [data-testid="stChatInput"] {
                 width: 100% !important;
                 max-width: 100% !important;
                 padding: 10px 0 !important;
+            }            
+
+            /* Ajustes específicos para dispositivos móveis */
+            @media (max-width: 768px) {
+                .main .block-container {
+                    padding: 0 2px !important;
+                }
+                
+                [data-testid="stChatMessage"] {
+                    padding: 5px 0 !important;
+                }
+                
+                [data-testid="stChatMessageContent"] {
+                    max-width: 98% !important;
+                }
+                
+                /* Reduz padding das mensagens em mobile */
+                .stChatMessage {
+                    padding-left: 0.5rem !important;
+                    padding-right: 0.5rem !important;
+                }
+                
+                /* Ajusta o input para mobile */
+                [data-testid="stChatInput"] > div {
+                    padding: 5px !important;
+                }
             }
         </style>
         """,
