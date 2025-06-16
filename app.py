@@ -16,6 +16,7 @@ PAGES = {
     "calculadora": "🧮 Calculadora",
     "chatbot_gemini": "🤖 Chatbot",
     "monitor": "📺 Agenda de manejo",
+    "biblioteca": "📚 Biblioteca",
     "graficos": "📊 Detecção de doenças",
     "tabelas": "📋 Produtividade"
 }
