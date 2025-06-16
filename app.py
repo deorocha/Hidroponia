@@ -159,11 +159,12 @@ def home_page():
     features = [
         {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
         {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
-        {"icon": "📺", "name": "Monitor", "page": "monitor"},
-        {"icon": "📊", "name": "Gráficos", "page": "graficos"},
-        {"icon": "📋", "name": "Tabelas", "page": "tabelas"}
+        {"icon": "📺", "name": "Agenda de manejo", "page": "agenda"},
+        {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
+        {"icon": "📊", "name": "Detecção de doenças", "page": "doencas"},
+        {"icon": "📋", "name": "Produtividade", "page": "produtividade"}
     ]
-
+    
     for feature in features:
         # Usar st.link_button para navegação confiável
         if st.button(
