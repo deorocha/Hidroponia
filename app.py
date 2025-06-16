@@ -159,10 +159,10 @@ def home_page():
     features = [
         {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
         {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
-        {"icon": "🌱, "name": "Agenda de manejo", "page": "agenda"},
+        {"icon": "🌱", "name": "Agenda de manejo", "page": "agenda"},
         {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
-        {"icon": "🐛" "name": "Detecção de doenças", "page": "doencas"},
-        {"icon": "📈, "name": "Produtividade", "page": "produtividade"}
+        {"icon": "🐛", "name": "Detecção de doenças", "page": "doencas"},
+        {"icon": "📈", "name": "Produtividade", "page": "produtividade"}
     ]
     
     for feature in features:
