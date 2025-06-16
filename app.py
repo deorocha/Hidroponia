@@ -15,9 +15,9 @@ PAGES = {
     "home": "🏠 Menu Principal",
     "calculadora": "🧮 Calculadora",
     "chatbot_gemini": "🤖 Chatbot",
-    "monitor": "📺 Monitor",
-    "graficos": "📊 Gráficos",
-    "tabelas": "📋 Tabelas"
+    "monitor": "📺 Agenda de manejo",
+    "graficos": "📊 Detecção de doenças",
+    "tabelas": "📋 Produtividade"
 }
 
 # CSS personalizado
