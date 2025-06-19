@@ -10,98 +10,93 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Sistema de navegação entre páginas
-PAGES = {
-    "home": "🏠 Menu Principal",
-    "calculadora": "🧮 Calculadora",
-    "chatbot_gemini": "🤖 Chatbot",
-    "monitor": "📺 Agenda de manejo",
-    "biblioteca": "📚 Biblioteca",
-    "graficos": "📊 Detecção de doenças",
-    "tabelas": "📋 Produtividade"
-}
-
 # CSS personalizado
 st.markdown(
     """
-    <style>
-    h1 {
-        font-size: 2rem; /* Ajuste este valor para o tamanho desejado */
-    }
-    .block-container {
-        padding-top: 2rem; /* Ajuste este valor para diminuir ou aumentar o espaço */
-        padding-bottom: 0rem;
-        padding-left: 5rem;
-        padding-right: 5rem;
-    }
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 80vh;
-    }
-    .feature-card {
-        transition: transform 0.3s;
-        text-align: center;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-        margin: 20px auto;
-        background-color: white;
-        cursor: pointer;
-        width: 200px;
-    }
-    .feature-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    }
-    .feature-icon {
-        font-size: 70px;
-        margin-bottom: 15px;
-    }
-    .menu-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 100;
-    }
-    .menu-options {
-        position: absolute;
-        top: 50px;
-        right: 10px;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        padding: 10px;
-        z-index: 100;
-        display: none;
-    }
-    .menu-option {
-        padding: 10px 20px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .menu-option:hover {
-        background-color: #f0f0f0;
-        border-radius: 5px;
-    }
-    .header-container {
-        position: relative;
-        margin-bottom: 50px;
-    }
-    .back-button {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 100;
-    }
-    </style>
-    """,
+        <style>
+            h1 {
+                font-size: 1rem; /* Ajuste este valor para o tamanho desejado */
+            }
+            .block-container {
+                padding-top: 0rem; /* Ajuste este valor para diminuir ou aumentar o espaço */
+                padding-bottom: 0rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                margin-top: 0rem;
+                margin-bottom: 0rem;
+            }
+            .container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 80vh;
+            }
+            .feature-card {
+                transition: transform 0.3s;
+                text-align: center;
+                padding: 5px;
+                border-radius: 10px;
+                box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+                margin: 5px auto;
+                background-color: white;
+                cursor: pointer;
+                width: 200px;
+            }
+            .feature-card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+            }
+            .feature-icon {
+                font-size: 10px;
+                margin-bottom: 10px;
+            }
+            .menu-button {
+                position: absolute;
+                top: 1px;
+                right: 10px;
+                z-index: 100;
+            }
+            .menu-options {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                padding: 5px;
+                z-index: 100;
+                display: none;
+            }
+            .menu-option {
+                padding: 1px 5px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .menu-option:hover {
+                background-color: #f0f0f0;
+                border-radius: 5px;
+            }
+            .header-container {
+                position: relative;
+                margin-bottom: 5px;
+                padding-top: 0rem;
+                padding-bottom: 0rem;
+                margin-top: 0rem;
+                margin-bottom: 0rem;
+
+            }
+            .back-button {
+                position: absolute;
+                top: 50px;
+                left: 10px;
+                z-index: 100;
+            }
+        </style>""",
     unsafe_allow_html=True
-)
+    )
 
 # Inicializar o estado da sessão
 if 'current_page' not in st.session_state:
@@ -159,10 +154,13 @@ def home_page():
     features = [
         {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
         {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
-        {"icon": "🌱", "name": "Agenda de manejo", "page": "agenda"},
+        {"icon": "💾", "name": "Cadastros", "page": "cadastros"},
+        {"icon": "📆", "name": "Agenda de manejo", "page": "agenda"},
         {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
         {"icon": "🐛", "name": "Detecção de doenças", "page": "doencas"},
-        {"icon": "📈", "name": "Produtividade", "page": "produtividade"}
+        {"icon": "📈", "name": "Crescimento", "page": "crescimento"},
+        {"icon": "📶", "name": "Produtividade", "page": "produtividade"},
+        {"icon": "👨🏻‍💻", "name": "Forum", "page": "forum"},
     ]
     
     for feature in features:
