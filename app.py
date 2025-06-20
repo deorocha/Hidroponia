@@ -59,7 +59,7 @@ st.markdown(
             }
             .menu-options {
                 position: absolute;
-                top: 10px;
+                top: 0px;
                 right: 10px;
                 background-color: white;
                 border-radius: 10px;
@@ -81,16 +81,12 @@ st.markdown(
             }
             .header-container {
                 position: relative;
+                margin-top: 0px;
                 margin-bottom: 5px;
-                padding-top: 0rem;
-                padding-bottom: 0rem;
-                margin-top: 0rem;
-                margin-bottom: 0rem;
-
             }
             .back-button {
                 position: absolute;
-                top: 50px;
+                top: 10px;
                 left: 10px;
                 z-index: 100;
             }
@@ -152,15 +148,15 @@ def home_page():
 #    st.markdown('<div class="container">', unsafe_allow_html=True)
     
     features = [
-        {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
-        {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
-        {"icon": "💾", "name": "Cadastros", "page": "cadastros"},
         {"icon": "📆", "name": "Agenda de manejo", "page": "agenda"},
         {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
-        {"icon": "🐛", "name": "Detecção de doenças", "page": "doencas"},
+        {"icon": "💾", "name": "Cadastros", "page": "cadastros"},
+        {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
+        {"icon": "🤖", "name": "Chatbot", "page": "chatbot"},
         {"icon": "📈", "name": "Crescimento", "page": "crescimento"},
-        {"icon": "📶", "name": "Produtividade", "page": "produtividade"},
+        {"icon": "🐛", "name": "Detecção de doenças", "page": "doencas"},
         {"icon": "👨🏻‍💻", "name": "Forum", "page": "forum"},
+        {"icon": "📶", "name": "Produtividade", "page": "produtividade"},
     ]
     
     for feature in features:

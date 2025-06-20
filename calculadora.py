@@ -5,15 +5,6 @@ import pandas as pd
 import joblib
 import sqlite3
 
-# ------------------------------
-# Configurações iniciais
-
-#st.set_page_config(
-#    page_title="Previsão de Nutrientes",
-#    page_icon=":herb:",
-#    layout="centered"
-#)
-
 def load_hydroponics_data():
     try:
         conn = sqlite3.connect('hidroponia.db')
@@ -41,7 +32,7 @@ def load_hydroponics_data():
                     micronutrientes.append(simbolo)
         
         # Carregar dados da tabela tbl_cultivar
-        cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivar")
+        cursor.execute("SELECT clt_id, clt_descricao FROM tbl_cultivares")
         cultivares = cursor.fetchall() or []  # Garante lista vazia se None
         
         conn.close()
@@ -73,7 +64,6 @@ def load_hydroponics_data():
 def load_data():
     return load_hydroponics_data()
 
-
 def load_cultivar_faixas(cultivar_id):
     conn = sqlite3.connect('hidroponia.db')
     cursor = conn.cursor()
@@ -95,57 +85,56 @@ def load_cultivar_faixas(cultivar_id):
     return faixa_dict
 
 def main():
-    # ------------------------------
     # CSS para responsividade e formatação mobile
 
     st.markdown(f"""
         <style>
-        tbody th {{vertical-align: middle;}}
-        tbody td {{vertical-align: middle; padding-top: 4px; padding-bottom: 4px;}}
-        thead th {{vertical-align: middle; padding-top: 6px; padding-bottom: 6px;}}
+            tbody th {{vertical-align: middle;}}
+            tbody td {{vertical-align: middle; padding-top: 4px; padding-bottom: 4px;}}
+            thead th {{vertical-align: middle; padding-top: 6px; padding-bottom: 6px;}}
 
-        html, body, [class*="css"] {{
-            font-size: 15px;
-        }}
+            html, body, [class*="css"] {{
+                font-size: 15px;
+            }}
 
-        table {{
-            width: 100% !important;
-        }}
+            table {{
+                width: 100% !important;
+            }}
 
-        th:nth-child(1), td:nth-child(1) {{
-            width: {47}%;
-            text-align: left;
-            word-wrap: break-word;
-        }}
-        th:nth-child(2), td:nth-child(2) {{
-            width: {16}%;
-            text-align: right;
-        }}
-        th:nth-child(3), td:nth-child(3) {{
-            width: {16}%;
-            text-align: right;
-        }}
-        th:nth-child(4), td:nth-child(4) {{
-            width: {16}%;
-            text-align: right;
-        }}
-        th:nth-child(5), td:nth-child(5) {{
-            width: {5}%;
-            text-align: center;
-        }}
+            th:nth-child(1), td:nth-child(1) {{
+                width: {47}%;
+                text-align: left;
+                word-wrap: break-word;
+            }}
+            th:nth-child(2), td:nth-child(2) {{
+                width: {16}%;
+                text-align: right;
+            }}
+            th:nth-child(3), td:nth-child(3) {{
+                width: {16}%;
+                text-align: right;
+            }}
+            th:nth-child(4), td:nth-child(4) {{
+                width: {16}%;
+                text-align: right;
+            }}
+            th:nth-child(5), td:nth-child(5) {{
+                width: {5}%;
+                text-align: center;
+            }}
 
-        .block-container {{
-            padding-top: 3rem;
-            padding-bottom: 1rem;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }}
+            .block-container {{
+                padding-top: 3rem;
+                padding-bottom: 1rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }}
 
-        .st-emotion-cache-1f3w014 {{
+            .st-emotion-cache-1f3w014 {{
                 height: 2rem;
                 width : 2rem;
                 background-color: GREEN;
-        }}
+            }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -205,6 +194,16 @@ def main():
         st.subheader(f"Cultivar: :red[{cultivares[cultivar][1]}]")
         faixa_dict = load_cultivar_faixas(cultivar_id)
 
+    volume_tanque = st.sidebar.number_input(
+        "Informe o volume do tanque:",
+        icon="🛢",
+        min_value=10,
+        max_value=100000,
+        step=10,
+        value=1000,
+        placeholder="Volume em litros (L)"
+    )
+    
     # ------------------------------
     # Função de estilo da tabela principal
     def aplicar_estilo_resultados(linha):
@@ -291,20 +290,23 @@ def main():
                         # Determinar o ícone baseado nos valores
                         if valor_previsto < minimo:
                             icones.append('🔻')  # seta para baixo
-                            reposicao = (minimo - valor_previsto) * 1000 / 100
+                            reposicao = ((minimo - valor_previsto) * volume_tanque) / 1000 # Valores em Gramas (g)
+                            diferencao_minimo = ((minimo-valor_previsto)/valor_previsto) * 100
                             nutrientes_abaixo_minimo.append({
                                 "Nutriente": f"{nomes_completos[i]} ({colunas_saida[i]})",
                                 "Valor": valor_formatado,
                                 "Mínimo": minimo_formatado,
+                                "Dif. (%)": f"{diferencao_minimo:.2f}",
                                 "Repor (g)*": f"{reposicao:.4f}"
                             })
                         elif valor_previsto > maximo:
                             icones.append('🔼')  # seta para cima
-                            reposicao = (minimo - valor_previsto) * 1000 / 100
+                            #reposicao = (maximo - (maximo - valor_previsto)) * volume_tanque # Valores em Litros (L)
+                            reposicao = (maximo - (valor_previsto - maximo)) * volume_tanque # Valores em Litros (L)
                             nutrientes_acima_maximo.append({
                                 "Nutriente": f"{nomes_completos[i]} ({colunas_saida[i]})",
                                 "Valor": valor_formatado,
-                                "Mínimo": minimo_formatado,
+                                "Máximo": maximo_formatado,
                                 "Repor (L)**": f"{reposicao:.4f}"
                             })
                             
@@ -355,11 +357,11 @@ def main():
             unsafe_allow_html=True,
         )
 
-        st.write('🧪 Relatório dos Nutrientes')
+        st.write("🧪 Relatório dos Nutrientes")
 
         # Display the new table for nutrients below minimum
         if nutrientes_abaixo_minimo:
-            st.subheader("Nutrientes Abaixo do Mínimo")
+            st.subheader("🔻 Nutrientes Abaixo do Mínimo")
             df_reposicao = pd.DataFrame(nutrientes_abaixo_minimo)
             # Aplicar o estilo para ocultar o índice e depois exibir como HTML
             styled_df_reposicao = df_reposicao.style.apply(aplicar_estilo_reposicao, axis=1).hide(axis="index") # Usar a nova função de estilo
@@ -367,7 +369,7 @@ def main():
             st.write("* As quantidades dos fertilizantes repostos devem ser calculadas considerando as suas concentrações.")
         
         if nutrientes_acima_maximo:
-            st.subheader("Nutrientes Acima do Máximo")
+            st.subheader("🔼 Nutrientes Acima do Máximo")
             df_reposicao = pd.DataFrame(nutrientes_acima_maximo)
             # Aplicar o estilo para ocultar o índice e depois exibir como HTML
             styled_df_reposicao = df_reposicao.style.apply(aplicar_estilo_reposicao, axis=1).hide(axis="index") # Usar a nova função de estilo

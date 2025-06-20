@@ -1,16 +1,11 @@
-# chatbot_app.py
-# GEMINI
+# chatbot_gemini.py
 
 import streamlit as st
 import google.generativeai as genai
 import time
 
-# --- CONFIGURAÇÕES DA PÁGINA ---
-#st.set_page_config(
-#    page_title="Chatbot Gemini",
-#    page_icon="🤖",
-#    layout="wide"
-#)
+st.title("🤖 Chatbot")
+st.caption("O seu especialista em Hidroponia")
 
 f = open('./chatbot_temas.txt', 'r', encoding='utf-8')
 instrucao = f.read()
@@ -22,10 +17,18 @@ def main():
         """
         <style>
             /* Ajusta o container principal */
-            .main .block-container {
-                max-width: 100% !important;
-                padding: 0 !important;
-            }
+            .block-container {{
+                padding-top: 3rem;
+                padding-bottom: 1rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }}
+
+            .st-emotion-cache-1f3w014 {{
+                height: 2rem;
+                width : 2rem;
+                background-color: GREEN;
+            }}
 
             /* Container principal do chat */
             [data-testid="stVerticalBlock"]:has([data-testid="stChatMessage"]) {
@@ -229,9 +232,6 @@ def main():
             max_tokens = st.slider("Comprimento máximo", 100, 8192, 2000)
     
     # --- INTERFACE PRINCIPAL DO CHAT ---
-    
-    st.title("🤖 Chatbot")
-    st.caption("Conectado ao Google Gemini 1.5 Flash")
     
     if st.session_state.conversa_atual:
         # Atualize as configurações com os valores dos sliders
