@@ -4,7 +4,12 @@ import streamlit as st
 import google.generativeai as genai
 import time
 
-st.title("🤖 Chatbot")
+col1, col2 = st.columns([15,200])
+with col1:
+    st.image('./imagens/chatbot_1.png', width=64)
+with col2:
+    st.subheader("Chatbot")
+
 st.caption("O seu especialista em Hidroponia")
 
 f = open('./chatbot_temas.txt', 'r', encoding='utf-8')

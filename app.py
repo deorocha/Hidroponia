@@ -1,3 +1,5 @@
+# app.py
+
 import streamlit as st
 import importlib.util
 import sys
@@ -152,7 +154,7 @@ def home_page():
         {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
         {"icon": "💾", "name": "Cadastros", "page": "cadastros"},
         {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
-        {"icon": "🤖", "name": "Chatbot", "page": "chatbot"},
+        {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
         {"icon": "📈", "name": "Crescimento", "page": "crescimento"},
         {"icon": "🐛", "name": "Detecção de doenças", "page": "doencas"},
         {"icon": "👨🏻‍💻", "name": "Forum", "page": "forum"},

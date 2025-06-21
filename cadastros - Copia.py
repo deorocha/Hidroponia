@@ -1,13 +1,10 @@
-# cadastro_solucoes.py
+# cadastros.py
 
 import streamlit as st
+import unicodedata
 import sqlite3
 
-col1, col2 = st.columns([10,200])
-with col1:
-    st.image('./imagens/solucoes_1.png', width=48)
-with col2:
-    st.subheader("Cadastro de Soluções")
+st.title("💾 Cadastros")
 
 def nome_imagem(texto):
     texto_under = texto.replace(" ", "_")
@@ -91,6 +88,15 @@ def main():
         </style>
     """, unsafe_allow_html=True)
 
+    # ------------------------------
+    # Sidebar (menu)
+    st.sidebar.header("⚙ Cadastro de Cultivares")
+    cultivares = load_cultivares()
+
+    with st.expander("See explanation"):
+        st.write(cultivares)
+
+    
     # Simulação de interação
     user_input = st.text_input("Digite algo:")
     if user_input:

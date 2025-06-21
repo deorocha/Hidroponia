@@ -5,14 +5,35 @@ import pandas as pd
 import joblib
 import sqlite3
 
+from PIL import Image
+from io import BytesIO
+import base64
+
+def GetImg(path_to_image):
+    # return pure_pil_alpha_to_color_v2(Image.open(path_to_image))
+    return Image.open(path_to_image)
+
+def ImgToB64(img):
+    if img:
+        with BytesIO() as buffer:
+            img.save(buffer, "png")
+            return base64.b64encode(buffer.getvalue()).decode()
+        
+#img_up = ImgToB64(GetImg("imagens/icon_up.png"))
+#img_dn = ImgToB64(GetImg("imagens/icon_dn.png"))
+#img_ok = ImgToB64(GetImg("imagens/icon_ok.png"))
+img_up = GetImg("imagens/icon_up.png")
+img_dn = GetImg("imagens/icon_dn.png")
+img_ok = GetImg("imagens/icon_ok.png")
+
 def load_hydroponics_data():
     try:
         conn = sqlite3.connect('hidroponia.db')
         cursor = conn.cursor()
         
-        # Tenta carregar dados da tabela tbl_nutrientes
+        # Carrega dados da tabela tbl_nutrientes ===========================
         cursor.execute("SELECT nut_simbolo, nut_nome, nut_tipo, nut_id FROM tbl_nutrientes")
-        nutrientes = cursor.fetchall()
+        nutrientes = cursor.fetchall() or []  # Garante lista vazia se None
         
         # Inicializar listas (garante que existirão mesmo sem dados)
         colunas_saida = []
@@ -31,7 +52,7 @@ def load_hydroponics_data():
                 elif tipo == 2:
                     micronutrientes.append(simbolo)
         
-        # Carregar dados da tabela tbl_cultivar
+        # Carregar dados da tabela tbl_cultivar ============================
         cursor.execute("SELECT clt_id, clt_descricao FROM tbl_cultivares")
         cultivares = cursor.fetchall() or []  # Garante lista vazia se None
         
@@ -289,7 +310,8 @@ def main():
                         
                         # Determinar o ícone baseado nos valores
                         if valor_previsto < minimo:
-                            icones.append('🔻')  # seta para baixo
+                            icones.append("🔻")  # seta para baixo
+                            #icones.append(img_dn)  # seta para baixo
                             reposicao = ((minimo - valor_previsto) * volume_tanque) / 1000 # Valores em Gramas (g)
                             diferencao_minimo = ((minimo-valor_previsto)/valor_previsto) * 100
                             nutrientes_abaixo_minimo.append({
@@ -300,7 +322,8 @@ def main():
                                 "Repor (g)*": f"{reposicao:.4f}"
                             })
                         elif valor_previsto > maximo:
-                            icones.append('🔼')  # seta para cima
+                            icones.append("🔼")  # seta para cima
+                            #icones.append(img_up)  # seta para cima
                             #reposicao = (maximo - (maximo - valor_previsto)) * volume_tanque # Valores em Litros (L)
                             reposicao = (maximo - (valor_previsto - maximo)) * volume_tanque # Valores em Litros (L)
                             nutrientes_acima_maximo.append({
@@ -309,9 +332,9 @@ def main():
                                 "Máximo": maximo_formatado,
                                 "Repor (L)**": f"{reposicao:.4f}"
                             })
-                            
                         else:
-                            icones.append('✅')  # like
+                            icones.append("✅")
+                            #icones.append(img_ok)  # like
                     else:
                         # Formatar o valor previsto mesmo sem faixa definida
                         valores_previstos_formatados.append(f"{saida[i]:.4f}")
@@ -357,11 +380,16 @@ def main():
             unsafe_allow_html=True,
         )
 
-        st.write("🧪 Relatório dos Nutrientes")
+        st.subheader("🧪 Relatório dos Nutrientes")
 
         # Display the new table for nutrients below minimum
         if nutrientes_abaixo_minimo:
-            st.subheader("🔻 Nutrientes Abaixo do Mínimo")
+            col1, col2 = st.columns([10,200], vertical_alignment="bottom")
+            with col1:
+                st.image(img_dn, width=28)
+            with col2:
+                st.subheader("Nutrientes abaixo do mínimo")
+
             df_reposicao = pd.DataFrame(nutrientes_abaixo_minimo)
             # Aplicar o estilo para ocultar o índice e depois exibir como HTML
             styled_df_reposicao = df_reposicao.style.apply(aplicar_estilo_reposicao, axis=1).hide(axis="index") # Usar a nova função de estilo
@@ -369,7 +397,12 @@ def main():
             st.write("* As quantidades dos fertilizantes repostos devem ser calculadas considerando as suas concentrações.")
         
         if nutrientes_acima_maximo:
-            st.subheader("🔼 Nutrientes Acima do Máximo")
+            col1, col2 = st.columns([10,200], vertical_alignment="bottom")
+            with col1:
+                st.image(img_up, width=28)
+            with col2:
+                st.subheader("Nutrientes acima do máximo")
+
             df_reposicao = pd.DataFrame(nutrientes_acima_maximo)
             # Aplicar o estilo para ocultar o índice e depois exibir como HTML
             styled_df_reposicao = df_reposicao.style.apply(aplicar_estilo_reposicao, axis=1).hide(axis="index") # Usar a nova função de estilo

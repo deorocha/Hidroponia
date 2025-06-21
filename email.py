@@ -3,7 +3,11 @@
 import streamlit as st
 import sqlite3
 
-st.title("📩 Fale conosco.")
+col1, col2 = st.columns([10,200])
+with col1:
+    st.image('./imagens/email_1.png', width=48)
+with col2:
+    st.subheader("Fale conosco.")
 
 def nome_imagem(texto):
     texto_under = texto.replace(" ", "_")
