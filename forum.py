@@ -2,7 +2,11 @@
 
 import streamlit as st
 
-st.title("👨🏻‍💻 Fórum")
+col1, col2 = st.columns([10,200])
+with col1:
+    st.image('./imagens/forum.png', width=48)
+with col2:
+    st.subheader("Fórum")
 
 def main():
     st.markdown(f"""

@@ -2,7 +2,11 @@
 
 import streamlit as st
 
-st.title("📶 Produtividade")
+col1, col2 = st.columns([10,200])
+with col1:
+    st.image('./imagens/produtividade.png', width=48)
+with col2:
+    st.subheader("Produtividade")
 
 def main():
     st.markdown(f"""

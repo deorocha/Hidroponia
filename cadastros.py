@@ -1,15 +1,17 @@
 # cadastros.py
 
 import streamlit as st
-# from streamlit_scroll_navigation import scroll_navbar
+from streamlit_scroll_navigation import scroll_navbar
 import unicodedata
 import sqlite3
 
-# st.title("💾 Cadastros")
+col1, col2 = st.columns([10,200])
+with col1:
+    st.image('./imagens/cadastros.png', width=48)
+with col2:
+    st.subheader("Cadastros")
 
-# Anchor IDs and icons
-#anchor_ids = ["🎍 Bancadas", "🥬 Cultivares", "🧬 Nutrientes", "🧪 Soluções", "🚰 Tanques"]
-
+st.caption("Cadastre as principais tabelas do Sistema")
 
 pages = {
     "Cadastros": [
@@ -113,25 +115,25 @@ def main():
 
     # ------------------------------
     # Sidebar (menu)
-    # st.sidebar.header("💾 Cadastros")
-    #cultivares = load_cultivares()
+    st.sidebar.header("💾 Cadastros")
+    cultivares = load_cultivares()
 
-    #with st.sidebar:
-    #    scroll_navbar(
-    #        anchor_ids,
-    #        anchor_labels=None,
-    #        orientation='vertical'
-    #    )
+    with st.sidebar:
+        scroll_navbar(
+            anchor_ids,
+            anchor_labels=None,
+            orientation='vertical'
+        )
 
-    # st.write(scroll_navbar(anchor_id))
+    st.write(scroll_navbar(anchor_id))
 
-    #for anchor_id in anchor_ids:
-    #    st.subheader(anchor_id,anchor=anchor_id)
+    for anchor_id in anchor_ids:
+        st.subheader(anchor_id,anchor=anchor_id)
         
-    # st.write(scroll_navbar_default)
-    # for anchor_id in anchor_ids:
-    #    st.subheader(anchor_id,anchor=anchor_id)
-    #    st.write("content " * 100)
+    st.write(scroll_navbar_default)
+    for anchor_id in anchor_ids:
+        st.subheader(anchor_id,anchor=anchor_id)
+        st.write("content " * 100)
 
 if __name__ == "__main__":
     main()

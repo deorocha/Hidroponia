@@ -6,7 +6,7 @@ import time
 
 col1, col2 = st.columns([15,200])
 with col1:
-    st.image('./imagens/chatbot_1.png', width=64)
+    st.image('./imagens/chatbot.png', width=64)
 with col2:
     st.subheader("Chatbot")
 

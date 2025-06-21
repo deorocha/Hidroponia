@@ -2,7 +2,11 @@
 
 import streamlit as st
 
-st.title("🐛 Detecção de Doenças")
+col1, col2 = st.columns([10,200])
+with col1:
+    st.image('./imagens/doencas.png', width=48)
+with col2:
+    st.subheader("Detecção de doenças")
 
 def main():
     st.markdown(f"""

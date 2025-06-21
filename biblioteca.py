@@ -10,8 +10,13 @@ csv_content = """1. Introdução à Hidroponia;;
 ... (todo o conteúdo aqui) ...
 ;;Quais são os modelos de negócios mais inovadores no setor?"""
 
-st.title("🌳 Árvore de Conhecimento em Hidroponia")
-st.caption("Navegue pela hierarquia completa ou pesquise tópicos específicos")
+col1, col2 = st.columns([10,200])
+with col1:
+    st.image('./imagens/biblioteca.png', width=48)
+with col2:
+    st.subheader("Biblioteca")
+
+st.caption("Digite a sua dúvida ou pesquise pelos tópicos específicos")
 
 # Processamento hierárquico dos dados
 def build_hierarchy(content):
@@ -93,62 +98,61 @@ def render_tree(nodes, parent_key=""):
         else:
             st.markdown(f"• {node['label']}")
 
-# Barra lateral com pesquisa
-with st.sidebar:
-    st.header("🔍 Busca Avançada")
-    search_term = st.text_input("Pesquisar na árvore:")
-    
-    st.markdown("### Dicas de Pesquisa")
+def main():
+    # Barra lateral com pesquisa
+    with st.sidebar:
+        st.header("🔍 Busca Avançada")
+        search_term = st.text_input("Pesquisar na árvore:")
+        
+        st.markdown("### Dicas de Pesquisa")
+        st.markdown("""
+        - Use palavras-chave como **NFT** ou **solução nutritiva**
+        - Busque por problemas: **pragas**, **pH**
+        - Explore plantas: **alface**, **tomate**
+        """)
+        
+        st.markdown("### Estatísticas")
+        st.markdown(f"- Total de tópicos: **{len(hierarchy_items)}**")
+        st.markdown(f"- Níveis hierárquicos: **{max(i['level'] for i in hierarchy_items) + 1}**")
+        st.markdown("---")
+        st.caption("Sistema de Gestão de Conhecimento em Hidroponia")
+
+    # Lógica de pesquisa e exibição
+    if search_term:
+        st.subheader(f"🔍 Resultados para: '{search_term}'")
+        search_term = search_term.lower()
+        found_items = []
+        
+        for item in hierarchy_items:
+            if search_term in item["text"].lower():
+                # Reconstruir caminho completo
+                path = [item["text"]]
+                current = item
+                while current["parent"]:
+                    parent = next((i for i in hierarchy_items if i["text"] == current["parent"]), None)
+                    if parent:
+                        path.insert(0, parent["text"])
+                        current = parent
+                    else:
+                        break
+                found_items.append(" > ".join(path))
+        
+        if found_items:
+            st.success(f"{len(found_items)} resultados encontrados:")
+            for item in found_items:
+                st.markdown(f"- {item}")
+        else:
+            st.warning("Nenhum resultado encontrado. Tente outros termos.")
+
+    # Rodapé
+    st.divider()
     st.markdown("""
-    - Use palavras-chave como **NFT** ou **solução nutritiva**
-    - Busque por problemas: **pragas**, **pH**
-    - Explore plantas: **alface**, **tomate**
+    **Sobre este sistema:**
+    - Base de conhecimento com todos os tópicos de hidroponia
+    - Navegação hierárquica estilo árvore (tree view)
+    - Pesquisa instantânea em todo o conteúdo
+    - Desenvolvido com Streamlit
     """)
-    
-    st.markdown("### Estatísticas")
-    st.markdown(f"- Total de tópicos: **{len(hierarchy_items)}**")
-    st.markdown(f"- Níveis hierárquicos: **{max(i['level'] for i in hierarchy_items) + 1}**")
-    st.markdown("---")
-    st.caption("Sistema de Gestão de Conhecimento em Hidroponia")
 
-# Lógica de pesquisa e exibição
-if search_term:
-    st.subheader(f"🔍 Resultados para: '{search_term}'")
-    search_term = search_term.lower()
-    found_items = []
-    
-    for item in hierarchy_items:
-        if search_term in item["text"].lower():
-            # Reconstruir caminho completo
-            path = [item["text"]]
-            current = item
-            while current["parent"]:
-                parent = next((i for i in hierarchy_items if i["text"] == current["parent"]), None)
-                if parent:
-                    path.insert(0, parent["text"])
-                    current = parent
-                else:
-                    break
-            found_items.append(" > ".join(path))
-    
-    if found_items:
-        st.success(f"{len(found_items)} resultados encontrados:")
-        for item in found_items:
-            st.markdown(f"- {item}")
-    else:
-        st.warning("Nenhum resultado encontrado. Tente outros termos.")
-else:
-    # Exibir árvore completa
-    st.subheader("🌿 Hierarquia Completa")
-    st.info("Expanda os tópicos para navegar na estrutura completa")
-    render_tree(tree_data)
-
-# Rodapé
-st.divider()
-st.markdown("""
-**Sobre este sistema:**
-- Base de conhecimento com todos os tópicos de hidroponia
-- Navegação hierárquica estilo árvore (tree view)
-- Pesquisa instantânea em todo o conteúdo
-- Desenvolvido com Streamlit
-""")
+if __name__ == "__main__":
+    main()
