@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-col1, col2 = st.columns([0.15,0.85],vertical_alignment="center")
+col1, col2 = st.columns([0.20,0.80], *, gap="small", vertical_alignment="center", border=False)
 with col1:
     st.image('./imagens/doencas.png', width=48)
 with col2:
