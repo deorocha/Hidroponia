@@ -1,5 +1,6 @@
 streamlit
 streamlit_calendar
+streamlit_scroll_navigation
 pandas
 joblib
 scikit-learn
