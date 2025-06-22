@@ -22,7 +22,7 @@ def main():
             padding-right: 0.5rem;
         }}
         </style>
-    """, unsafe_allow_html=True
+    """, unsafe_allow_html=True)
 
    import streamlit as st
 
