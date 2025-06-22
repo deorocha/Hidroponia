@@ -22,15 +22,15 @@ def main():
             padding-right: 0.5rem;
         }}
         </style>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True
 
-    # Simulação de interação
-    #user_input = st.text_input("Digite algo:")
-    #if user_input:
-    #    st.write(f"🐛: Você disse: {user_input}")
+   import streamlit as st
 
-    # Botão para voltar ao menu principal
-#    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
+   enable = st.checkbox("Habilitar a câmera")
+   picture = st.camera_input("Tire uma foto", disabled=not enable)
+
+   if picture:
+       st.image(picture) 
 
 if __name__ == "__main__":
     main()
