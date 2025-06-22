@@ -24,13 +24,11 @@ def main():
         </style>
     """, unsafe_allow_html=True)
 
-   import streamlit as st
+    enable = st.checkbox("Habilitar a câmera")
+    picture = st.camera_input("Tire uma foto", disabled=not enable)
 
-   enable = st.checkbox("Habilitar a câmera")
-   picture = st.camera_input("Tire uma foto", disabled=not enable)
-
-   if picture:
-       st.image(picture) 
+    if picture:
+        st.image(picture) 
 
 if __name__ == "__main__":
     main()
