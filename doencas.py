@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-col1, col2 = st.columns([0.25,0.75], gap=None, vertical_alignment="center", border=False)
+col1, col2 = st.columns([0.10,0.90], gap=None, vertical_alignment="center", border=False)
 with col1:
     st.image('./imagens/doencas.png', width=48)
 with col2:
@@ -25,9 +25,9 @@ def main():
     """, unsafe_allow_html=True)
 
     # Simulação de interação
-    user_input = st.text_input("Digite algo:")
-    if user_input:
-        st.write(f"🐛: Você disse: {user_input}")
+    #user_input = st.text_input("Digite algo:")
+    #if user_input:
+    #    st.write(f"🐛: Você disse: {user_input}")
 
     # Botão para voltar ao menu principal
 #    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
