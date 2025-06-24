@@ -10,3 +10,4 @@ faiss-cpu
 transformers
 google-generativeai
 sentence-transformers
+tensorflow
