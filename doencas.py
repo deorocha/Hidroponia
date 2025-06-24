@@ -4,11 +4,16 @@ import streamlit as st
 import numpy as np
 import os
 from PIL import Image
-from keras.models import load_model, save_model
-from keras.applications.mobilenet_v2 import preprocess_input
-from keras.models import Sequential
-from keras.layers import InputLayer, Flatten, Dense
-from keras.optimizers import Adam
+from tensorflow.keras.models import load_model, save_model  # Alterado
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input  # Alterado
+from tensorflow.keras.models import Sequential  # Alterado
+from tensorflow.keras.layers import InputLayer, Flatten, Dense  # Alterado
+from tensorflow.keras.optimizers import Adam  # Alterado
+#from keras.models import load_model, save_model
+#from keras.applications.mobilenet_v2 import preprocess_input
+#from keras.models import Sequential
+#from keras.layers import InputLayer, Flatten, Dense
+#from keras.optimizers import Adam
 
 model_path = "modelos/keras_model.h5"
 classes = open("modelos/labels.txt", "r").readlines()
