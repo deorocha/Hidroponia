@@ -12,5 +12,6 @@ sentence-transformers
 db-sqlite3
 streamlit
 streamlit-calendar
+streamlit-scroll-navigation
 transformers
 unicodedata2
