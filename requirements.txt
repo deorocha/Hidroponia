@@ -14,4 +14,3 @@ streamlit
 streamlit_calendar
 transformers
 unicodedata2
-tensorflow
