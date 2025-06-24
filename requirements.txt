@@ -12,6 +12,5 @@ sentence-transformers
 db-sqlite3
 streamlit
 streamlit_calendar
-tensorflow-cpu
 transformers
 unicodedata2
