@@ -11,3 +11,5 @@ transformers
 google-generativeai
 sentence-transformers
 tensorflow
+numpy
+pillow
