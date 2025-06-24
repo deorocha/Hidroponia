@@ -14,3 +14,4 @@ streamlit
 streamlit_calendar
 transformers
 unicodedata2
+tensorflow==2.16.1
