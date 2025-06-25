@@ -15,86 +15,103 @@ st.set_page_config(
 # CSS personalizado
 st.markdown(
     """
-        <style>
-            h1 {
-                font-size: 1rem; /* Ajuste este valor para o tamanho desejado */
-            }
-            .block-container {
-                padding-top: 0rem; /* Ajuste este valor para diminuir ou aumentar o espaço */
-                padding-bottom: 0rem;
-                padding-left: 1rem;
-                padding-right: 1rem;
-                margin-top: 0rem;
-                margin-bottom: 0rem;
-            }
-            .container {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 80vh;
-            }
-            .feature-card {
-                transition: transform 0.3s;
-                text-align: center;
-                padding: 5px;
-                border-radius: 10px;
-                box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
-                margin: 5px auto;
-                background-color: white;
-                cursor: pointer;
-                width: 200px;
-            }
-            .feature-card:hover {
-                transform: scale(1.05);
-                box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
-            }
-            .feature-icon {
-                font-size: 10px;
-                margin-bottom: 10px;
-            }
-            .menu-button {
-                position: absolute;
-                top: 1px;
-                right: 10px;
-                z-index: 100;
-            }
-            .menu-options {
-                position: absolute;
-                top: 0px;
-                right: 10px;
-                background-color: white;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                padding: 5px;
-                z-index: 100;
-                display: none;
-            }
-            .menu-option {
-                padding: 1px 5px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
-            .menu-option:hover {
-                background-color: #f0f0f0;
-                border-radius: 5px;
-            }
-            .header-container {
-                position: relative;
-                margin-top: 0px;
-                margin-bottom: 5px;
-            }
-            .back-button {
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                z-index: 100;
-            }
-        </style>""",
+    <style>
+        /* Container principal - espaçamento mínimo */
+        .block-container {
+            padding-top: 0rem !important;
+            padding-bottom: 0rem !important;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        /* Container do cabeçalho - sem margens */
+        .header-container {
+            position: relative;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Título principal - espaçamento mínimo */
+        .st-emotion-cache-10trblm {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        
+        /* Divisor - altura mínima */
+        hr {
+            margin-top: 0.1rem !important;
+            margin-bottom: 0.1rem !important;
+        }
+        
+        /* Espaçamento entre botões - CONFIGURAÇÃO AQUI */
+        .feature-button-container {
+            margin-top: 0.1rem !important;
+            margin-bottom: 0.1rem !important;
+            padding-top: 0.1rem !important;
+            padding-bottom: 0.1rem !important;
+        }
+        
+        /* Container de botões */
+        .feature-buttons-column {
+            gap: 0.1rem !important; /* Espaço entre botões */
+        }
+
+        /* Restante do CSS existente */
+        h1 {
+            font-size: 1rem;
+            margin-bottom: 0 !important;
+        }
+        .feature-card {
+            transition: transform 0.3s;
+            text-align: center;
+            padding: 5px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+            margin: 5px auto;
+            background-color: white;
+            cursor: pointer;
+            width: 200px;
+        }
+        .feature-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+        }
+        .menu-options {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            padding: 5px;
+            z-index: 100;
+            display: none;
+        }
+        .menu-option {
+            padding: 1px 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .menu-option:hover {
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+        }
+    </style>
+    """,
     unsafe_allow_html=True
-    )
+)
 
 # Inicializar o estado da sessão
 if 'current_page' not in st.session_state:
