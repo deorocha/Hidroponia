@@ -4,10 +4,11 @@ joblib
 keras
 langchain-community
 langchain-huggingface
-numpy
+numpy<2.0
 pandas
 Pillow
 scikit-learn
+scipy<1.12
 sentence-transformers
 db-sqlite3
 streamlit
@@ -15,4 +16,4 @@ streamlit-calendar
 streamlit-scroll-navigation
 transformers
 unicodedata2
-tensorflow-cpu
+tensorflow-cpu==2.15.0
