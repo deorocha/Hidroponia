@@ -27,7 +27,7 @@ def main():
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 5rem !important;
+            font-size: 3rem !important;
             text-align: center;
         }}
         </style>
