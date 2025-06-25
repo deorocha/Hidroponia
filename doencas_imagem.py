@@ -19,7 +19,9 @@ def get_keras_model():
 
 @st.cache_data
 def get_labels():
-    labels = open("modelos/labels.txt", "r").readlines()
+    # Abrir arquivo com codificação UTF-8
+    with open("modelos/labels.txt", "r", encoding="utf-8") as f:
+        labels = f.readlines()
     return labels
 
 def main():
