@@ -13,7 +13,7 @@ with col2:
 
 @st.cache_resource
 def get_keras_model():
-    model_path = "modelos/keras_Model.h5"
+    model_path = "modelos/keras_model.h5"
     model = load_model(model_path)
     return model
 
