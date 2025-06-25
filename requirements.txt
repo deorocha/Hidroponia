@@ -15,4 +15,4 @@ streamlit-calendar
 streamlit-scroll-navigation
 transformers
 unicodedata2
-tensorflow
+tensorflow-cpu
