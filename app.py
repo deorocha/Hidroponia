@@ -156,7 +156,7 @@ def home_page():
         {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
         {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
         {"icon": "📈", "name": "Crescimento", "page": "crescimento"},
-        {"icon": "🐛", "name": "Detecção de doenças", "page": "doencas"},
+        {"icon": "🐛", "name": "Detecção de doenças", "page": "doencas_imagem"},
         {"icon": "👨🏻‍💻", "name": "Forum", "page": "forum"},
         {"icon": "📶", "name": "Produtividade", "page": "produtividade"},
     ]
