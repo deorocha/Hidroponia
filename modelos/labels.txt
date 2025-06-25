@@ -1,3 +1,8 @@
-Banana
-Abacate
-Abacaxi
+0 Abacate
+1 Abacaxi
+2 Banana
+3 Laranja
+4 Limão
+5 Maçã
+6 Mamão
+7 Manga
