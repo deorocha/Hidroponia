@@ -17,6 +17,9 @@ instrucao = f.read()
 f.close()
 
 def main():
+    # Botão para voltar ao menu principal
+    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
+
     # --- CSS PARA AJUSTAR A LARGURA ---
     st.markdown(
         """

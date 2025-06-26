@@ -99,6 +99,9 @@ def render_tree(nodes, parent_key=""):
             st.markdown(f"• {node['label']}")
 
 def main():
+    # Botão para voltar ao menu principal
+    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
+
     # Barra lateral com pesquisa
     with st.sidebar:
         st.header("🔍 Busca Avançada")

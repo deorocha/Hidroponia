@@ -106,8 +106,11 @@ def load_cultivar_faixas(cultivar_id):
     return faixa_dict
 
 def main():
-    # CSS para responsividade e formatação mobile
+    # Botão para voltar ao menu principal
+    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
 
+
+    # CSS para responsividade e formatação mobile
     st.markdown(f"""
         <style>
             tbody th {{vertical-align: middle;}}

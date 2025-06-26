@@ -25,6 +25,9 @@ def main():
         </style>
     """, unsafe_allow_html=True)
 
+    # Botão para voltar ao menu principal
+    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
+
     # ------------------------------
     # Sidebar (menu)
     st.sidebar.header("📅 Agenda de manejo")
