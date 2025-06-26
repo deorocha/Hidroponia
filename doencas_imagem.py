@@ -25,6 +25,9 @@ def get_labels():
     return labels
 
 def main():
+    # Botão para voltar ao menu principal
+    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
+
     st.markdown(f"""
         <style>
         html, body, [class*="css"] {{
