@@ -1,0 +1,126 @@
+/* Ajustes gerais para espaçamento */
+.block-container {
+    padding-top: 1rem !important;
+    padding-bottom: 0rem !important;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+.header-container {
+    position: relative;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+.st-emotion-cache-10trblm { /* Classe para o H1 gerado pelo Streamlit */
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+hr {
+    margin-top: 0.0rem !important;
+    margin-bottom: 0.1rem !important;
+}
+.feature-button-container { /* Pode não ser mais necessário com o novo layout */
+    margin-top: 0.0rem !important;
+    margin-bottom: 0.0rem !important;
+    padding-top: 0.0rem !important;
+    padding-bottom: 0.0rem !important;
+}
+.feature-buttons-column { /* Pode não ser mais necessário */
+    gap: 0.0rem !important;
+}
+
+/* CENTRALIZAR LOGO */
+/* A classe '.st-emotion-cache-blah-blah' pode variar.
+   Uma forma mais robusta é tentar centralizar o container da imagem.
+   Ou usar um container HTML para a imagem. */
+.stImage { /* Classe que envolve as imagens do Streamlit */
+    display: flex;
+    justify-content: center;
+    width: 100%; /* Garante que o container ocupe a largura para centralizar */
+}
+/* Ou, se a imagem precisar ter uma largura específica e ser centralizada */
+.stImage img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Estilos para os botões de funcionalidade */
+.stButton button { /* Aplica estilo diretamente aos botões do Streamlit */
+    transition: transform 0.3s;
+    text-align: left;
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+    margin: 5px auto;
+    background-color: white;
+    cursor: pointer;
+    width: 60%px;
+    font-size: 1.1em; /* Tamanho da fonte do botão */
+    display: flex; /* Para alinhar ícone e texto */
+    align-items: center; /* Alinha verticalmente */
+    gap: 10px; /* Espaço entre ícone e texto */
+}
+.stButton button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.3);
+}
+
+/* Estilos para o menu de opções (se usado com JavaScript) */
+.menu-options {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    padding: 5px;
+    z-index: 100;
+    display: none;
+}
+.menu-option {
+    padding: 1px 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.menu-option:hover {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+
+/* Estilo para o botão de voltar (se posicionado via CSS) */
+.back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+}
+/* Remove todos os elementos de navegação automática */
+[data-testid="stSidebarNav"],
+[data-testid="stSidebarNavItems"],
+.st-emotion-cache-1cypcdb, /* TOC automático */
+.st-emotion-cache-eczf16, /* Âncoras de cabeçalho */
+header a,
+.st-emotion-cache-1avcm0n /* Barra superior */ {
+    display: none !important;
+}
+
+/* Remove comportamentos de link */
+a {
+    all: unset !important;
+    pointer-events: none !important;
+    cursor: default !important;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Mantém a funcionalidade dos botões */
+button {
+    pointer-events: all !important;
+    cursor: pointer !important;
+}
