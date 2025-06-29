@@ -1,103 +1,36 @@
 # configuracoes.py
 
 import streamlit as st
-import sqlite3
 
-col1, col2 = st.columns([10,200])
-with col1:
-    st.image('./imagens/setup_1.png', width=48)
-with col2:
-    st.subheader("Configurações")
-
-def nome_imagem(texto):
-    texto_under = texto.replace(" ", "_")
-    texto_limpo = "".join(c for c in unicodedata.normalize('NFKD', texto_under) if not unicodedata.combining(c))
-    return ("./imagens/cultivares/" + texto_limpo + ".png").lower()
-
-def load_cultivares_data():
-    try:
-        conn = sqlite3.connect('hidroponia.db')
-        cursor = conn.cursor()
-        
-        # Carregar dados da tabela tbl_cultivares
-        cursor.execute("SELECT clt_id, clt_descricao, clt_nome_cientifico, clt_classificacao, clt_caracteristicas FROM tbl_cultivares")
-        cultivares = cursor.fetchall() or [] # Garante lista vazia se None
-        
-        # Inicializar listas (garante que existirão mesmo sem dados)
-        col_id = []
-        col_descricao = []
-        col_nome_cientifico = []
-        col_classificacao = []
-        col_caracteristicas = []
-        col_nome_imagem = []
-
-        if cultivares:
-            for clt_id, clt_descricao, clt_nome_cientifico, clt_classificacao, clt_caracteristicas in cultivares:
-                col_id.append(clt_id)
-                col_descricao.append(clt_descricao)
-                col_nome_cientifico.append(clt_nome_cientifico)
-                col_classificacao.append(clt_classificacao)
-                col_caracteristicas.append(clt_caracteristicas)
-                col_nome_imagem.append(nome_imagem(clt_descricao))
-
-        conn.close()
-        
-        return {
-            'id': col_id,
-            'descricao': col_descricao,
-            'nome_cientifico': col_nome_cientifico,
-            'classificacao': col_classificacao,
-            'caracteristicas': col_caracteristicas,
-            'nome_imagem': col_nome_imagem
-        }
+def show():
+    col1, col2 = st.columns([10,200])
+    with col1:
+        st.image('./imagens/configuracoes.png', width=48)
+    with col2:
+        st.subheader("Configurações do Sistema")
     
-    except Exception as e:
-        st.error(f"Erro ao carregar dados: {str(e)}")
-        # Retorna estruturas vazias em caso de erro
-        return {
-            'id': [],
-            'descricao': [],
-            'nome_cientifico': [],
-            'classificacao': [],
-            'caracteristicas': [],
-            'nome_imagem': []
-        }
-
-# ------------------------------
-# Carregar dados com cache
-@st.cache_data
-def load_cultivares():
-    return load_cultivares_data()
-
-def main():
-    st.markdown(f"""
-        <style>
-        html, body, [class*="css"] {{
-            font-size: 15px;
-        }}
-
-        .block-container {{
-            padding-top: 3rem;
-            padding-bottom: 1rem;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }}
-
-        .st-emotion-cache-1f3w014 {{
-            height: 2rem;
-            width : 2rem;
-            background-color: GREEN;
-        }}
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Simulação de interação
-    user_input = st.text_input("Digite algo:")
-    if user_input:
-        st.write(f"📺: Você disse: {user_input}")
-        imagem = nome_imagem(user_input)
-        st.write(f"📺: Nome da imagem: {imagem}")
-        st.image(imagem, caption="Caption da imagem", width=200)
-
-if __name__ == "__main__":
-    main()
+    st.write("Aqui você pode configurar as preferências do sistema:")
+    
+    # Exemplo de configurações
+    with st.expander("Preferências de Visualização"):
+        tema = st.selectbox("Tema", ["Claro", "Escuro", "Sistema"])
+        densidade = st.select_slider("Densidade da Interface", ["Compacta", "Confortável", "Espaçosa"])
+        
+        if st.button("Salvar Preferências"):
+            st.success("Preferências salvas com sucesso!")
+    
+    with st.expander("Configurações de Notificação"):
+        email = st.text_input("Email para notificações")
+        alertas = st.checkbox("Receber alertas por email", True)
+        relatorios = st.checkbox("Receber relatórios diários", False)
+        
+        if st.button("Salvar Configurações de Notificação"):
+            st.success("Configurações de notificação salvas!")
+    
+    with st.expander("Configurações Avançadas"):
+        st.warning("⚠️ Alterar essas configurações pode afetar o funcionamento do sistema")
+        timeout = st.number_input("Timeout de conexão (segundos)", min_value=5, max_value=60, value=30)
+        log_level = st.selectbox("Nível de Log", ["Debug", "Info", "Warning", "Error"])
+        
+        if st.button("Salvar Configurações Avançadas", type="primary"):
+            st.success("Configurações avançadas salvas!")

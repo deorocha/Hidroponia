@@ -177,7 +177,7 @@ def main():
     def carregar_modelo(caminho):
         return joblib.load(caminho)
 
-    modelo = carregar_modelo('./modelos/calculadora_modelo.pkl')
+    modelo = carregar_modelo('./modelos/hidroponia_modelo.pkl')
 
     data = load_data()
     # Verifica se as listas essenciais estão preenchidas

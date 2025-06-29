@@ -1,103 +1,60 @@
 # cadastro_cultivares.py
 
 import streamlit as st
-import sqlite3
+import pandas as pd
+import db_utils
 
-col1, col2 = st.columns([10,200])
-with col1:
-    st.image('./imagens/cultivares_1.png', width=48)
-with col2:
-    st.subheader("Cadastro de Cultivares")
-
-def nome_imagem(texto):
-    texto_under = texto.replace(" ", "_")
-    texto_limpo = "".join(c for c in unicodedata.normalize('NFKD', texto_under) if not unicodedata.combining(c))
-    return ("./imagens/cultivares/" + texto_limpo + ".png").lower()
-
-def load_cultivares_data():
-    try:
-        conn = sqlite3.connect('hidroponia.db')
-        cursor = conn.cursor()
-        
-        # Carregar dados da tabela tbl_cultivares
-        cursor.execute("SELECT clt_id, clt_descricao, clt_nome_cientifico, clt_classificacao, clt_caracteristicas FROM tbl_cultivares")
-        cultivares = cursor.fetchall() or [] # Garante lista vazia se None
-        
-        # Inicializar listas (garante que existirão mesmo sem dados)
-        col_id = []
-        col_descricao = []
-        col_nome_cientifico = []
-        col_classificacao = []
-        col_caracteristicas = []
-        col_nome_imagem = []
-
-        if cultivares:
-            for clt_id, clt_descricao, clt_nome_cientifico, clt_classificacao, clt_caracteristicas in cultivares:
-                col_id.append(clt_id)
-                col_descricao.append(clt_descricao)
-                col_nome_cientifico.append(clt_nome_cientifico)
-                col_classificacao.append(clt_classificacao)
-                col_caracteristicas.append(clt_caracteristicas)
-                col_nome_imagem.append(nome_imagem(clt_descricao))
-
-        conn.close()
-        
-        return {
-            'id': col_id,
-            'descricao': col_descricao,
-            'nome_cientifico': col_nome_cientifico,
-            'classificacao': col_classificacao,
-            'caracteristicas': col_caracteristicas,
-            'nome_imagem': col_nome_imagem
-        }
+def show():
+    col1, col2 = st.columns([10,200])
+    with col1:
+        st.image('./imagens/cultivares.png', width=48)
+    with col2:
+        st.subheader("Cadastro de Cultivares")
     
+    try:
+        df = db_utils.get_data('tbl_cultivares')
     except Exception as e:
         st.error(f"Erro ao carregar dados: {str(e)}")
-        # Retorna estruturas vazias em caso de erro
-        return {
-            'id': [],
-            'descricao': [],
-            'nome_cientifico': [],
-            'classificacao': [],
-            'caracteristicas': [],
-            'nome_imagem': []
-        }
-
-# ------------------------------
-# Carregar dados com cache
-@st.cache_data
-def load_cultivares():
-    return load_cultivares_data()
-
-def main():
-    st.markdown(f"""
-        <style>
-        html, body, [class*="css"] {{
-            font-size: 15px;
-        }}
-
-        .block-container {{
-            padding-top: 3rem;
-            padding-bottom: 1rem;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }}
-
-        .st-emotion-cache-1f3w014 {{
-            height: 2rem;
-            width : 2rem;
-            background-color: GREEN;
-        }}
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Simulação de interação
-    user_input = st.text_input("Digite algo:")
-    if user_input:
-        st.write(f"📺: Você disse: {user_input}")
-        imagem = nome_imagem(user_input)
-        st.write(f"📺: Nome da imagem: {imagem}")
-        st.image(imagem, caption="Caption da imagem", width=200)
-
-if __name__ == "__main__":
-    main()
+        df = pd.DataFrame()
+    
+    if df.empty:
+        df = pd.DataFrame(columns=[
+            "clt_id", "clt_genero_id", "clt_codigo", "clt_nome", 
+            "clt_nome_cientifico", "clt_classificacao", "clt_caracteristicas"
+        ])
+    
+    column_config = {
+        "clt_id": st.column_config.NumberColumn("ID", disabled=True),
+        "clt_genero_id": st.column_config.NumberColumn("Gênero ID", format="%d"),
+        "clt_codigo": st.column_config.TextColumn("Código"),
+        "clt_nome": st.column_config.TextColumn("Nome"),
+        "clt_nome_cientifico": st.column_config.TextColumn("Nome Científico"),
+        "clt_classificacao": st.column_config.TextColumn("Classificação"),
+        "clt_caracteristicas": st.column_config.TextColumn("Características")
+    }
+    
+    edited_df = st.data_editor(
+        df,
+        column_config=column_config,
+        num_rows="dynamic",
+        use_container_width=True,
+        key="editor_tbl_cultivares"
+    )
+    
+    col1, col2, col3 = st.columns([1,1,3])
+    with col1:
+        if st.button("💾 Salvar", key="btn_salvar_tbl_cultivares"):
+            try:
+                if db_utils.save_data('tbl_cultivares', edited_df):
+                    st.success("Dados salvos com sucesso!")
+                    st.rerun()
+            except Exception as e:
+                st.error(f"Erro ao salvar: {str(e)}")
+    
+    with col2:
+        if st.button("🔄 Recarregar", key="btn_recarregar_tbl_cultivares"):
+            st.session_state.pop("editor_tbl_cultivares", None)
+            st.rerun()
+    
+    with col3:
+        st.info(f"Tabela: tbl_cultivares | Registros: {len(edited_df)}")

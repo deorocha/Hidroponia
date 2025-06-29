@@ -1,142 +1,103 @@
-# app.py
-
 import streamlit as st
 import importlib.util
 import sys
 
-# Configuração da página
+# Configuração da página principal do Streamlit
 st.set_page_config(
     page_title="HortaTec",
     page_icon="🌿",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed" # Sidebar inicia FECHADO
 )
 
-# CSS personalizado
+# Oculta os botões do Streamlit
 st.markdown(
-    """
+    r"""
     <style>
-        /* Container principal - espaçamento mínimo */
-        .block-container {
-            padding-top: 0rem !important;
-            padding-bottom: 0rem !important;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-        
-        /* Container do cabeçalho - sem margens */
-        .header-container {
-            position: relative;
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        /* Título principal - espaçamento mínimo */
-        .st-emotion-cache-10trblm {
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-        }
-        
-        /* Divisor - altura mínima */
-        hr {
-            margin-top: 0.1rem !important;
-            margin-bottom: 0.1rem !important;
-        }
-        
-        /* Espaçamento entre botões - CONFIGURAÇÃO AQUI */
-        .feature-button-container {
-            margin-top: 0.1rem !important;
-            margin-bottom: 0.1rem !important;
-            padding-top: 0.1rem !important;
-            padding-bottom: 0.1rem !important;
-        }
-        
-        /* Container de botões */
-        .feature-buttons-column {
-            gap: 0.1rem !important; /* Espaço entre botões */
-        }
-
-        /* Restante do CSS existente */
-        h1 {
-            font-size: 1rem;
-            margin-bottom: 0 !important;
-        }
-        .feature-card {
-            transition: transform 0.3s;
-            text-align: center;
-            padding: 5px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
-            margin: 5px auto;
-            background-color: white;
-            cursor: pointer;
-            width: 200px;
-        }
-        .feature-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
-        }
-        .menu-options {
-            position: absolute;
-            top: 0px;
-            right: 10px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            padding: 5px;
-            z-index: 100;
-            display: none;
-        }
-        .menu-option {
-            padding: 1px 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .menu-option:hover {
-            background-color: #f0f0f0;
-            border-radius: 5px;
-        }
-        .back-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 100;
-        }
+        .stAppDeployButton {visibility: hidden;}
+        .reportview-container {margin-top: -2em;}
+        #MainMenu {visibility: hidden;}
     </style>
-    """,
-    unsafe_allow_html=True
+    """, unsafe_allow_html=True
 )
 
-# Inicializar o estado da sessão
+# Carregamento do CSS customizado externo
+try:
+    with open('./styles/style.css') as f:
+        css_external = f.read()
+    # Aplicar globalmente para todas as páginas
+    st.markdown(f"<style>{css_external}</style>", unsafe_allow_html=True)
+except FileNotFoundError:
+    st.warning("Arquivo style.css não encontrado em ./styles/. Verifique o caminho.")
+except Exception as e:
+    st.error(f"Erro ao carregar style.css: {e}")
+
+# --- Inicializar o estado da sessão ---
 if 'current_page' not in st.session_state:
     st.session_state.current_page = "home"
 
-# Função para carregar módulos externos
+# --- Função para carregar módulos externos dinamicamente ---
 def load_module(module_name):
-    """Carrega um módulo externo dinamicamente"""
-    spec = importlib.util.spec_from_file_location(module_name, f"{module_name}.py")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
-    return module
+    """
+    Carrega um módulo externo dinamicamente.
+    module_name deve ser o nome do arquivo sem a extensão .py (ex: 'agenda').
+    """
+    try:
+        spec = importlib.util.spec_from_file_location(module_name, f"./{module_name}.py")
+        if spec is None:
+            raise FileNotFoundError(f"Módulo './{module_name}.py' não encontrado.")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module
+    except FileNotFoundError as fnfe:
+        st.error(f"Erro: Arquivo '{module_name}.py' não encontrado. Verifique o nome e o diretório.")
+        return None
+    except Exception as e:
+        st.error(f"Erro ao carregar o módulo {module_name}: {e}")
+        return None
 
-# Página inicial
+# --- Página inicial (Home) ---
 def home_page():
-    """Página inicial com ícones centralizados"""
-    # Header com título e botão de menu
+    """Página inicial com ícones centralizados e navegação."""
+    
+    # --- Sidebar específico da Home ---
+    with st.sidebar:
+        st.header("Opções Rápidas")
+        with st.expander("⚙️ Configurações"):
+            st.write("- Opção 1")
+            st.write("- Opção 2")
+            st.write("- Opção 3")
+        with st.expander("ℹ️ Sobre nós..."):
+            st.write("- Opção 1")
+            st.write("- Opção 2")
+            st.write("- Opção 3")
+        with st.expander("✉ Contato"):
+            st.write("- Opção 1")
+            st.write("- Opção 2")
+            st.write("- Opção 3")
+            
+        #if st.button("⚙️ Configurações", key="sidebar_config"):
+        #    st.session_state.current_page = "configuracoes"
+        #    st.rerun()
+        #if st.button("ℹ️ Sobre nós...", key="sidebar_sobre"):
+        #    st.session_state.current_page = "sobre_nos"
+        #    st.rerun()
+        #if st.button("✉ Contato", key="sidebar_contato"):
+        #    st.session_state.current_page = "contato"
+        #    st.rerun()
+        #st.markdown("---")
+        #st.markdown("<p style='text-align: center; font-size: 0.8em; color: #888;'>© 2025 HortaTec</p>", unsafe_allow_html=True)
+
+
+    # Cabeçalho da aplicação (pode conter logo, título e botões de menu)
     with st.container():
         st.markdown('<div class="header-container">', unsafe_allow_html=True)
         
-        # Título principal
+        # Título principal do aplicativo
         st.title("🌿 HortaTec")
         
-        # Botão de menu
+        # Bloco para opções de menu (se você tiver um botão que chame toggleMenu no JS)
         st.markdown(
             """
             <div class="menu-options">
@@ -163,39 +124,34 @@ def home_page():
         st.markdown('</div>', unsafe_allow_html=True)
         st.divider()
 
-    # Container centralizado verticalmente
-#    st.markdown('<div class="container">', unsafe_allow_html=True)
-    
+    # Lista de funcionalidades/páginas que serão exibidas como botões
     features = [
-        {"icon": "📆", "name": "Agenda de manejo", "page": "agenda"},
-        {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
-        {"icon": "💾", "name": "Cadastros", "page": "cadastros"},
-        {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
-        {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
-        {"icon": "📈", "name": "Crescimento", "page": "crescimento"},
-        {"icon": "🐛", "name": "Detecção de doenças", "page": "doencas_imagem"},
-        {"icon": "👨🏻‍💻", "name": "Forum", "page": "forum"},
-        {"icon": "📶", "name": "Produtividade", "page": "produtividade"},
+        {"icon": "📅", "name": "Agenda de manejo 🚧", "page": "agenda"},
+        {"icon": "📚", "name": "Biblioteca 🚧", "page": "biblioteca"},
+        {"icon": "📂", "name": "Cadastros", "page": "cadastros"},
+        {"icon": "🧮", "name": "Calculadora 🚧", "page": "calculadora"},
+        {"icon": "🤖", "name": "Chatbot 🚧", "page": "chatbot_gemini"},
+        {"icon": "📈", "name": "Crescimento 🚧", "page": "crescimento"},
+        {"icon": "🐛", "name": "Detecção de doenças 🚧", "page": "doencas_imagem"},
+        {"icon": "👨🏻‍💻", "name": "Forum 🚧", "page": "forum"},
+        {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"},
     ]
     
+    # Renderiza os botões em uma única coluna vertical
     for feature in features:
-        # Usar st.link_button para navegação confiável
         if st.button(
             label=f"{feature['icon']} {feature['name']}",
             key=f"btn_{feature['page']}",
-            use_container_width=True,
-            help=f"Acessar {feature['name']}"
+            use_container_width=True # Ocupa a largura do container, que agora será controlada pelo CSS do botão
         ):
             st.session_state.current_page = feature['page']
             st.rerun()
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Rodapé
+
+    # Rodapé da página Home
     st.divider()
     st.caption("© 2025 HortaTec | Versão 1.0")
     
-    # JavaScript para o menu
+    # JavaScript para controlar o menu (se usado)
     st.markdown(
         """
         <script>
@@ -210,11 +166,10 @@ def home_page():
             
             if(option === 'exit') {
                 if(confirm('Tem certeza que deseja sair?')) {
-                    // Envia o comando de saída para o Streamlit
-                    Streamlit.setComponentValue('exit');
+                    // Para realmente sair do app Streamlit via JS, você precisaria de um componente customizado
                 }
             } else {
-                alert('Opção selecionada: ' + option);
+                // alert('Opção selecionada: ' + option);
             }
         }
         </script>
@@ -222,32 +177,36 @@ def home_page():
         unsafe_allow_html=True
     )
 
-# Sistema de navegação
-# Verificar se recebemos um comando de saída
-if st.session_state.get('exit', False):
+# --- Sistema de navegação principal (fora das funções de página) ---
+
+if st.session_state.get('exit_app', False):
     st.success("Obrigado por usar nosso aplicativo!")
     st.stop()
 
-# Carregar a página atual
 if st.session_state.current_page == "home":
     home_page()
 else:
-    # Adicionar botão de voltar
-    if st.button("← Voltar", key="btn_back"):
+    # Adicionar botão de voltar visível em todas as sub-páginas
+    if st.button(" ← Voltar ", key="btn_back_universal", help="Retorna à página inicial"):
         st.session_state.current_page = "home"
         st.rerun()
     
-    # Carregar o módulo correspondente
     try:
         module = load_module(st.session_state.current_page)
         
-        # Verificar se o módulo tem uma função main e executá-la
-        if hasattr(module, 'main'):
+        if module and hasattr(module, 'main'):
             module.main()
+        elif module:
+            st.error(f"O módulo '{st.session_state.current_page}.py' foi carregado, mas não tem uma função 'main()' definida para execução.")
+            if st.button("Voltar (Módulo incompleto)", key="error_module_no_main_button_2"):
+                st.session_state.current_page = "home"
+                st.rerun()
         else:
-            st.error(f"O módulo {st.session_state.current_page} não tem uma função 'main' definida")
+            if st.button("Voltar (Módulo não encontrado)", key="error_module_load_fail_button_2"):
+                st.session_state.current_page = "home"
+                st.rerun()
     except Exception as e:
-        st.error(f"Erro ao carregar o módulo {st.session_state.current_page}: {str(e)}")
-        if st.button("Voltar ao menu principal"):
+        st.error(f"Ocorreu um erro inesperado ao tentar exibir o conteúdo da página '{st.session_state.current_page}': {str(e)}")
+        if st.button("Voltar (Erro na página)", key="error_page_render_button_2"):
             st.session_state.current_page = "home"
             st.rerun()

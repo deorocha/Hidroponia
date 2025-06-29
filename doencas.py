@@ -1,7 +1,7 @@
 # doencas.py
 
 import streamlit as st
-from tensorflow.keras.models import load_model  # Alterado aqui
+from keras.models import load_model
 from PIL import Image, ImageOps
 import numpy as np
 
@@ -19,11 +19,13 @@ def get_keras_model():
 
 @st.cache_data
 def get_labels():
+    # Abrir arquivo com codificação UTF-8
     with open("modelos/labels.txt", "r", encoding="utf-8") as f:
         labels = f.readlines()
     return labels
 
 def main():
+    # Botão para voltar ao menu principal
     st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
 
     st.markdown(f"""
@@ -31,6 +33,7 @@ def main():
         html, body, [class*="css"] {{
             font-size: 15px;
         }}
+
         .block-container {{
             padding-top: 3rem;
             padding-bottom: 1rem;
@@ -44,6 +47,7 @@ def main():
     labels = get_labels()
     data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
+    # Estado inicial com câmera habilitada
     if 'photo_taken' not in st.session_state:
         st.session_state.photo_taken = False
         st.session_state.picture = None
