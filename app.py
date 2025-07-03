@@ -127,10 +127,10 @@ def home_page():
     # Lista de funcionalidades/páginas que serão exibidas como botões
     features = [
         {"icon": "📅", "name": "Agenda de manejo 🚧", "page": "agenda"},
-        {"icon": "📚", "name": "Biblioteca 🚧", "page": "biblioteca"},
+        {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
         {"icon": "📂", "name": "Cadastros", "page": "cadastros"},
-        {"icon": "🧮", "name": "Calculadora 🚧", "page": "calculadora"},
-        {"icon": "🤖", "name": "Chatbot 🚧", "page": "chatbot_gemini"},
+        {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
+        {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
         {"icon": "📈", "name": "Crescimento 🚧", "page": "crescimento"},
         {"icon": "🐛", "name": "Detecção de doenças 🚧", "page": "doencas_imagem"},
         {"icon": "👨🏻‍💻", "name": "Forum 🚧", "page": "forum"},
