@@ -65,9 +65,6 @@ class PageRegistry:
 
 # Criar o registro de páginas
 page_registry = PageRegistry()
-    
-    st.caption("Cadastre as principais tabelas do Sistema")
-    st.write("Selecione uma opção no menu lateral para começar")
 
 # Registrar todas as páginas
 page_registry.register_page("bancadas", "cadastro_bancadas", "show")
