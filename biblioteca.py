@@ -7,9 +7,19 @@ import os
 from PIL import Image, ImageEnhance
 from io import BytesIO
 
-# Configuração da página
-st.set_page_config(page_title="Biblioteca", layout="wide")
-st.title("📚 Biblioteca")
+# Configuração inicial da página
+st.set_page_config(
+    page_title="Biblioteca",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'About': None,
+        'Get help': None,
+        'Report a bug': None
+    }
+)
+
+# st.title("📚 Biblioteca")
 
 # Arquivo fixo (ajuste o caminho conforme necessário)
 PDF_FILE = "./dados/biblioteca.pdf"
