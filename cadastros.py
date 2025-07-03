@@ -15,7 +15,7 @@ st.set_page_config(
     }
 )
 
-st.subheader("📚 Cadastros")
+st.subheader("📂 Cadastros")
 
 # CSS para melhorar a aparência
 st.markdown("""
