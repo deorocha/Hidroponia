@@ -19,7 +19,7 @@ st.set_page_config(
     }
 )
 
-# st.title("📚 Biblioteca")
+st.subheader("📚 Biblioteca")
 
 # Arquivo fixo (ajuste o caminho conforme necessário)
 PDF_FILE = "./dados/biblioteca.pdf"
