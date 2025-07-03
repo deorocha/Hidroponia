@@ -8,8 +8,8 @@ from PIL import Image, ImageEnhance
 from io import BytesIO
 
 # Configuração da página
-st.set_page_config(page_title="Biblioteca de Conhecimento", layout="wide")
-st.title("📚 Biblioteca - Busca Inteligente")
+st.set_page_config(page_title="Biblioteca", layout="wide")
+st.title("📚 Biblioteca")
 
 # Arquivo fixo (ajuste o caminho conforme necessário)
 PDF_FILE = "./dados/biblioteca.pdf"
