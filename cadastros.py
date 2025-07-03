@@ -15,6 +15,8 @@ st.set_page_config(
     }
 )
 
+st.subheader("📚 Cadastros")
+
 # CSS para melhorar a aparência
 st.markdown("""
     <style>
@@ -63,14 +65,6 @@ class PageRegistry:
 
 # Criar o registro de páginas
 page_registry = PageRegistry()
-
-@page_registry.set_home_page
-def show_home():
-    col1, col2 = st.columns([10,200])
-    with col1:
-        st.image('./imagens/cadastros.png', width=48)
-    with col2:
-        st.subheader("Cadastros")
     
     st.caption("Cadastre as principais tabelas do Sistema")
     st.write("Selecione uma opção no menu lateral para começar")
