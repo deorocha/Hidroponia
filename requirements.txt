@@ -17,3 +17,4 @@ streamlit-scroll-navigation
 transformers
 unicodedata2
 tensorflow
+pdfplumber
