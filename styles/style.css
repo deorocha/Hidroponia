@@ -1,6 +1,6 @@
 /* Ajustes gerais para espaçamento */
 .block-container {
-    padding-top: 1rem !important;
+    padding-top: 0rem !important;
     padding-bottom: 0rem !important;
     padding-left: 1rem;
     padding-right: 1rem;
@@ -12,15 +12,23 @@
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
-.st-emotion-cache-10trblm { /* Classe para o H1 gerado pelo Streamlit */
+.st-emotion-cache-10trblm { /* Estilo para o título H1 */
     padding-top: 0 !important;
     padding-bottom: 0 !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
 }
+.st-emotion-cache-1pxazr7 { /* Classe do hr no Streamlit */
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+.title-container {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
 hr {
     margin-top: 0.0rem !important;
-    margin-bottom: 0.1rem !important;
+    margin-bottom: 0.0rem !important;
 }
 .feature-button-container { /* Pode não ser mais necessário com o novo layout */
     margin-top: 0.0rem !important;
@@ -36,12 +44,14 @@ hr {
 /* A classe '.st-emotion-cache-blah-blah' pode variar.
    Uma forma mais robusta é tentar centralizar o container da imagem.
    Ou usar um container HTML para a imagem. */
+
 .stImage { /* Classe que envolve as imagens do Streamlit */
     display: flex;
     justify-content: center;
     width: 100%; /* Garante que o container ocupe a largura para centralizar */
 }
 /* Ou, se a imagem precisar ter uma largura específica e ser centralizada */
+
 .stImage img {
     display: block;
     margin-left: auto;
@@ -52,10 +62,10 @@ hr {
 .stButton button { /* Aplica estilo diretamente aos botões do Streamlit */
     transition: transform 0.3s;
     text-align: left;
-    padding: 10px 15px;
-    border-radius: 10px;
+    padding: 0px;
+    border-radius: 5px;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
-    margin: 5px auto;
+    margin: 0px;
     background-color: white;
     cursor: pointer;
     width: 60%px;
@@ -64,10 +74,18 @@ hr {
     align-items: center; /* Alinha verticalmente */
     gap: 10px; /* Espaço entre ícone e texto */
 }
+
 .stButton button:hover {
     transform: scale(1.02);
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.3);
 }
+
+    .stButton>button {
+        margin-top: 2px;
+        margin-botton: 0px;
+        padding: 0px;
+        width: 100%;
+    }
 
 /* Estilos para o menu de opções (se usado com JavaScript) */
 .menu-options {
@@ -82,7 +100,7 @@ hr {
     display: none;
 }
 .menu-option {
-    padding: 1px 5px;
+    padding: 1px 1px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -90,7 +108,13 @@ hr {
 }
 .menu-option:hover {
     background-color: #f0f0f0;
-    border-radius: 5px;
+    border-radius: 2px;
+}
+
+.menu-option span {
+    font-size: 5em; /* Altere este valor para o tamanho desejado */
+    vertical-align: middle; /* Ajuda a alinhar o ícone com o texto */
+    margin-right: 5px; /* Espaçamento entre o ícone e o texto */
 }
 
 /* Estilo para o botão de voltar (se posicionado via CSS) */
@@ -108,6 +132,13 @@ hr {
 header a,
 .st-emotion-cache-1avcm0n /* Barra superior */ {
     display: none !important;
+}
+
+/* Estilo emergencial para forçar a remoção de espaços */
+[data-testid="stVerticalBlock"] > [style*="flex-direction: column"] > [data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Remove comportamentos de link */
