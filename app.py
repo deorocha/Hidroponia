@@ -15,6 +15,7 @@ st.markdown(
     r"""
     <style>
         .stAppDeployButton {visibility: hidden;}
+        .stDeployButton {visibility: hidden;}
         .reportview-container {margin-top: -2em;}
         #MainMenu {visibility: hidden;}
     </style>
@@ -133,7 +134,6 @@ def home_page():
         {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
         {"icon": "📈", "name": "Crescimento 🚧", "page": "crescimento"},
         {"icon": "🐛", "name": "Detecção de doenças 🚧", "page": "doencas_imagem"},
-        {"icon": "👨🏻‍💻", "name": "Forum 🚧", "page": "forum"},
         {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"},
     ]
     
