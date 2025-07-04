@@ -264,7 +264,7 @@ def main():
 
 
     # Botão e previsão
-    if st.button("🔍 Realizar Previsão"):
+    if st.sidebar.button("🔍 Realizar Previsão"):
         entrada = pd.DataFrame([[Temp, pH, EC, O2]], columns=colunas_entrada)
         saida = modelo.predict(entrada)[0]
 
