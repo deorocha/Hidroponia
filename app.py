@@ -96,8 +96,11 @@ def home_page():
         st.markdown('<div class="header-container">', unsafe_allow_html=True)
         
         # Título principal do aplicativo
-        st.title("🌿 HortaTec")
-        
+        with st.container():
+            st.markdown('<div class="title-container">', unsafe_allow_html=True)
+            st.title("🌿 HortaTec")
+            st.markdown('</div>', unsafe_allow_html=True)
+
         # Bloco para opções de menu (se você tiver um botão que chame toggleMenu no JS)
         st.markdown(
             """
