@@ -1,0 +1,107 @@
+/* Container principal */
+.main .block-container {
+    max-width: 100% !important;
+    padding: 0.5rem 1rem !important;
+}
+
+/* Tabelas */
+div[data-testid="stDataFrame"],
+div[data-testid="stHorizontalBlock"], 
+div[data-testid="stVerticalBlock"] {
+    width: 100% !important;
+}
+
+/* Container principal da tabela */
+.full-width-container {
+    width: 100% !important;
+    max-width: calc(100vw - 2rem) !important; /* Considera padding */
+    overflow-x: auto !important;
+    transition: max-width 0.3s ease; /* Animação suave */
+}
+
+/* Container rolável */
+.scrollable-table {
+    width: 100% !important;
+    min-width: max-content !important;
+    overflow-x: auto !important;
+}
+
+/* Ajustes adicionais na tabela */
+.scrollable-table table {
+    width: 100% !important;
+    min-width: 100% !important;
+    table-layout: auto !important;
+}
+
+/* Garantir que cabeçalhos ocupem toda a largura */
+.scrollable-table th {
+    width: auto !important;
+    min-width: 120px !important;
+}
+
+/* Classes de alinhamento */
+.header-center {
+    text-align: center !important;
+}
+
+.left-align {
+    text-align: left !important;
+}
+
+.right-align {
+    text-align: right !important;
+    padding-right: 10px !important;
+}
+
+.center-align {
+    text-align: center !important;
+}
+
+.vertical-center {
+    vertical-align: middle !important;
+}
+
+/* Estilos básicos da tabela */
+table {
+    border-collapse: collapse !important;
+}
+
+th, td {
+    border: 1px solid #d0d0d0 !important;
+    padding: 8px 12px !important;
+    white-space: nowrap !important;
+}
+
+thead th {
+    background-color: #e6f2ff !important;
+    font-weight: bold !important;
+    border-bottom: 2px solid #a0a0a0 !important;
+    position: sticky !important;
+    top: 0 !important;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9 !important;
+}
+
+/* Espaçamentos */
+.st-emotion-cache-ocqkz7 {
+    padding-top: 0.5rem !important;
+}
+
+.st-emotion-cache-as33y7 {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 0 !important;
+}
+
+@media (min-width: 768px) {
+    .full-width-container {
+        max-width: calc(100vw - 2rem) !important;
+    }
+    
+    /* Quando sidebar está aberto */
+    [data-testid="stSidebar"][aria-expanded="true"] ~ .main .full-width-container {
+        max-width: calc(100vw - 23rem) !important; /* 21rem sidebar + 2rem padding */
+    }
+}
