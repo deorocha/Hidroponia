@@ -1,420 +1,336 @@
 # calculadora.py
 
 import streamlit as st
+from streamlit.components.v1 import html
 import pandas as pd
 import joblib
 import sqlite3
-
 from PIL import Image
-from io import BytesIO
-import base64
+import os
+from bs4 import BeautifulSoup
 
-def GetImg(path_to_image):
-    # return pure_pil_alpha_to_color_v2(Image.open(path_to_image))
-    return Image.open(path_to_image)
+# Configuração inicial da página
+st.set_page_config(
+    page_title="Calculadora",
+    page_icon="🧮",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={'About': None, 'Get help': None, 'Report a bug': None}
+)
 
-def ImgToB64(img):
-    if img:
-        with BytesIO() as buffer:
-            img.save(buffer, "png")
-            return base64.b64encode(buffer.getvalue()).decode()
-        
-#img_up = ImgToB64(GetImg("imagens/icon_up.png"))
-#img_dn = ImgToB64(GetImg("imagens/icon_dn.png"))
-#img_ok = ImgToB64(GetImg("imagens/icon_ok.png"))
-img_up = GetImg("imagens/icon_up.png")
-img_dn = GetImg("imagens/icon_dn.png")
-img_ok = GetImg("imagens/icon_ok.png")
+# Diretórios de recursos
+RESOURCES_DIR = "resources"
+#CSS_PATH = os.path.join(RESOURCES_DIR, "./styles/style_calc.css")
+#JS_PATH = os.path.join(RESOURCES_DIR, "./scripts/script_calc.js")
+CSS_PATH = "./styles/style_calc.css"
+JS_PATH = "./scripts/script_calc.js"
+IMG_DIR = "./imagens"
 
-def load_hydroponics_data():
+# Carregar recursos externos
+def load_resources():
+    """Carrega CSS, JS e imagens externos"""
+    # CSS
+    if os.path.exists(CSS_PATH):
+        with open(CSS_PATH) as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    
+    # JS
+    if os.path.exists(JS_PATH) and "toggle_js" not in st.session_state:
+        with open(JS_PATH) as f:
+            st.session_state.toggle_js = f.read()
+    
+    # Imagens
+    if "img_dn" not in st.session_state:
+        img_paths = {
+            "img_dn": os.path.join(IMG_DIR, "icon_dn.png"),
+            "img_up": os.path.join(IMG_DIR, "icon_up.png")
+        }
+        for key, path in img_paths.items():
+            st.session_state[key] = Image.open(path) if os.path.exists(path) else None
+
+# Funções de dados
+@st.cache_data
+def load_model(path="./modelos/hidroponia_modelo.pkl"):
+    """Carrega o modelo ML com cache"""
+    return joblib.load(path) if os.path.exists(path) else None
+
+@st.cache_data
+def load_db_data():
+    """Carrega dados do banco com cache"""
     try:
         conn = sqlite3.connect('hidroponia.db')
         cursor = conn.cursor()
         
-        # Carrega dados da tabela tbl_nutrientes ===========================
         cursor.execute("SELECT nut_simbolo, nut_nome, nut_tipo, nut_id FROM tbl_nutrientes")
-        nutrientes = cursor.fetchall() or []  # Garante lista vazia se None
+        nutrientes = cursor.fetchall() or []
         
-        # Inicializar listas (garante que existirão mesmo sem dados)
-        colunas_saida = []
-        nomes_completos = []
-        ids_nutrientes = []
-        macronutrientes = []
-        micronutrientes = []
-        
-        if nutrientes:
-            for simbolo, nome, tipo, nut_id in nutrientes:
-                colunas_saida.append(simbolo)
-                nomes_completos.append(nome)
-                ids_nutrientes.append(nut_id)
-                if tipo == 1:
-                    macronutrientes.append(simbolo)
-                elif tipo == 2:
-                    micronutrientes.append(simbolo)
-        
-        # Carregar dados da tabela tbl_cultivar ============================
         cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivares")
-        cultivares = cursor.fetchall() or []  # Garante lista vazia se None
+        cultivares = cursor.fetchall() or []
         
-        conn.close()
-        
-        return {
-            'colunas_saida': colunas_saida,
-            'nomes_completos': nomes_completos,
-            'ids_nutrientes': ids_nutrientes,
-            'macronutrientes': macronutrientes,
-            'micronutrientes': micronutrientes,
+        # Processar dados
+        data = {
+            'colunas_saida': [n[0] for n in nutrientes],
+            'nomes_completos': [n[1] for n in nutrientes],
+            'ids_nutrientes': [n[3] for n in nutrientes],
+            'macronutrientes': [n[0] for n in nutrientes if n[2] == 1],
+            'micronutrientes': [n[0] for n in nutrientes if n[2] == 2],
             'cultivares': cultivares
         }
-    
+        return data
+        
     except Exception as e:
-        st.error(f"Erro ao carregar dados: {str(e)}")
-        # Retorna estruturas vazias em caso de erro
+        st.error(f"Erro no banco: {str(e)}")
+        return {k: [] for k in ['colunas_saida', 'nomes_completos', 'ids_nutrientes', 
+                               'macronutrientes', 'micronutrientes', 'cultivares']}
+
+@st.cache_data
+def load_cultivar_ranges(cultivar_id):
+    """Carrega faixas do cultivar com cache"""
+    try:
+        conn = sqlite3.connect('hidroponia.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT fax_nut_id, fax_minimo, fax_maximo FROM tbl_faixas WHERE fax_clt_id = ?", (cultivar_id,))
+        return {nut_id: (minimo, maximo) for nut_id, minimo, maximo in cursor.fetchall()}
+    except:
+        return {}
+
+# Funções de renderização
+def render_sidebar():
+    """Renderiza a barra lateral"""
+    with st.sidebar:
+        st.header("⚙️ Parâmetros de Entrada")
+        col1, col2 = st.columns(2)
+        
         return {
-            'colunas_saida': [],
-            'nomes_completos': [],
-            'ids_nutrientes': [],
-            'macronutrientes': [],
-            'micronutrientes': [],
-            'cultivares': []
+            'params': {
+                'Temp': col1.number_input("Temperatura (°C)", 0.0, 50.0, 25.0, 0.1),
+                'pH': col2.number_input("pH", 0.0, 14.0, 5.5, 0.1),
+                'EC': col1.number_input("Condutividade (EC)", 0.0, 10.0, 1.0, 0.01),
+                'O2': col2.number_input("Oxigênio Dissolvido (O₂)", 0.0, 20.0, 4.0, 0.1),
+            },
+            'cultivar_idx': st.selectbox(
+                "Selecione um cultivar:",
+                range(len(st.session_state.cultivares)),
+                format_func=lambda i: st.session_state.cultivares[i][1],
+                index=None
+            ),
+            'volume': st.number_input("Volume do tanque (L):", 10, 100000, 1000, 10)
         }
 
-# ------------------------------
-# Carregar dados com cache
-@st.cache_data
-def load_data():
-    return load_hydroponics_data()
+def apply_row_style(row):
+    """Aplica estilo baseado no tipo de nutriente"""
+    try:
+        simbolo = row["Nutriente"].split('(')[-1].replace(')', '').strip()
+        if simbolo in st.session_state.macronutrientes:
+            return ['background-color: #E2EFDA'] * len(row)
+        if simbolo in st.session_state.micronutrientes:
+            return ['background-color: #DDEBF7'] * len(row)
+    except:
+        pass
+    return [''] * len(row)
 
-def load_cultivar_faixas(cultivar_id):
-    conn = sqlite3.connect('hidroponia.db')
-    cursor = conn.cursor()
+def render_table(df):
+    """Renderiza uma tabela estilizada com largura total e alinhamento personalizado"""
+    # Aplicar estilo de fundo condicional
+    styled_html = df.style.apply(apply_row_style, axis=1).hide(axis="index").to_html()
     
-    # Carregar faixas para todos os nutrientes do cultivar
-    cursor.execute(
-        "SELECT fax_nut_id, fax_minimo, fax_maximo FROM tbl_faixas WHERE fax_clt_id = ?",
-        (cultivar_id,)
-    )
+    # Processar HTML com BeautifulSoup para adicionar classes de alinhamento
+    soup = BeautifulSoup(styled_html, 'html.parser')
     
-    faixas = cursor.fetchall()
-    conn.close()
-    
-    # Criar dicionário com as faixas por ID do nutriente
-    faixa_dict = {}
-    for nut_id, minimo, maximo in faixas:
-        faixa_dict[nut_id] = (nut_id, minimo, maximo)
-    
-    return faixa_dict
-
-def main():
-    # Botão para voltar ao menu principal
-    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
-
-
-    # CSS para responsividade e formatação mobile
-    st.markdown(f"""
-        <style>
-            tbody th {{vertical-align: middle;}}
-            tbody td {{vertical-align: middle; padding-top: 4px; padding-bottom: 4px;}}
-            thead th {{vertical-align: middle; padding-top: 6px; padding-bottom: 6px;}}
-
-            html, body, [class*="css"] {{
-                font-size: 15px;
-            }}
-
-            table {{
-                width: 100% !important;
-            }}
-
-            th:nth-child(1), td:nth-child(1) {{
-                width: {47}%;
-                text-align: left;
-                word-wrap: break-word;
-            }}
-            th:nth-child(2), td:nth-child(2) {{
-                width: {16}%;
-                text-align: right;
-            }}
-            th:nth-child(3), td:nth-child(3) {{
-                width: {16}%;
-                text-align: right;
-            }}
-            th:nth-child(4), td:nth-child(4) {{
-                width: {16}%;
-                text-align: right;
-            }}
-            th:nth-child(5), td:nth-child(5) {{
-                width: {5}%;
-                text-align: center;
-            }}
-
-            .block-container {{
-                padding-top: 3rem;
-                padding-bottom: 1rem;
-                padding-left: 0.5rem;
-                padding-right: 0.5rem;
-            }}
-
-            .st-emotion-cache-1f3w014 {{
-                height: 2rem;
-                width : 2rem;
-                background-color: GREEN;
-            }}
-        </style>
-    """, unsafe_allow_html=True)
-
-    # ------------------------------
-    # Título
-    st.title("🧮 Calculadora")
-    st.markdown(
-        "<h2 style='font-size:26px; font-weight:bold; margin-top:10px;'>🔬 Previsão de Nutrientes na Solução</h2>",
-        unsafe_allow_html=True
-    )
-    st.write("Preencha os parâmetros para obter a estimativa dos nutrientes.")
-
-    # ------------------------------
-    # Carregar o modelo
-    @st.cache_data
-    def carregar_modelo(caminho):
-        return joblib.load(caminho)
-
-    modelo = carregar_modelo('./modelos/hidroponia_modelo.pkl')
-
-    data = load_data()
-    # Verifica se as listas essenciais estão preenchidas
-    if not data['ids_nutrientes']:
-        st.error("Erro crítico: Não foi possível carregar os IDs dos nutrientes. "
-                 "Verifique o banco de dados e a estrutura das tabelas.")
-        st.stop()  # Impede a execução do resto do app
-
-    colunas_entrada = ['Temp', 'pH', 'EC', 'O2']
-    colunas_saida = data['colunas_saida']
-    nomes_completos = data['nomes_completos']
-    ids_nutrientes = data['ids_nutrientes']
-    macronutrientes = data['macronutrientes'] #
-    micronutrientes = data['micronutrientes'] #
-    cultivares = data['cultivares']
-
-    # ------------------------------
-    # Sidebar (menu)
-    st.sidebar.header("⚙️ Parâmetros de Entrada")
-
-    Temp = st.sidebar.number_input("Temperatura (°C)", min_value=0.0, max_value=50.0, value=25.0, step=0.1)
-    pH = st.sidebar.number_input("pH", min_value=0.0, max_value=14.0, value=5.5, step=0.1)
-    EC = st.sidebar.number_input("Condutividade (EC)", min_value=0.0, max_value=10.0, value=1.0, step=0.01)
-    O2 = st.sidebar.number_input("Oxigênio Dissolvido (O₂)", min_value=0.0, max_value=20.0, value=4.0, step=0.1)
-
-    #-------------------------------
-    # Criar selectbox
-    cultivar = st.sidebar.selectbox(
-        label="Selecione um cultivar:",
-        options=range(len(cultivares)),  # Índices como valores
-        format_func=lambda idx: f"{cultivares[idx][1]}",
-        index=None,  # Seleciona o primeiro por padrão
-        help="Selecione um cultivar para configurar a solução nutritiva"
-    )
-
-    if cultivar is not None:
-        cultivar_id = cultivares[cultivar][0]
-        st.subheader(f"Cultivar: :red[{cultivares[cultivar][1]}]")
-        faixa_dict = load_cultivar_faixas(cultivar_id)
-
-    volume_tanque = st.sidebar.number_input(
-        "Informe o volume do tanque:",
-        icon="🛢",
-        min_value=10,
-        max_value=100000,
-        step=10,
-        value=1000,
-        placeholder="Volume em litros (L)"
-    )
-    
-    # ------------------------------
-    # Função de estilo da tabela principal
-    def aplicar_estilo_resultados(linha):
-        # A linha.name aqui se refere ao índice numérico do DataFrame `resultados`
-        # Precisamos mapear esse índice para o símbolo do nutriente
+    # Encontrar todas as células
+    for th in soup.find_all('th'):
+        th['class'] = th.get('class', []) + ['header-center']
         
-        # Obter o nome completo do nutriente na linha atual
-        nutriente_completo = linha["Nutriente"] 
-        # Extrair o símbolo do nutriente da string "Nome Completo (Símbolo)"
-        simbolo = nutriente_completo.split('(')[-1].replace(')', '').strip()
-
-        if simbolo in macronutrientes: #
-            return ['background-color: #E2EFDA'] * len(linha)
-        elif simbolo in micronutrientes: #
-            return ['background-color: #DDEBF7'] * len(linha)
-        else:
-            return [''] * len(linha)
-
-    # Função de estilo para a tabela de reposição
-    def aplicar_estilo_reposicao(linha):
-        # A linha.name aqui se refere ao índice numérico do DataFrame `df_reposicao`
+    for tr in soup.find_all('tr'):
+        cells = tr.find_all('td')
+        if not cells:
+            continue
+            
+        # Primeira coluna: alinhar à esquerda
+        cells[0]['class'] = cells[0].get('class', []) + ['left-align']
         
-        # Obter o nome completo do nutriente na linha atual da df_reposicao
-        nutriente_completo = linha["Nutriente"]
-        # Extrair o símbolo do nutriente da string "Nome Completo (Símbolo)"
-        simbolo = nutriente_completo.split('(')[-1].replace(')', '').strip()
+        # Última coluna (Status): alinhar ao centro
+        cells[-1]['class'] = cells[-1].get('class', []) + ['right-align']
+        
+        # Colunas intermediárias: alinhar à direita
+        for i in range(1, len(cells) - 1):
+            cells[i]['class'] = cells[i].get('class', []) + ['right-align']
+    
+    # Adicionar classes de alinhamento vertical
+    for td in soup.find_all('td'):
+        td['class'] = td.get('class', []) + ['vertical-center']
+    
+    # Adicionar estilos de borda e padding
+    table = soup.find('table')
+    table['style'] = table.get('style', '') + 'border-collapse: collapse !important;'
+    
+    for td in soup.find_all('td'):
+        td['style'] = td.get('style', '') + 'border: 1px solid #d0d0d0 !important; padding: 8px 12px !important;'
+    
+    for th in soup.find_all('th'):
+        th['style'] = th.get('style', '') + 'border: 1px solid #d0d0d0 !important; padding: 8px 12px !important;'
+    
+    return f'''
+    <div class="full-width-container">
+        <div class="scrollable-table">
+            {str(soup)}
+        </div>
+    </div>
+    '''
 
-        if simbolo in macronutrientes: #
-            return ['background-color: #E2EFDA'] * len(linha)
-        elif simbolo in micronutrientes: #
-            return ['background-color: #DDEBF7'] * len(linha)
-        else:
-            return [''] * len(linha)
-
-
-    # Botão e previsão
-    if st.sidebar.button("🔍 Realizar Previsão"):
-        entrada = pd.DataFrame([[Temp, pH, EC, O2]], columns=colunas_entrada)
-        saida = modelo.predict(entrada)[0]
-
-        # Combinar nutriente e símbolo
-        nutriente = [f"{nome} ({simbolo})" for nome, simbolo in zip(nomes_completos, colunas_saida)]
-
-        if cultivar is not None:
-            cultivar_id = cultivares[cultivar][0]
-            faixa_dict = load_cultivar_faixas(cultivar_id)
-
-            # Verifica se há dados de faixas para esse cultivar
-            if not faixa_dict:
-                st.warning("⚠️ Nenhuma faixa definida para este cultivar. Preencha os dados na tabela tbl_faixas.")
-                # Exibe apenas os valores previstos formatados com 3 casas
-                valores_previstos_formatados = [f"{v:.4f}" for v in saida]
-                resultados = pd.DataFrame({
-                    "Nutriente": nutriente,
-                    "Valor Previsto": valores_previstos_formatados
+def render_main_results(prediction, cultivar_idx, volume):
+    """Renderiza os resultados principais da previsão"""
+    # Preparar dados básicos
+    nutriente_names = [f"{nome} ({simbolo})" for nome, simbolo in 
+                      zip(st.session_state.nomes_completos, st.session_state.colunas_saida)]
+    
+    # Caso sem cultivar selecionado
+    if cultivar_idx is None:
+        df = pd.DataFrame({
+            "Nutriente": nutriente_names,
+            "Valor Previsto": [f"{v:.4f}" for v in prediction]
+        })
+        st.markdown(render_table(df), unsafe_allow_html=True)
+        return None, None
+    
+    # Com cultivar selecionado
+    cultivar_id = st.session_state.cultivares[cultivar_idx][0]
+    st.subheader(f"Cultivar: :red[{st.session_state.cultivares[cultivar_idx][1]}]")
+    faixas = load_cultivar_ranges(cultivar_id)
+    
+    if not faixas:
+        st.warning("⚠️ Nenhuma faixa definida para este cultivar.")
+        df = pd.DataFrame({
+            "Nutriente": nutriente_names,
+            "Valor Previsto": [f"{v:.4f}" for v in prediction]
+        })
+        st.markdown(render_table(df), unsafe_allow_html=True)
+        return None, None
+    
+    # Processar resultados com faixas
+    resultados, reposicao_abaixo, reposicao_acima = [], [], []
+    
+    for i, nut_id in enumerate(st.session_state.ids_nutrientes):
+        valor = prediction[i]
+        valor_fmt = f"{valor:.4f}"
+        status, min_fmt, max_fmt = "", "N/A", "N/A"
+        
+        if nut_id in faixas:
+            minimo, maximo = faixas[nut_id]
+            min_fmt, max_fmt = f"{minimo:.4f}", f"{maximo:.4f}"
+            
+            if valor < minimo:
+                status = "🔻"
+                reposicao_g = ((minimo - valor) * volume) / 1000
+                dif_perc = ((minimo - valor) / valor) * 100
+                reposicao_abaixo.append({
+                    "Nutriente": f"{st.session_state.nomes_completos[i]} ({st.session_state.colunas_saida[i]})",
+                    "Valor": valor_fmt,
+                    "Mínimo": min_fmt,
+                    "Dif. (%)": f"{dif_perc:.2f}",
+                    "Repor (g)*": f"{reposicao_g:.4f}"
+                })
+            elif valor > maximo:
+                status = "🔼"
+                reposicao_l = (valor - maximo) * volume / maximo
+                reposicao_acima.append({
+                    "Nutriente": f"{st.session_state.nomes_completos[i]} ({st.session_state.colunas_saida[i]})",
+                    "Valor": valor_fmt,
+                    "Máximo": max_fmt,
+                    "Repor (L)**": f"{reposicao_l:.4f}"
                 })
             else:
-                # Obter valores mínimos, máximos e determinar ícones
-                minimos = []
-                maximos = []
-                icones = []
-                valores_previstos_formatados = []  
+                status = "✅"
                 
-                # Para a nova tabela de reposição
-                nutrientes_abaixo_minimo = []
-                nutrientes_acima_maximo = []
+        resultados.append({
+            "Nutriente": nutriente_names[i],
+            "Previsto": valor_fmt,
+            "Mínimo": min_fmt,
+            "Máximo": max_fmt,
+            "Status": status
+        })
+    
+    # Exibir tabela principal
+    st.markdown(render_table(pd.DataFrame(resultados)), unsafe_allow_html=True)
+    st.success("✅ Previsão realizada com sucesso!")
+    return reposicao_abaixo, reposicao_acima
 
-                for i, nut_id in enumerate(ids_nutrientes):
-                    # Verificar se o nutriente existe no dicionário
-                    if nut_id in faixa_dict:
-                        minimo = faixa_dict[nut_id][1]
-                        maximo = faixa_dict[nut_id][2]
-                        valor_previsto = saida[i]
-                        
-                        # Formatar valores com 3 casas decimais
-                        valor_formatado = f"{valor_previsto:.4f}"  
-                        minimo_formatado = f"{minimo:.4f}"
-                        maximo_formatado = f"{maximo:.4f}"
-                        
-                        valores_previstos_formatados.append(valor_formatado)
-                        minimos.append(minimo_formatado)
-                        maximos.append(maximo_formatado)
-                        
-                        # Determinar o ícone baseado nos valores
-                        if valor_previsto < minimo:
-                            icones.append("🔻")  # seta para baixo
-                            #icones.append(img_dn)  # seta para baixo
-                            reposicao = ((minimo - valor_previsto) * volume_tanque) / 1000 # Valores em Gramas (g)
-                            diferencao_minimo = ((minimo-valor_previsto)/valor_previsto) * 100
-                            nutrientes_abaixo_minimo.append({
-                                "Nutriente": f"{nomes_completos[i]} ({colunas_saida[i]})",
-                                "Valor": valor_formatado,
-                                "Mínimo": minimo_formatado,
-                                "Dif. (%)": f"{diferencao_minimo:.2f}",
-                                "Repor (g)*": f"{reposicao:.4f}"
-                            })
-                        elif valor_previsto > maximo:
-                            icones.append("🔼")  # seta para cima
-                            #icones.append(img_up)  # seta para cima
-                            #reposicao = (maximo - (maximo - valor_previsto)) * volume_tanque # Valores em Litros (L)
-                            reposicao = (maximo - (valor_previsto - maximo)) * volume_tanque # Valores em Litros (L)
-                            nutrientes_acima_maximo.append({
-                                "Nutriente": f"{nomes_completos[i]} ({colunas_saida[i]})",
-                                "Valor": valor_formatado,
-                                "Máximo": maximo_formatado,
-                                "Repor (L)**": f"{reposicao:.4f}"
-                            })
-                        else:
-                            icones.append("✅")
-                            #icones.append(img_ok)  # like
-                    else:
-                        # Formatar o valor previsto mesmo sem faixa definida
-                        valores_previstos_formatados.append(f"{saida[i]:.4f}")
-                        minimos.append("N/A")
-                        maximos.append("N/A")
-                        icones.append('')  # vazio se não houver dados
-
-                resultados = pd.DataFrame({
-                    "Nutriente": nutriente,
-                    "Previsto": valores_previstos_formatados,
-                    "Mínimo": minimos,
-                    "Máximo": maximos,
-                    "Status": icones  # Coluna de status com ícones
-                })
-        else:
-            # Caso sem cultivar selecionado: apenas valor previsto formatado
-            valores_previstos_formatados = [f"{v:.4f}" for v in saida]
-            resultados = pd.DataFrame({
-                "Nutriente": nutriente,
-                "Valor Previsto": valores_previstos_formatados
-            })
-            nutrientes_abaixo_minimo = []
-            nutrientes_acima_maximo = [] 
-
-        # Aplicar estilo à tabela de resultados principal
-        styled_resultados = (
-            resultados
-            .style
-            .apply(aplicar_estilo_resultados, axis=1) # Usar a nova função de estilo
-        )
-
-        st.markdown(styled_resultados.hide(axis="index").to_html(), unsafe_allow_html=True)
-        st.success("✅ Previsão realizada com sucesso!")
-
-        st.markdown(
-            """
-            <style>
-            textarea {
-                font-size: 1rem !important;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        st.subheader("🧪 Relatório dos Nutrientes")
-
-        # Display the new table for nutrients below minimum
-        if nutrientes_abaixo_minimo:
-            col1, col2 = st.columns([10,200], vertical_alignment="bottom")
-            with col1:
-                st.image(img_dn, width=28)
-            with col2:
-                st.subheader("Nutrientes abaixo do mínimo")
-
-            df_reposicao = pd.DataFrame(nutrientes_abaixo_minimo)
-            # Aplicar o estilo para ocultar o índice e depois exibir como HTML
-            styled_df_reposicao = df_reposicao.style.apply(aplicar_estilo_reposicao, axis=1).hide(axis="index") # Usar a nova função de estilo
-            st.markdown(styled_df_reposicao.to_html(), unsafe_allow_html=True)
-            st.write("* As quantidades dos fertilizantes repostos devem ser calculadas considerando as suas concentrações.")
+def render_reposicao_section(title, icon, data, caption):
+    """Renderiza uma seção de reposição"""
+    with st.container():
+        col1, col2 = st.columns([0.05, 0.95])
+        with col1:
+            if icon:
+                st.image(icon, width=30)
+        with col2:
+            st.subheader(title)
         
-        if nutrientes_acima_maximo:
-            col1, col2 = st.columns([10,200], vertical_alignment="bottom")
-            with col1:
-                st.image(img_up, width=28)
-            with col2:
-                st.subheader("Nutrientes acima do máximo")
+        if data:
+            df = pd.DataFrame(data)
+            st.markdown(render_table(df), unsafe_allow_html=True)
+            st.caption(caption)
 
-            df_reposicao = pd.DataFrame(nutrientes_acima_maximo)
-            # Aplicar o estilo para ocultar o índice e depois exibir como HTML
-            styled_df_reposicao = df_reposicao.style.apply(aplicar_estilo_reposicao, axis=1).hide(axis="index") # Usar a nova função de estilo
-            st.markdown(styled_df_reposicao.to_html(), unsafe_allow_html=True)
-            st.write("** A quantidade de água reposta para a diluição terá influência na concentração de todos os outros nutrientes.")
-
-        else:
-            st.info("Todos os nutrientes estão dentro das faixas recomendadas para o cultivar selecionado.")
-
+# Função principal
+def main():
+    # Carregar recursos
+    load_resources()
+    
+    # Título
+    st.subheader("🧮 Calculadora de Nutrientes")
+    st.write("Preencha os parâmetros à esquerda e clique em 'Realizar Previsão'")
+    
+    # Inicializar dados essenciais
+    if "db_data" not in st.session_state:
+        st.session_state.db_data = load_db_data()
+        st.session_state.update(st.session_state.db_data)
+        st.session_state.model = load_model()
+    
+    # Obter parâmetros do usuário
+    sidebar_data = render_sidebar()
+    
+    # Processar previsão quando solicitado
+    if st.sidebar.button("🔍 Realizar Previsão", use_container_width=True):
+        # Executar JS para fechar sidebar
+        if "toggle_js" in st.session_state:
+            html(f"<script>{st.session_state.toggle_js}</script>")
+        
+        # Fazer previsão
+        try:
+            input_data = pd.DataFrame([list(sidebar_data['params'].values())], 
+                                     columns=['Temp', 'pH', 'EC', 'O2'])
+            prediction = st.session_state.model.predict(input_data)[0]
+            
+            # Renderizar resultados principais
+            reposicao_abaixo, reposicao_acima = render_main_results(
+                prediction, 
+                sidebar_data['cultivar_idx'], 
+                sidebar_data['volume']
+            )
+            
+            # Renderizar seções de reposição
+            st.subheader("🧪 Relatório dos Nutrientes")
+            
+            if reposicao_abaixo:
+                render_reposicao_section(
+                    "Nutrientes abaixo do mínimo",
+                    st.session_state.get("img_dn"),
+                    reposicao_abaixo,
+                    "* Adicione fertilizantes considerando suas concentrações"
+                )
+            
+            if reposicao_acima:
+                render_reposicao_section(
+                    "Nutrientes acima do máximo",
+                    st.session_state.get("img_up"),
+                    reposicao_acima,
+                    "** Dilua a solução adicionando água pura"
+                )
+            
+            if not reposicao_abaixo and not reposicao_acima:
+                st.info("✅ Todos os nutrientes estão dentro das faixas recomendadas")
+                
+        except Exception as e:
+            st.error(f"Erro na previsão: {str(e)}")
 
 if __name__ == "__main__":
     main()
