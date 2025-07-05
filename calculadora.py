@@ -1,5 +1,3 @@
-# calculadora.py
-
 import streamlit as st
 from streamlit.components.v1 import html
 import pandas as pd
@@ -20,8 +18,6 @@ st.set_page_config(
 
 # Diretórios de recursos
 RESOURCES_DIR = "resources"
-#CSS_PATH = os.path.join(RESOURCES_DIR, "./styles/style_calc.css")
-#JS_PATH = os.path.join(RESOURCES_DIR, "./scripts/script_calc.js")
 CSS_PATH = "./styles/style_calc.css"
 JS_PATH = "./scripts/script_calc.js"
 IMG_DIR = "./imagens"
@@ -150,7 +146,7 @@ def render_table(df):
         cells[0]['class'] = cells[0].get('class', []) + ['left-align']
         
         # Última coluna (Status): alinhar ao centro
-        cells[-1]['class'] = cells[-1].get('class', []) + ['right-align']
+        cells[-1]['class'] = cells[-1].get('class', []) + ['center-align']
         
         # Colunas intermediárias: alinhar à direita
         for i in range(1, len(cells) - 1):
@@ -170,10 +166,17 @@ def render_table(df):
     for th in soup.find_all('th'):
         th['style'] = th.get('style', '') + 'border: 1px solid #d0d0d0 !important; padding: 8px 12px !important;'
     
+    # CORREÇÃO DEFINITIVA: Extrair apenas a tabela
+    table_element = soup.find('table')
+    if table_element:
+        table_html = str(table_element)
+    else:
+        table_html = str(soup)
+
     return f'''
     <div class="full-width-container">
         <div class="scrollable-table">
-            {str(soup)}
+            {table_html}
         </div>
     </div>
     '''
