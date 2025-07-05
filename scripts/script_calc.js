@@ -16,6 +16,8 @@ function toggleSidebar() {
     }
     
     // Disparar evento de redimensionamento após a operação
-    window.dispatchEvent(new Event('resize'));
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 300);
 }
 setTimeout(toggleSidebar, 100);
