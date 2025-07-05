@@ -6,6 +6,7 @@ from importlib import import_module
 # Configuração inicial da página
 st.set_page_config(
     page_title="Cadastros",
+    page_icon="📂",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -24,13 +25,16 @@ st.markdown("""
         width: 100%;
     }
     .stButton>button {
+        margin-top: 2px;
+        margin-botton: 0px;
+        padding: 0px;
         width: 100%;
     }
     div[data-baseweb="input"] input {
         background-color: #f0f2f6 !important;
     }
     .stAlert { 
-        padding: 10px; 
+        padding: 5px; 
         border-radius: 5px; 
         margin: 10px 0;
     }
@@ -126,7 +130,7 @@ def main():
         st.session_state.cadastros_page = "home"
     
     show_sidebar()
-    page_registry.show_page(st.session_state.cadastros_page)
+    #page_registry.show_page(st.session_state.cadastros_page)
 
 if __name__ == "__main__":
     main()

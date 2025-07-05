@@ -17,9 +17,10 @@ st.set_page_config(
 
 # Diretórios de recursos
 RESOURCES_DIR = "resources"
-CSS_PATH = "./styles/style_calc.css"
+CSS_PATH = "./styles/style.css"
 JS_PATH = "./scripts/script_calc.js"
 IMG_DIR = "./imagens"
+DB_NAME = "./dados/hidroponia.db"
 
 # Carregar recursos externos
 def load_resources():
@@ -53,7 +54,7 @@ def load_model(path="./modelos/hidroponia_modelo.pkl"):
 def load_db_data():
     """Carrega dados do banco com cache"""
     try:
-        conn = sqlite3.connect('hidroponia.db')
+        conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         
         cursor.execute("SELECT nut_simbolo, nut_nome, nut_tipo, nut_id FROM tbl_nutrientes")
@@ -82,7 +83,7 @@ def load_db_data():
 def load_cultivar_ranges(cultivar_id):
     """Carrega faixas do cultivar com cache"""
     try:
-        conn = sqlite3.connect('hidroponia.db')
+        conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute("SELECT fax_nut_id, fax_minimo, fax_maximo FROM tbl_faixas WHERE fax_clt_id = ?", (cultivar_id,))
         return {nut_id: (minimo, maximo) for nut_id, minimo, maximo in cursor.fetchall()}
@@ -162,16 +163,17 @@ def render_main_results(prediction, cultivar_idx, volume):
         
         if nut_id in faixas:
             minimo, maximo = faixas[nut_id]
-            min_fmt, max_fmt = f"{minimo:.4f}", f"{maximo:.4f}"
+            min_fmt, max_fmt, med_fmt = f"{minimo:.4f}", f"{maximo:.4f}", f"{(maximo-minimo)/2:.4f}"
             
             if valor < minimo:
                 status = "🔻"
-                reposicao_g = ((minimo - valor) * volume) / 1000
-                dif_perc = ((minimo - valor) / valor) * 100
+                reposicao_g = ((maximo-minimo)/2)-valor #((minimo - valor) * volume) / 1000
+                dif_perc = ((((maximo-minimo)/2)-valor) / valor) * 100
                 reposicao_abaixo.append({
                     "Nutriente": f"{st.session_state.nomes_completos[i]} ({st.session_state.colunas_saida[i]})",
                     "Valor": valor_fmt,
                     "Mínimo": min_fmt,
+                    "Média": med_fmt,
                     "Dif. (%)": f"{dif_perc:.2f}",
                     "Repor (g)*": f"{reposicao_g:.4f}"
                 })
