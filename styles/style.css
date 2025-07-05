@@ -1,10 +1,11 @@
-/* Ajustes gerais para espaçamento */
+/* Ajustes EXTREMOS de espaçamento */
 .block-container {
-    padding-top: 0rem !important;
-    padding-bottom: 0rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
 .header-container {
     position: relative;
     margin-top: 0 !important;
@@ -12,82 +13,44 @@
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
-.st-emotion-cache-10trblm { /* Estilo para o título H1 */
+
+/* Botão Sair no canto superior direito */
+.top-right-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 100;
+    width: 100px;
+}
+
+/* Título principal sem espaços */
+.st-emotion-cache-10trblm {
     padding-top: 0 !important;
-    padding-bottom: 0 !important;
     margin-top: 0 !important;
-    margin-bottom: 0 !important;
-}
-.st-emotion-cache-1pxazr7 { /* Classe do hr no Streamlit */
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-}
-.title-container {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
 }
-hr {
-    margin-top: 0.0rem !important;
-    margin-bottom: 0.0rem !important;
-}
-.feature-button-container { /* Pode não ser mais necessário com o novo layout */
-    margin-top: 0.0rem !important;
-    margin-bottom: 0.0rem !important;
-    padding-top: 0.0rem !important;
-    padding-bottom: 0.0rem !important;
-}
-.feature-buttons-column { /* Pode não ser mais necessário */
-    gap: 0.0rem !important;
+
+/* Mensagem de boas-vindas compacta */
+.welcome-message {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    font-size: 0.95em;
+    color: #555;
+    line-height: 1.2;
 }
 
-/* CENTRALIZAR LOGO */
-.stImage { /* Classe que envolve as imagens do Streamlit */
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-.stImage img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+/* Linha divisória ajustada */
+.st-emotion-cache-1pxazr7 {
+    margin-top: 0.1rem !important;
+    margin-bottom: 0.1rem !important;
 }
 
-/* ESTILO UNIFICADO PARA TODOS OS BOTÕES */
-.stButton button,
-div[data-testid="stButton"] > button,
-div[data-testid="stButton"] > button[kind="secondary"],
-div[data-testid="stButton"] > button[kind="primary"] {
-    background-color: white !important;
-    color: black !important;
-    border: 1px solid #d3d3d3 !important;
-    transition: background-color 0.3s !important;
-    text-align: left;
-    padding: 8px 12px !important;
-    border-radius: 5px;
-    margin: 4px 0 !important;
-    cursor: pointer;
-    font-size: 1.1em;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-/* Hover para todos os botões */
-.stButton button:hover,
-div[data-testid="stButton"] > button:hover,
-div[data-testid="stButton"] > button[kind="secondary"]:hover,
-div[data-testid="stButton"] > button[kind="primary"]:hover {
-    background-color: #90EE90 !important; /* Verde claro */
-    transform: scale(1.01);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-}
-
-/* Estilos para o menu de opções */
+/* Menu de opções mais compacto */
 .menu-options {
     position: absolute;
-    top: 0px;
+    top: -10px;
     right: 10px;
     background-color: white;
     border-radius: 10px;
@@ -96,6 +59,7 @@ div[data-testid="stButton"] > button[kind="primary"]:hover {
     z-index: 100;
     display: none;
 }
+
 .menu-option {
     padding: 8px 12px;
     cursor: pointer;
@@ -105,6 +69,7 @@ div[data-testid="stButton"] > button[kind="primary"]:hover {
     color: black !important;
     border-radius: 4px;
 }
+
 .menu-option:hover {
     background-color: #f0f0f0;
 }
@@ -115,12 +80,24 @@ div[data-testid="stButton"] > button[kind="primary"]:hover {
     margin-right: 5px;
 }
 
-/* Estilo para o botão de voltar */
-.back-button {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 100;
+/* ESTILO UNIFICADO PARA TODOS OS BOTÕES */
+.stButton button,
+div[data-testid="stButton"] > button,
+div[data-testid="stButton"] > button[kind="secondary"],
+div[data-testid="stButton"] > button[kind="primary"] {
+    margin: 0 !important;
+    margin-bottom: 0.2rem !important;
+    padding: 6px 10px !important;
+}
+
+/* Hover para todos os botões */
+.stButton button:hover,
+div[data-testid="stButton"] > button:hover,
+div[data-testid="stButton"] > button[kind="secondary"]:hover,
+div[data-testid="stButton"] > button[kind="primary"]:hover {
+    background-color: #90EE90 !important;
+    transform: scale(1.01);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 
 /* Remove todos os elementos de navegação automática */
@@ -185,7 +162,7 @@ div[data-testid="stVerticalBlock"] {
 .scrollable-table table {
     width: 100% !important;
     min-width: 100% !important;
-    table-layout: auto !important; /* Alterado para auto */
+    table-layout: auto !important;
 }
 
 /* Garantir que cabeçalhos ocupem toda a largura */
@@ -199,32 +176,27 @@ table {
     border-collapse: collapse !important;
 }
 
-/* Alinha a coluna 1 à esquerda */
+/* Alinhamento de colunas */
 table td:nth-child(1), table th:nth-child(1) {
   text-align: left;
 }
 
-/* Alinha a coluna 2 à direita */
 table td:nth-child(2), table th:nth-child(2) {
   text-align: right;
 }
 
-/* Alinha a coluna 3 à direita */
 table td:nth-child(3), table th:nth-child(3) {
   text-align: right;
 }
 
-/* Alinha a coluna 4 à direita */
 table td:nth-child(4), table th:nth-child(4) {
   text-align: right;
 }
 
-/* Alinha a coluna 5 à direita */
 table td:nth-child(5), table th:nth-child(5) {
   text-align: right;
 }
 
-/* Alinha a coluna 6 à direita */
 table td:nth-child(6), table th:nth-child(6) {
   text-align: right;
 }
@@ -232,7 +204,6 @@ table td:nth-child(6), table th:nth-child(6) {
 th, td {
     border: 1px solid #d0d0d0 !important;
     padding: 4px 6px !important;
-    /* Removido white-space: nowrap */
 }
 
 thead th {
@@ -241,7 +212,7 @@ thead th {
     border-bottom: 2px solid #a0a0a0 !important;
     position: sticky !important;
     top: 0 !important;
-    color: #000 !important; /* Garantir cor do texto */
+    color: #000 !important;
 }
 
 tbody tr:nth-child(even) {
