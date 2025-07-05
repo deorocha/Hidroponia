@@ -14,9 +14,9 @@ div[data-testid="stVerticalBlock"] {
 /* Container principal da tabela */
 .full-width-container {
     width: 100% !important;
-    max-width: calc(100vw - 2rem) !important; /* Considera padding */
+    max-width: calc(100vw - 2rem) !important;
     overflow-x: auto !important;
-    transition: max-width 0.3s ease; /* Animação suave */
+    transition: max-width 0.3s ease;
 }
 
 /* Container rolável */
@@ -95,6 +95,7 @@ tbody tr:nth-child(even) {
     height: 0 !important;
 }
 
+/* Responsividade para sidebar */
 @media (min-width: 768px) {
     .full-width-container {
         max-width: calc(100vw - 2rem) !important;
@@ -102,6 +103,16 @@ tbody tr:nth-child(even) {
     
     /* Quando sidebar está aberto */
     [data-testid="stSidebar"][aria-expanded="true"] ~ .main .full-width-container {
-        max-width: calc(100vw - 23rem) !important; /* 21rem sidebar + 2rem padding */
+        max-width: calc(100vw - 23rem) !important;
     }
+}
+
+/* Remover espaçamento extra após tabelas */
+div[data-testid="stVerticalBlock"] > div:has(> .full-width-container) + div:empty {
+    display: none !important;
+}
+
+/* Remover espaçamento antes de tabelas */
+div[data-testid="stVerticalBlock"] > div:empty + div:has(> .full-width-container) {
+    margin-top: -1rem !important;
 }
