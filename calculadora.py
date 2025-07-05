@@ -5,7 +5,6 @@ import joblib
 import sqlite3
 from PIL import Image
 import os
-from bs4 import BeautifulSoup
 
 # Configuração inicial da página
 st.set_page_config(
@@ -113,73 +112,16 @@ def render_sidebar():
             'volume': st.number_input("Volume do tanque (L):", 10, 100000, 1000, 10)
         }
 
-def apply_row_style(row):
-    """Aplica estilo baseado no tipo de nutriente"""
-    try:
-        simbolo = row["Nutriente"].split('(')[-1].replace(')', '').strip()
-        if simbolo in st.session_state.macronutrientes:
-            return ['background-color: #E2EFDA'] * len(row)
-        if simbolo in st.session_state.micronutrientes:
-            return ['background-color: #DDEBF7'] * len(row)
-    except:
-        pass
-    return [''] * len(row)
-
 def render_table(df):
-    """Renderiza uma tabela estilizada com largura total e alinhamento personalizado"""
-    # Aplicar estilo de fundo condicional
-    styled_html = df.style.apply(apply_row_style, axis=1).hide(axis="index").to_html()
-    
-    # Processar HTML com BeautifulSoup para adicionar classes de alinhamento
-    soup = BeautifulSoup(styled_html, 'html.parser')
-    
-    # Encontrar todas as células
-    for th in soup.find_all('th'):
-        th['class'] = th.get('class', []) + ['header-center']
-        
-    for tr in soup.find_all('tr'):
-        cells = tr.find_all('td')
-        if not cells:
-            continue
-            
-        # Primeira coluna: alinhar à esquerda
-        cells[0]['class'] = cells[0].get('class', []) + ['left-align']
-        
-        # Última coluna (Status): alinhar ao centro
-        cells[-1]['class'] = cells[-1].get('class', []) + ['center-align']
-        
-        # Colunas intermediárias: alinhar à direita
-        for i in range(1, len(cells) - 1):
-            cells[i]['class'] = cells[i].get('class', []) + ['right-align']
-    
-    # Adicionar classes de alinhamento vertical
-    for td in soup.find_all('td'):
-        td['class'] = td.get('class', []) + ['vertical-center']
-    
-    # Adicionar estilos de borda e padding
-    table = soup.find('table')
-    table['style'] = table.get('style', '') + 'border-collapse: collapse !important;'
-    
-    for td in soup.find_all('td'):
-        td['style'] = td.get('style', '') + 'border: 1px solid #d0d0d0 !important; padding: 8px 12px !important;'
-    
-    for th in soup.find_all('th'):
-        th['style'] = th.get('style', '') + 'border: 1px solid #d0d0d0 !important; padding: 8px 12px !important;'
-    
-    # CORREÇÃO DEFINITIVA: Extrair apenas a tabela
-    table_element = soup.find('table')
-    if table_element:
-        table_html = str(table_element)
-    else:
-        table_html = str(soup)
-
-    return f'''
+    """Renderiza uma tabela estilizada com largura total"""
+    # Aplicar classes CSS diretamente
+    return f"""
     <div class="full-width-container">
         <div class="scrollable-table">
-            {table_html}
+            {df.to_html(index=False, escape=False)}
         </div>
     </div>
-    '''
+    """
 
 def render_main_results(prediction, cultivar_idx, volume):
     """Renderiza os resultados principais da previsão"""
