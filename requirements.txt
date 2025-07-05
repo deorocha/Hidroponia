@@ -18,3 +18,4 @@ transformers
 unicodedata2
 tensorflow
 pdfplumber
+beautifulsoup4
