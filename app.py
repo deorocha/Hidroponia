@@ -81,63 +81,19 @@ if not st.session_state.logged_in:
 
 # --- Página inicial (Home) ---
 def home_page():
-    # Container para o botão Sair no topo da página
-    col1, col2, col3 = st.columns([2, 8, 2])
-    with col3:
-        if st.button("🚪 Sair", key="top_logout", use_container_width=True):
-            # Resetar todos os estados de login
-            st.session_state.logged_in = False
-            st.session_state.user_name = ""
-            st.session_state.user_id = None
-            st.session_state.current_page = "login"
-            st.session_state.show_login = True
-            st.session_state.show_signup = False
-            st.rerun()
+    # Container principal com layout compacto
+    st.markdown('<div class="header-container">', unsafe_allow_html=True)
+    
+    # Cabeçalho ultra compacto
+    st.markdown('<div class="title-container">', unsafe_allow_html=True)
+    st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>🌿 HortaTec</h2>", 
+                unsafe_allow_html=True)
+    st.markdown(f"<div class='welcome-message'>Bem-vindo(a), {st.session_state.user_name}!</div>", 
+               unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    # st.divider()
 
-    with st.sidebar:
-        st.header("Opções Rápidas")
-        # ... restante do código da sidebar ...
-            
-        if st.button("🚪 Sair", key="sidebar_logout"):
-            # ... código de logout ...
-            st.rerun()
-
-    # Cabeçalho da aplicação
-    with st.container():
-        st.markdown('<div class="header-container">', unsafe_allow_html=True)
-        
-        with st.container():
-            st.markdown('<div class="title-container">', unsafe_allow_html=True)
-            st.title(f"🌿 HortaTec - Bem-vindo(a), {st.session_state.user_name}!")
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown(
-            """
-            <div class="menu-options">
-                <div class="menu-option" onclick="handleMenuOption('settings')">
-                    <span>⚙️</span> Settings
-                </div>
-                <div class="menu-option" onclick="handleMenuOption('print')">
-                    <span>🖨️</span> Print
-                </div>
-                <div class="menu-option" onclick="handleMenuOption('share')">
-                    <span>🔗</span> Share
-                </div>
-                <div class="menu-option" onclick="handleMenuOption('about')">
-                    <span>ℹ️</span> About
-                </div>
-                <div class="menu-option" onclick="handleMenuOption('exit')">
-                    <span>🚪</span> Exit
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.divider()
-
-    # Lista de funcionalidades
+    # Lista de funcionalidades incluindo o botão Sair
     features = [
         {"icon": "📅", "name": "Agenda de manejo 🚧", "page": "agenda"},
         {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
@@ -147,19 +103,35 @@ def home_page():
         {"icon": "📈", "name": "Crescimento 🚧", "page": "crescimento"},
         {"icon": "🐛", "name": "Detecção de doenças 🚧", "page": "doencas_imagem"},
         {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"},
+        {"icon": "🚪", "name": "Sair do programa", "page": "logout"}
     ]
     
     for feature in features:
-        if st.button(
-            label=f"{feature['icon']} {feature['name']}",
-            key=f"btn_{feature['page']}",
-            use_container_width=True
-        ):
-            st.session_state.current_page = feature['page']
-            st.rerun()
+        if feature['page'] == "logout":  # Tratamento especial para o botão Sair
+            if st.button(
+                label=f"{feature['icon']} {feature['name']}",
+                key=f"btn_{feature['page']}",
+                use_container_width=True
+            ):
+                # Resetar estados de login
+                st.session_state.logged_in = False
+                st.session_state.user_name = ""
+                st.session_state.user_id = None
+                st.session_state.current_page = "login"
+                st.session_state.show_login = True
+                st.session_state.show_signup = False
+                st.rerun()
+        else:
+            if st.button(
+                label=f"{feature['icon']} {feature['name']}",
+                key=f"btn_{feature['page']}",
+                use_container_width=True
+            ):
+                st.session_state.current_page = feature['page']
+                st.rerun()
 
     # Rodapé
-    st.divider()
+    # st.divider()
     st.caption("© 2025 HortaTec | Versão 1.0")
     
     st.markdown(
@@ -188,7 +160,7 @@ def home_page():
 if st.session_state.current_page == "home":
     home_page()
 else:
-    # Substituir as colunas originais por este novo layout
+    # Layout compacto para páginas secundárias
     col1, spacer, col2 = st.columns([2, 8, 2])
     with col1:
         if st.button(" ← Voltar ", key="btn_back_universal", help="Retorna à página inicial", use_container_width=True):

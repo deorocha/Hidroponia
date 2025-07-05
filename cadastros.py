@@ -16,8 +16,6 @@ st.set_page_config(
     }
 )
 
-st.subheader("📂 Cadastros")
-
 # CSS para melhorar a aparência
 st.markdown("""
     <style>
@@ -71,27 +69,28 @@ class PageRegistry:
 page_registry = PageRegistry()
 
 # Registrar todas as páginas
+page_registry.register_page("estufas", "cadastro_estufas", "show")
 page_registry.register_page("bancadas", "cadastro_bancadas", "show")
+page_registry.register_page("tanques", "cadastro_tanques", "show")
 page_registry.register_page("cultivares", "cadastro_cultivares", "show")
 page_registry.register_page("nutrientes", "cadastro_nutrientes", "show")
 page_registry.register_page("solucoes", "cadastro_solucoes", "show")
-page_registry.register_page("tanques", "cadastro_tanques", "show")
-page_registry.register_page("configuracoes", "configuracoes", "show")
-page_registry.register_page("sobre", "sobre_nos", "show")
-page_registry.register_page("email", "fale_conosco", "show")
 
 def show_sidebar():
     with st.sidebar:
-        st.markdown("<div style='font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;'>📂 Navegação</div>", 
-                    unsafe_allow_html=True)
-        
-        st.markdown("<div style='font-weight: bold; margin: 1rem 0 0.5rem 0;'>📁 CADASTROS</div>", 
+        st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>📂 Cadastros</h2>",
                     unsafe_allow_html=True)
         
         cols = st.columns(1)
         with cols[0]:
+            if st.button("⛺ Estufas", key="btn_estufas", use_container_width=True):
+                st.session_state.cadastros_page = "estufas"
+                st.rerun()
             if st.button("🎍 Bancadas", key="btn_bancadas", use_container_width=True):
                 st.session_state.cadastros_page = "bancadas"
+                st.rerun()
+            if st.button("🚰 Tanques", key="btn_tanques", use_container_width=True):
+                st.session_state.cadastros_page = "tanques"
                 st.rerun()
             if st.button("🥬 Cultivares", key="btn_cultivares", use_container_width=True):
                 st.session_state.cadastros_page = "cultivares"
@@ -102,27 +101,7 @@ def show_sidebar():
             if st.button("🧪 Soluções", key="btn_solucoes", use_container_width=True):
                 st.session_state.cadastros_page = "solucoes"
                 st.rerun()
-            if st.button("🚰 Tanques", key="btn_tanques", use_container_width=True):
-                st.session_state.cadastros_page = "tanques"
-                st.rerun()
         
-        st.divider()
-        
-        st.markdown("<div style='font-weight: bold; margin: 1rem 0 0.5rem 0;'>⚙️ CONFIGURAÇÕES</div>", 
-                    unsafe_allow_html=True)
-        
-        cols = st.columns(1)
-        with cols[0]:
-            if st.button("⚙️ Configurações", key="btn_config", use_container_width=True):
-                st.session_state.cadastros_page = "configuracoes"
-                st.rerun()
-            if st.button("ℹ️ Sobre nós", key="btn_sobre", use_container_width=True):
-                st.session_state.cadastros_page = "sobre"
-                st.rerun()
-            if st.button("📩 Fale conosco", key="btn_contato", use_container_width=True):
-                st.session_state.cadastros_page = "email"
-                st.rerun()
-
 def main():
     db_utils.init_db()
     

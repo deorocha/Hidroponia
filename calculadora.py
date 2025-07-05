@@ -94,6 +94,10 @@ def load_cultivar_ranges(cultivar_id):
 def render_sidebar():
     """Renderiza a barra lateral"""
     with st.sidebar:
+
+        st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>🧮 Calculadora</h2>",
+            unsafe_allow_html=True)
+
         st.header("⚙️ Parâmetros de Entrada")
         col1, col2 = st.columns(2)
         
@@ -221,10 +225,6 @@ def render_reposicao_section(title, icon, data, caption):
 def main():
     # Carregar recursos
     load_resources()
-    
-    # Título
-    st.subheader("🧮 Calculadora de Nutrientes")
-    st.write("Preencha os parâmetros à esquerda e clique em 'Realizar Previsão'")
     
     # Inicializar dados essenciais
     if "db_data" not in st.session_state:

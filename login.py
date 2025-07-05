@@ -133,7 +133,9 @@ def verify_token(token):
 
 # Interface principal
 def main():
-    st.title("Sistema de Autenticação HortaTec")
+    # Cabeçalho ultra compacto
+    st.markdown("<h2 style='margin-top:0; padding-top:0; margin-bottom:0;'>🌿 HortaTec</h2>", 
+                unsafe_allow_html=True)
     init_db()
     
     # Verificar token na URL

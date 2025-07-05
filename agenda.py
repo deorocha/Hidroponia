@@ -1,7 +1,14 @@
 import streamlit as st
 from streamlit_calendar import calendar
 
-# st.title("📆 Agenda")
+# Configuração inicial da página
+st.set_page_config(
+    page_title="Agenda",
+    page_icon="📅",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+    menu_items={'About': None, 'Get help': None, 'Report a bug': None}
+)
 
 def main():
     st.markdown(f"""
@@ -25,26 +32,24 @@ def main():
         </style>
     """, unsafe_allow_html=True)
 
-    # Botão para voltar ao menu principal
-    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
+    with st.sidebar:
+        st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>📅 Agenda</h2>",
+            unsafe_allow_html=True)
 
-    # ------------------------------
-    # Sidebar (menu)
-    st.sidebar.header("📅 Agenda de manejo")
 
-    mode = st.sidebar.selectbox(
-    "Calendar Mode:",
-        (
-        "grade diária",                 # daygrid
-        "grade temporal",               # timegrid
-        "linha do tempo",               # timeline
-        "grade diária de recursos",     # resource-daygrid
-        "grade temporal de recursos",   # resource-timegrid
-        "linha do tempo de recursos",   # resource-timeline
-        "lista",                        # list
-        "vários meses",                 # multimonth
-        ),
-    )
+        mode = st.sidebar.selectbox(
+            "Tipo de calendário:",
+            (
+            "grade diária",                 # daygrid
+            "grade temporal",               # timegrid
+            "linha do tempo",               # timeline
+            "grade diária de recursos",     # resource-daygrid
+            "grade temporal de recursos",   # resource-timegrid
+            "linha do tempo de recursos",   # resource-timeline
+            "lista",                        # list
+            "vários meses",                 # multimonth
+            ),
+        )
 
     events = [
         {"title": "Event 1", "color": "#FF6C6C", "start": "2023-07-03", "end": "2023-07-05", "resourceId": "a",},

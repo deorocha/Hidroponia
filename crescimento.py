@@ -1,18 +1,17 @@
 import streamlit as st
 
-# Configuração da Página
+# Configuração inicial da página
 st.set_page_config(
-    page_title="📈 Crescimento",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+    page_title="Crescimento",
+    page_icon="📈",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'About': None,
+        'Get help': None,
+        'Report a bug': None
+    }
 )
-
-col1, col2 = st.columns([15,200])
-with col1:
-    st.image('./imagens/crescimento.png', width=64)
-with col2:
-    st.subheader("Crescimento")
-st.caption("Acompanhe o crescimento da sua lavoura...")
 
 # Carrega o CSS customizado
 with open('./styles/style.css') as f:
@@ -24,7 +23,9 @@ def go_home_standalone():
 
 def main():
     # Sidebar (menu)
-    st.sidebar.header("📈 Crescimento")
+    with st.sidebar:
+        st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>📈 Crescimento</h2>",
+                    unsafe_allow_html=True)
 
     #... Continua o programa ...
 

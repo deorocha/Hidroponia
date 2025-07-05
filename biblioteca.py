@@ -10,6 +10,7 @@ from io import BytesIO
 # Configuração inicial da página
 st.set_page_config(
     page_title="Biblioteca",
+    page_icon="📚",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -18,8 +19,6 @@ st.set_page_config(
         'Report a bug': None
     }
 )
-
-st.subheader("📚 Biblioteca")
 
 # Arquivo fixo (ajuste o caminho conforme necessário)
 PDF_FILE = "./dados/biblioteca.pdf"
@@ -180,6 +179,9 @@ def main():
     if os.path.exists(PDF_FILE):
         # Processar PDF com cache
         with st.sidebar:
+            st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>📚 Biblioteca</h2>",
+                unsafe_allow_html=True)
+
             with st.spinner("Analisando estrutura do documento..."):
                 try:
                     hierarchy, page_contents = extract_pdf_structure(PDF_FILE)
@@ -187,13 +189,9 @@ def main():
                     st.error(f"Erro ao processar PDF: {str(e)}")
                     st.stop()
         
-          ##  if hierarchy and hierarchy[0]['content']:
-          ##      st.success(f"Documento processado! {len(hierarchy[0]['content'])} perguntas encontradas.")
-          ##  else:
-          ##      st.warning("Nenhuma pergunta identificada. Verifique o formato do PDF.")
         
             # Busca
-            search_term = st.sidebar.text_input("Buscar conhecimento:", placeholder="Digite um termo ou pergunta...")
+            search_term = st.sidebar.text_input("Procurar:", placeholder="Digite um termo ou pergunta...")
         
         if search_term:
             with st.spinner(f"Buscando por '{search_term}'..."):
