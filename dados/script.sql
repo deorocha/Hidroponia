@@ -1,0 +1,11 @@
+tbl_bancadas
+tbl_cultivares
+tbl_cultivares_generos
+tbl_estufas
+tbl_etapas_producao
+tbl_faixas_cultivar_nutrientes
+tbl_nutrientes
+tbl_nutrientes_generos
+tbl_nutrientes_generos
+tbl_tanque
+tbl_tanque
