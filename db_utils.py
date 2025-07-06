@@ -1,164 +1,193 @@
 # db_utils.py
 
+# db_utils.py
 import sqlite3
+import os
 import pandas as pd
-import streamlit as st
+from sqlite3 import Error
+
+DB_PATH = './dados/hidroponia.db'
 
 def init_db():
-    """Garante que o banco de dados e tabelas existam"""
-    pass
-
-def get_data(table_name):
-    """Obtém dados de uma tabela como DataFrame"""
     try:
-        conn = sqlite3.connect('hidroponia.db')
-        query = f"SELECT * FROM {table_name}"
-        df = pd.read_sql_query(query, conn)
+        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
         
-        id_column = get_id_column(table_name)
-        if id_column and id_column in df.columns:
-            df[id_column] = df[id_column].astype('Int64')
+        # Criação de todas as tabelas
+        tables = [
+            """CREATE TABLE IF NOT EXISTS tbl_estufas (
+                est_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                est_codigo TEXT NOT NULL,
+                est_descricao TEXT
+            )""",
             
-        df.reset_index(drop=True, inplace=True)
-        conn.close()
-        return df
-    except Exception as e:
-        st.error(f"Erro ao carregar dados: {str(e)}")
-        return pd.DataFrame()
-
-def get_generos_nutrientes():
-    """Carrega os gêneros de nutrientes para o combobox"""
-    try:
-        conn = sqlite3.connect('hidroponia.db')
-        query = "SELECT nge_id, nge_descricao FROM tbl_nutrientes_generos"
-        df = pd.read_sql_query(query, conn)
-        conn.close()
+            """CREATE TABLE IF NOT EXISTS tbl_bancadas (
+                bcd_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                bcd_nome TEXT,
+                bcd_descricao TEXT,
+                bcd_qtd_furos INTEGER,
+                bcd_id_tanque INTEGER,
+                bcd_id_estufa INTEGER
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_tanques (
+                tan_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tan_nome TEXT,
+                tan_capacidade REAL,
+                tan_unidade TEXT
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_cultivares_generos (
+                gen_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                gen_codigo TEXT,
+                gen_nome TEXT,
+                gen_descricao TEXT
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_cultivares (
+                clt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                clt_genero_id INTEGER,
+                clt_codigo TEXT,
+                clt_nome TEXT,
+                clt_nome_cientifico TEXT,
+                clt_classificacao TEXT,
+                clt_caracteristicas TEXT,
+                FOREIGN KEY (clt_genero_id) REFERENCES tbl_cultivares_generos(gen_id)
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_nutrientes_generos (
+                nge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nge_descricao TEXT
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_nutrientes (
+                nut_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nut_codigo TEXT,
+                nut_tipo INTEGER,
+                nut_nome TEXT,
+                nut_simbolo TEXT,
+                nut_massa_atomica REAL,
+                nut_funcao TEXT,
+                nut_genero_id INTEGER,
+                nut_unidade_id INTEGER,
+                nut_carencia TEXT,
+                nut_excesso TEXT,
+                FOREIGN KEY (nut_genero_id) REFERENCES tbl_nutrientes_generos(nge_id)
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_solucoes (
+                sol_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sol_nome TEXT,
+                sol_descricao TEXT
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_faixas (
+                fax_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fax_clt_id INTEGER,
+                fax_nut_id INTEGER,
+                fax_minimo NUMERIC (10,4),
+                fax_maximo NUMERIC (10,4),
+                FOREIGN KEY (fax_clt_id) REFERENCES tbl_cultivares(clt_id),
+                FOREIGN KEY (fax_nut_id) REFERENCES tbl_nutrientes(nut_id)
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_etapas_producao (
+                etp_Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                etp_sistema_producao_id INTEGER,
+                etp_nome TEXT,
+                etp_descricao TEXT
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_fertilizantes (
+                frt_Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                frt_Nome TEXT,
+                frt_Formula TEXT,
+                frt_Unidade_Id INTEGER,
+                frt_Teor_Nominal REAL,
+                frt_Teor_Efetivo REAL,
+                frt_Nutriente_Id INTEGER,
+                frt_Composicao TEXT,
+                frt_Forma TEXT,
+                frt_Solubilidade TEXT,
+                frt_Obtencao TEXT,
+                frt_Observacao TEXT
+            )""",
+            
+            """CREATE TABLE IF NOT EXISTS tbl_usuarios (
+                user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_name TEXT NOT NULL,
+                login TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                salt TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                verified INTEGER DEFAULT 0,
+                confirmation_token TEXT,
+                token_expiration TEXT
+            )"""
+        ]
         
-        # Retorna como lista de tuplas (id, descrição)
-        return [(row['nge_id'], row['nge_descricao']) for _, row in df.iterrows()]
-    except Exception as e:
-        st.error(f"Erro ao carregar gêneros: {str(e)}")
-        return []
-
-def get_id_column(table_name):
-    """Retorna o nome da coluna ID para cada tabela"""
-    id_columns = {
-        'tbl_bancadas': 'bcd_id',
-        'tbl_cultivares': 'clt_id',
-        'tbl_nutrientes': 'nut_id',
-        'tbl_solucoes': 'sol_id',
-        'tbl_tanques': 'tan_id'
-    }
-    return id_columns.get(table_name, 'id')
-
-def save_data(table_name, df):
-    """Salva os dados de volta no banco de dados"""
-    try:
-        conn = sqlite3.connect('hidroponia.db')
-        c = conn.cursor()
-        
-        df = df.dropna(how='all')
-        id_column = get_id_column(table_name)
-        
-        if id_column in df.columns:
-            existing = df[df[id_column].notna()]
-            new = df[df[id_column].isna()]
-        else:
-            existing = pd.DataFrame()
-            new = df
-        
-        for _, row in existing.iterrows():
-            id_val = int(row[id_column])
-            
-            if table_name == 'tbl_bancadas':
-                c.execute('''UPDATE tbl_bancadas 
-                            SET bcd_nome=?, bcd_descricao=?, bcd_id_tanque=? 
-                            WHERE bcd_id=?''', 
-                          (row['bcd_nome'], row.get('bcd_descricao', ''), 
-                           row.get('bcd_id_tanque', None), id_val))
-            
-            elif table_name == 'tbl_cultivares':
-                c.execute('''UPDATE tbl_cultivares 
-                            SET clt_genero_id=?, clt_codigo=?, clt_nome=?, 
-                                clt_nome_cientifico=?, clt_classificacao=?, clt_caracteristicas=? 
-                            WHERE clt_id=?''', 
-                          (row.get('clt_genero_id', None), row.get('clt_codigo', ''), 
-                           row.get('clt_nome', ''), row.get('clt_nome_cientifico', ''), 
-                           row.get('clt_classificacao', ''), row.get('clt_caracteristicas', ''), id_val))
-            
-            elif table_name == 'tbl_nutrientes':
-                massa_atomica = row.get('nut_massa_atomica', None)
-                if massa_atomica is not None and pd.isna(massa_atomica):
-                    massa_atomica = None
-                
-                c.execute('''UPDATE tbl_nutrientes 
-                            SET nut_codigo=?, nut_nome=?, nut_simbolo=?, 
-                                nut_massa_atomica=?, nut_funcao=?, nut_genero_id=?, 
-                                nut_unidade_id=?, nut_carencia=?, nut_excesso=? 
-                            WHERE nut_id=?''', 
-                          (row.get('nut_codigo', ''), row.get('nut_nome', ''), 
-                           row.get('nut_simbolo', ''), massa_atomica, 
-                           row.get('nut_funcao', ''), row.get('nut_genero_id', None), 
-                           row.get('nut_unidade_id', None), row.get('nut_carencia', ''), 
-                           row.get('nut_excesso', ''), id_val))
-            
-            elif table_name == 'tbl_solucoes':
-                c.execute('''UPDATE tbl_solucoes 
-                            SET sol_nome=?, sol_descricao=? 
-                            WHERE sol_id=?''', 
-                          (row['sol_nome'], row.get('sol_descricao', ''), id_val))
-            
-            elif table_name == 'tbl_tanques':
-                c.execute('''UPDATE tbl_tanques 
-                            SET tan_nome=?, tan_capacidade=?, tan_unidade=? 
-                            WHERE tan_id=?''', 
-                          (row['tan_nome'], row.get('tan_capacidade', None), 
-                           row.get('tan_unidade', ''), id_val))
-        
-        for _, row in new.iterrows():
-            if table_name == 'tbl_bancadas':
-                c.execute('''INSERT INTO tbl_bancadas (bcd_nome, bcd_descricao, bcd_id_tanque) 
-                            VALUES (?, ?, ?)''', 
-                          (row['bcd_nome'], row.get('bcd_descricao', ''), 
-                           row.get('bcd_id_tanque', None)))
-            
-            elif table_name == 'tbl_cultivares':
-                c.execute('''INSERT INTO tbl_cultivares (clt_genero_id, clt_codigo, clt_nome, 
-                                                        clt_nome_cientifico, clt_classificacao, clt_caracteristicas) 
-                            VALUES (?, ?, ?, ?, ?, ?)''', 
-                          (row.get('clt_genero_id', None), row.get('clt_codigo', ''), 
-                           row.get('clt_nome', ''), row.get('clt_nome_cientifico', ''), 
-                           row.get('clt_classificacao', ''), row.get('clt_caracteristicas', '')))
-            
-            elif table_name == 'tbl_nutrientes':
-                massa_atomica = row.get('nut_massa_atomica', None)
-                if massa_atomica is not None and pd.isna(massa_atomica):
-                    massa_atomica = None
-                
-                c.execute('''INSERT INTO tbl_nutrientes (nut_codigo, nut_nome, nut_simbolo, 
-                                                        nut_massa_atomica, nut_funcao, nut_genero_id, 
-                                                        nut_unidade_id, nut_carencia, nut_excesso) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
-                          (row.get('nut_codigo', ''), row.get('nut_nome', ''), 
-                           row.get('nut_simbolo', ''), massa_atomica, 
-                           row.get('nut_funcao', ''), row.get('nut_genero_id', None), 
-                           row.get('nut_unidade_id', None), row.get('nut_carencia', ''), 
-                           row.get('nut_excesso', '')))
-            
-            elif table_name == 'tbl_solucoes':
-                c.execute('''INSERT INTO tbl_solucoes (sol_nome, sol_descricao) 
-                            VALUES (?, ?)''', 
-                          (row['sol_nome'], row.get('sol_descricao', '')))
-            
-            elif table_name == 'tbl_tanques':
-                c.execute('''INSERT INTO tbl_tanques (tan_nome, tan_capacidade, tan_unidade) 
-                            VALUES (?, ?, ?)''', 
-                          (row['tan_nome'], row.get('tan_capacidade', None), 
-                           row.get('tan_unidade', '')))
+        # Executar todos os comandos CREATE TABLE
+        for table in tables:
+            cursor.execute(table)
         
         conn.commit()
-        conn.close()
         return True
-    except Exception as e:
-        st.error(f"Erro ao salvar: {str(e)}")
+    except Error as e:
+        print(f"Erro ao inicializar banco de dados: {str(e)}")
         return False
+    finally:
+        if conn:
+            conn.close()
+
+def get_data(table_name):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        query = f"SELECT * FROM {table_name}"
+        df = pd.read_sql(query, conn)
+        return df
+    except Error as e:
+        print(f"Erro ao obter dados da tabela {table_name}: {str(e)}")
+        return pd.DataFrame()
+    finally:
+        if conn:
+            conn.close()
+
+def save_data(table_name, df):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        df.to_sql(table_name, conn, if_exists='replace', index=False)
+        return True
+    except Error as e:
+        print(f"Erro ao salvar dados na tabela {table_name}: {str(e)}")
+        return False
+    finally:
+        if conn:
+            conn.close()
+
+def execute_query(query, params=()):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        conn.commit()
+        return cursor.lastrowid
+    except Error as e:
+        print(f"Erro na execução da query: {str(e)}")
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+def fetch_one(query, params=()):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        return cursor.fetchone()
+    except Error as e:
+        print(f"Erro ao buscar dados: {str(e)}")
+        return None
+    finally:
+        if conn:
+            conn.close()

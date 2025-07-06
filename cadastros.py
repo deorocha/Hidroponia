@@ -1,7 +1,9 @@
 # cadastros.py
+
 import streamlit as st
 import db_utils
 from importlib import import_module
+import db_utils
 
 # Configuração inicial da página
 st.set_page_config(
@@ -63,6 +65,16 @@ page_registry.register_page("cultivares", "cadastro_cultivares", "show")
 page_registry.register_page("nutrientes", "cadastro_nutrientes", "show")
 page_registry.register_page("solucoes", "cadastro_solucoes", "show")
 
+# Definir a página inicial
+@page_registry.set_home_page
+def home_page():
+    st.markdown("""
+    <div style='text-align: center; margin-top: 100px;'>
+        <h1>📂 Sistema de Cadastros</h1>
+        <p>Selecione um dos cadastros no menu lateral para começar</p>
+    </div>
+    """, unsafe_allow_html=True)
+
 def show_sidebar():
     with st.sidebar:
         st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>📂 Cadastros</h2>",
@@ -114,7 +126,7 @@ def main():
         st.session_state.cadastros_page = "home"
     
     show_sidebar()
-    #page_registry.show_page(st.session_state.cadastros_page)
+    page_registry.show_page(st.session_state.cadastros_page)
 
 if __name__ == "__main__":
     main()
