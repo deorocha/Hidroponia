@@ -20,6 +20,16 @@ st.set_page_config(
     }
 )
 
+# Carregamento do CSS customizado externo
+try:
+    with open('./styles/style.css') as f:
+        css_external = f.read()
+    st.markdown(f"<style>{css_external}</style>", unsafe_allow_html=True)
+except FileNotFoundError:
+    st.warning("Arquivo style.css não encontrado em ./styles/. Verifique o caminho.")
+except Exception as e:
+    st.error(f"Erro ao carregar style.css: {e}")
+
 # Arquivo fixo (ajuste o caminho conforme necessário)
 PDF_FILE = "./dados/biblioteca.pdf"
 
@@ -189,7 +199,6 @@ def main():
                     st.error(f"Erro ao processar PDF: {str(e)}")
                     st.stop()
         
-        
             # Busca
             search_term = st.sidebar.text_input("Procurar:", placeholder="Digite um termo ou pergunta...")
         
@@ -261,22 +270,39 @@ def main():
                     step=0.1
                 )
 
-        # Botão para limpar cache
-        if st.sidebar.button("🔄 Limpar cache de processamento", use_container_width=True):
-            extract_pdf_structure.clear()
-            st.sidebar.success("Cache limpo! O documento será reprocessado.")
-            st.rerun()
+                # Botão para limpar cache
+                if st.button("🔄 Limpar cache de processamento", use_container_width=True):
+                    extract_pdf_structure.clear()
+                    st.success("Cache limpo! O documento será reprocessado.")
+                    st.rerun()
+                else:
+                    st.error(f"Arquivo não encontrado: {PDF_FILE}")
+                    st.markdown("""
+                    **Solução:**
+                    1. Coloque seu arquivo PDF na mesma pasta deste script
+                    2. Renomeie-o para `biblioteca.pdf`
+                    3. Ou ajuste a variável `PDF_FILE` no código
+                    """)
+                    st.image("https://via.placeholder.com/600x200?text=Coloque+o+PDF+na+pasta", 
+                             use_container_width=True)
 
-    else:
-        st.error(f"Arquivo não encontrado: {PDF_FILE}")
-        st.markdown("""
-        **Solução:**
-        1. Coloque seu arquivo PDF na mesma pasta deste script
-        2. Renomeie-o para `biblioteca.pdf`
-        3. Ou ajuste a variável `PDF_FILE` no código
-        """)
-        st.image("https://via.placeholder.com/600x200?text=Coloque+o+PDF+na+pasta", 
-                 use_container_width=True)
+            # Adiciona espaço para empurrar os botões para o rodapé
+            st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
+        
+            # Rodapé do sidebar com os botões
+            st.markdown("---")
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                if st.button("← Voltar", key="btn_back_biblioteca", use_container_width=True):
+                    st.session_state.current_page = "home"
+                    st.rerun()
+            with col2:
+                if st.button("🚪 Sair", key="btn_logout_biblioteca", use_container_width=True):
+                    st.session_state.logged_in = False
+                    st.session_state.user_name = ""
+                    st.session_state.user_id = None
+                    st.session_state.current_page = "login"
+                    st.rerun()
 
 if __name__ == "__main__":
     main()

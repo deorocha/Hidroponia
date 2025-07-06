@@ -16,28 +16,15 @@ st.set_page_config(
     }
 )
 
-# CSS para melhorar a aparência
-st.markdown("""
-    <style>
-    .stDataFrame {
-        width: 100%;
-    }
-    .stButton>button {
-        margin-top: 2px;
-        margin-botton: 0px;
-        padding: 0px;
-        width: 100%;
-    }
-    div[data-baseweb="input"] input {
-        background-color: #f0f2f6 !important;
-    }
-    .stAlert { 
-        padding: 5px; 
-        border-radius: 5px; 
-        margin: 10px 0;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Carregamento do CSS customizado externo
+try:
+    with open('./styles/style.css') as f:
+        css_external = f.read()
+    st.markdown(f"<style>{css_external}</style>", unsafe_allow_html=True)
+except FileNotFoundError:
+    st.warning("Arquivo style.css não encontrado em ./styles/. Verifique o caminho.")
+except Exception as e:
+    st.error(f"Erro ao carregar style.css: {e}")
 
 class PageRegistry:
     def __init__(self):
@@ -101,7 +88,25 @@ def show_sidebar():
             if st.button("🧪 Soluções", key="btn_solucoes", use_container_width=True):
                 st.session_state.cadastros_page = "solucoes"
                 st.rerun()
+
+        # Adiciona espaço para empurrar os botões para o rodapé
+        st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
         
+        # Rodapé do sidebar com os botões
+        st.markdown("---")
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("← Voltar", key="btn_back_cadastros", use_container_width=True):
+                st.session_state.current_page = "home"
+                st.rerun()
+        with col2:
+            if st.button("🚪 Sair", key="btn_logout_cadastros", use_container_width=True):
+                st.session_state.logged_in = False
+                st.session_state.user_name = ""
+                st.session_state.user_id = None
+                st.session_state.current_page = "login"
+                st.rerun()
+
 def main():
     db_utils.init_db()
     

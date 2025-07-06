@@ -101,7 +101,7 @@ def home_page():
         {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
         {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
         {"icon": "📈", "name": "Crescimento 🚧", "page": "crescimento"},
-        {"icon": "🐛", "name": "Detecção de doenças 🚧", "page": "doencas_imagem"},
+        {"icon": "🐛", "name": "Detecção de doenças (modo simulado)", "page": "doencas"},
         {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"},
         {"icon": "🚪", "name": "Sair do programa", "page": "logout"}
     ]

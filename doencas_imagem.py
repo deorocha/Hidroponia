@@ -1,15 +1,19 @@
-# doencas.py
+# doencas_imagem.py
 
 import streamlit as st
 from tensorflow.keras.models import load_model  # Alterado aqui
 from PIL import Image, ImageOps
 import numpy as np
 
-col1, col2 = st.columns([0.10,0.90], gap=None, vertical_alignment="center", border=False)
-with col1:
-    st.image('./imagens/doencas.png', width=48)
-with col2:
-    st.subheader("Detecção de doenças")
+# Carregamento do CSS customizado externo
+try:
+    with open('./styles/style.css') as f:
+        css_external = f.read()
+    st.markdown(f"<style>{css_external}</style>", unsafe_allow_html=True)
+except FileNotFoundError:
+    st.warning("Arquivo style.css não encontrado em ./styles/. Verifique o caminho.")
+except Exception as e:
+    st.error(f"Erro ao carregar style.css: {e}")
 
 @st.cache_resource
 def get_keras_model():
@@ -24,22 +28,6 @@ def get_labels():
     return labels
 
 def main():
-    st.markdown('<a href="/" target="_self"><button style="margin-top:20px;">Voltar ao Menu Principal</button></a>', unsafe_allow_html=True)
-
-    st.markdown(f"""
-        <style>
-        html, body, [class*="css"] {{
-            font-size: 15px;
-        }}
-        .block-container {{
-            padding-top: 3rem;
-            padding-bottom: 1rem;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }}
-        </style>
-    """, unsafe_allow_html=True)
-
     model = get_keras_model()
     labels = get_labels()
     data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
