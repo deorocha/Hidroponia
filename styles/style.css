@@ -1,96 +1,105 @@
-/* Ajustes EXTREMOS de espaçamento */
+/* ===== BASE STYLES ===== */
 .block-container {
+    padding: 0 1rem !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-    padding-left: 1rem;
-    padding-right: 1rem;
 }
 
 .header-container {
     position: relative;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* Botão Sair no canto superior direito */
-.top-right-button {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 100;
-    width: 100px;
-}
-
-/* Título principal sem espaços */
+/* ===== TYPOGRAPHY ===== */
 .st-emotion-cache-10trblm {
-    padding-top: 0 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* Mensagem de boas-vindas compacta */
 .welcome-message {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     font-size: 0.95em;
     color: #555;
     line-height: 1.2;
 }
 
-/* Linha divisória ajustada */
-.st-emotion-cache-1pxazr7 {
-    margin-top: 0.1rem !important;
-    margin-bottom: 0.1rem !important;
+/* ===== SELECTBOX STYLES ===== */
+/* User menu select (circular) */
+div.user-menu-select > div[data-testid="stSelectbox"] > div {
+    background-color: #4CAF50 !important;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    min-height: 40px !important;
 }
 
-/* Menu de opções mais compacto */
-.menu-options {
-    position: absolute;
-    top: -10px;
-    right: 10px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    padding: 5px;
-    z-index: 100;
-    display: none;
-}
-
-.menu-option {
-    padding: 8px 12px;
-    cursor: pointer;
+div.user-menu-select > div[data-testid="stSelectbox"] > div > div,
+div.user-menu-select > div[data-testid="stSelectbox"] > div > div > div > div {
+    color: white !important;
+    font-weight: bold !important;
     display: flex;
     align-items: center;
-    gap: 5px;
-    color: black !important;
-    border-radius: 4px;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 !important;
 }
 
-.menu-option:hover {
-    background-color: #f0f0f0;
+div.user-menu-select > div[data-testid="stSelectbox"] > div > div > div > div {
+    font-size: 1.0em;
 }
 
-.menu-option span {
-    font-size: 1.2em;
-    vertical-align: middle;
-    margin-right: 5px;
+div.user-menu-select > div[data-testid="stSelectbox"] svg {
+    display: none !important;
 }
 
-/* ESTILO UNIFICADO PARA TODOS OS BOTÕES */
+/* Main sidebar selectbox */
+.sidebar-selectbox div[data-baseweb="select"] {
+    width: 100% !important;
+}
+
+.sidebar-selectbox div[data-baseweb="select"] > div {
+    width: 100% !important;
+    padding: 0px 3px !important;
+}
+
+.sidebar-selectbox div[data-baseweb="select"] > div > div {
+    padding: 0 !important;
+    line-height: 1.0 !important;
+}
+
+/* Dropdown adjustments */
+div[data-baseweb="popover"] {
+    margin-top: -10px !important;
+    padding-top: 0 !important;
+}
+
+div[data-baseweb="popover"] > div {
+    top: -10px !important;
+}
+
+div[data-baseweb="menu"] {
+    padding: 0 0 4px 0 !important;
+    margin: 0 !important;
+}
+
+div[data-baseweb="menu"] > div > div {
+    padding: 4px 0 !important;
+}
+
+/* ===== BUTTON STYLES ===== */
 .stButton button,
 div[data-testid="stButton"] > button,
 div[data-testid="stButton"] > button[kind="secondary"],
 div[data-testid="stButton"] > button[kind="primary"] {
-    margin: 0 !important;
-    margin-bottom: 0.2rem !important;
+    margin: 0 0 0.2rem 0 !important;
     padding: 6px 10px !important;
+    transition: all 0.2s ease !important;
 }
 
-/* Hover para todos os botões */
 .stButton button:hover,
 div[data-testid="stButton"] > button:hover,
 div[data-testid="stButton"] > button[kind="secondary"]:hover,
@@ -100,7 +109,74 @@ div[data-testid="stButton"] > button[kind="primary"]:hover {
     box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 
-/* Remove todos os elementos de navegação automática */
+.sidebar .stButton > button {
+    margin: 5px 0 !important;
+    padding: 10px !important;
+    text-align: center;
+}
+
+/* ===== TABLE STYLES ===== */
+.full-width-container {
+    width: 100% !important;
+    overflow-x: auto !important;
+}
+
+.scrollable-table {
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+.scrollable-table table {
+    width: 100% !important;
+    min-width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+}
+
+.scrollable-table th {
+    width: auto !important;
+    min-width: 120px !important;
+    background-color: #e6f2ff !important;
+    font-weight: bold !important;
+    border-bottom: 2px solid #a0a0a0 !important;
+    position: sticky !important;
+    top: 0 !important;
+    color: #000 !important;
+}
+
+th, td {
+    border: 1px solid #d0d0d0 !important;
+    padding: 4px 6px !important;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9 !important;
+}
+
+/* Column alignments */
+table td:nth-child(1), table th:nth-child(1) { text-align: left; }
+table td:nth-child(2), table th:nth-child(2) { text-align: right; }
+table td:nth-child(3), table th:nth-child(3) { text-align: right; }
+table td:nth-child(4), table th:nth-child(4) { text-align: right; }
+table td:nth-child(5), table th:nth-child(5) { text-align: right; }
+table td:nth-child(6), table th:nth-child(6) { text-align: right; }
+
+/* ===== LAYOUT ADJUSTMENTS ===== */
+[data-testid="stVerticalBlock"] > [style*="flex-direction: column"] > [data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+div[data-testid="stVerticalBlock"] > div:has(> .full-width-container) + div:empty {
+    display: none !important;
+}
+
+div[data-testid="stVerticalBlock"] > div:empty + div:has(> .full-width-container) {
+    margin-top: -1rem !important;
+}
+
+/* ===== HIDDEN ELEMENTS ===== */
 [data-testid="stSidebarNav"],
 [data-testid="stSidebarNavItems"],
 .st-emotion-cache-1cypcdb,
@@ -110,14 +186,6 @@ header a,
     display: none !important;
 }
 
-/* Estilo emergencial para forçar a remoção de espaços */
-[data-testid="stVerticalBlock"] > [style*="flex-direction: column"] > [data-testid="stVerticalBlock"] {
-    gap: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Remove comportamentos de link */
 a {
     all: unset !important;
     pointer-events: none !important;
@@ -126,121 +194,12 @@ a {
     color: inherit !important;
 }
 
-/* Mantém a funcionalidade dos botões */
 button {
     pointer-events: all !important;
     cursor: pointer !important;
 }
 
-/* Botões na sidebar */
-.sidebar .stButton > button {
-    margin: 5px 0 !important;
-    padding: 10px !important;
-    text-align: center;
-}
-
-/* Tabelas */
-div[data-testid="stDataFrame"],
-div[data-testid="stHorizontalBlock"], 
-div[data-testid="stVerticalBlock"] {
-    width: 100% !important;
-}
-
-/* Container principal da tabela */
-.full-width-container {
-    width: 100% !important;
-    overflow-x: auto !important;
-}
-
-/* Container rolável */
-.scrollable-table {
-    width: 100% !important;
-    overflow: visible !important;
-}
-
-/* Ajustes adicionais na tabela */
-.scrollable-table table {
-    width: 100% !important;
-    min-width: 100% !important;
-    table-layout: auto !important;
-}
-
-/* Garantir que cabeçalhos ocupem toda a largura */
-.scrollable-table th {
-    width: auto !important;
-    min-width: 120px !important;
-}
-
-/* Estilos básicos da tabela */
-table {
-    border-collapse: collapse !important;
-}
-
-/* Alinhamento de colunas */
-table td:nth-child(1), table th:nth-child(1) {
-  text-align: left;
-}
-
-table td:nth-child(2), table th:nth-child(2) {
-  text-align: right;
-}
-
-table td:nth-child(3), table th:nth-child(3) {
-  text-align: right;
-}
-
-table td:nth-child(4), table th:nth-child(4) {
-  text-align: right;
-}
-
-table td:nth-child(5), table th:nth-child(5) {
-  text-align: right;
-}
-
-table td:nth-child(6), table th:nth-child(6) {
-  text-align: right;
-}
-
-th, td {
-    border: 1px solid #d0d0d0 !important;
-    padding: 4px 6px !important;
-}
-
-thead th {
-    background-color: #e6f2ff !important;
-    font-weight: bold !important;
-    border-bottom: 2px solid #a0a0a0 !important;
-    position: sticky !important;
-    top: 0 !important;
-    color: #000 !important;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f9f9f9 !important;
-}
-
-/* Espaçamentos */
-.st-emotion-cache-ocqkz7 {
-    padding-top: 0.5rem !important;
-}
-
-.st-emotion-cache-as33y7 {
-    padding: 0 !important;
-    margin: 0 !important;
-    height: 0 !important;
-}
-
-/* Remover espaçamento extra após tabelas */
-div[data-testid="stVerticalBlock"] > div:has(> .full-width-container) + div:empty {
-    display: none !important;
-}
-
-/* Remover espaçamento antes de tabelas */
-div[data-testid="stVerticalBlock"] > div:empty + div:has(> .full-width-container) {
-    margin-top: -1rem !important;
-}
-
-/* Responsividade móvel */
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
 @media (max-width: 768px) {
     .full-width-container {
         max-width: 100vw !important;
