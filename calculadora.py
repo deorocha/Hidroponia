@@ -103,29 +103,6 @@ def render_sidebar():
             }
             .sidebar-selectbox div[data-baseweb="select"] > div {
                 width: 100% !important;
-                padding-top: 8px !important;
-                padding-bottom: 8px !important;
-            }
-            .sidebar-selectbox div[data-baseweb="select"] > div > div {
-                padding-top: 0 !important;
-                padding-bottom: 0 !important;
-                line-height: 1.2 !important;
-            }
-            div[data-baseweb="popover"] {
-                margin-top: -10px !important;
-                padding-top: 0 !important;
-            }
-            div[data-baseweb="menu"] {
-                padding-top: 0 !important;
-                margin-top: 0 !important;
-                padding-bottom: 4px !important;
-            }
-            div[data-baseweb="popover"] > div {
-                top: -10px !important;
-            }
-            div[data-baseweb="menu"] > div > div {
-                padding-top: 4px !important;
-                padding-bottom: 4px !important;
             }
         </style>
         """, unsafe_allow_html=True)
@@ -147,12 +124,21 @@ def render_sidebar():
             )
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # Campos numéricos
-        temp = st.number_input("Temperatura (°C)", 0.0, 50.0, 25.0, 0.1, key="temp")
-        ph = st.number_input("pH", 0.0, 14.0, 5.5, 0.1, key="ph")
-        ec = st.number_input("Condutividade (EC)", 0.0, 10.0, 1.0, 0.01, key="ec")
-        o2 = st.number_input("Oxigênio Dissolvido (O₂)", 0.0, 20.0, 4.0, 0.1, key="o2")
-        volume = st.number_input("Volume do tanque (L)", 10, 100000, 1000, 10, key="volume")
+        # Campos numéricos com rótulos na mesma linha
+        # st.markdown("<div style='margin-bottom: 10px;'><strong>Parâmetros da Solução:</strong></div>", unsafe_allow_html=True)
+        
+        def create_inline_input(label, min_val, max_val, default, step, key):
+            col1, col2 = st.columns([0.5, 0.5])
+            with col1:
+                st.markdown(f"<div style='line-height: 2.8;'>{label}</div>", unsafe_allow_html=True)
+            with col2:
+                return st.number_input("", min_val, max_val, default, step, key=key, label_visibility="collapsed")
+
+        temp = create_inline_input("Temperatura (°C)", 0.0, 50.0, 25.0, 0.1, "temp")
+        ph = create_inline_input("pH", 0.0, 14.0, 5.5, 0.1, "ph")
+        ec = create_inline_input("Condutividade (EC)", 0.0, 10.0, 1.0, 0.01, "ec")
+        o2 = create_inline_input("Oxigênio Dissolvido (O₂)", 0.0, 20.0, 4.0, 0.1, "o2")
+        volume = create_inline_input("Volume do tanque (L)", 10, 100000, 1000, 10, "volume")
 
         return {
             'params': {
@@ -276,7 +262,6 @@ def main():
     if st.sidebar.button("🔍 Realizar Previsão", use_container_width=True):
         if "toggle_js" in st.session_state:
             html(f"<script>{st.session_state.toggle_js}</script>")
-        
         try:
             input_data = pd.DataFrame([list(sidebar_data['params'].values())], 
                                      columns=['Temp', 'pH', 'EC', 'O2'])
@@ -313,7 +298,7 @@ def main():
             st.error(f"Erro na previsão: {str(e)}")
 
     with st.sidebar:
-        st.markdown("---")
+        # st.markdown("---")
         
         col1, col2 = st.columns([1, 1])
         with col1:
