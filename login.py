@@ -149,104 +149,75 @@ def main():
         # Remove o token da URL
         st.query_params.clear()
     
-    # Popup de login
+    # Seção de login/cadastro
     if st.session_state.show_login:
-        with st.popover("Acesso ao Sistema", use_container_width=True):
-            st.subheader("Login")
+        st.subheader("Login")
+        
+        with st.form("login_form"):
+            login = st.text_input("Usuário")
+            password = st.text_input("Senha", type="password")
+            submit = st.form_submit_button("Acessar Sistema")
             
-            with st.form("login_form"):
-                login = st.text_input("Usuário")
-                password = st.text_input("Senha", type="password")
-                submit = st.form_submit_button("Entrar")
-                
-                if submit:
-                    if verify_credentials(login, password):
-                        with closing(sqlite3.connect(DB_NAME)) as conn:
-                            cursor = conn.cursor()
-                            cursor.execute('''
-                                SELECT user_id, user_name FROM tbl_usuarios WHERE login = ?
-                            ''', (login,))
-                            result = cursor.fetchone()
-                            
-                        if result:
-                            st.session_state.user_id = result[0]
-                            st.session_state.user_name = result[1]
-                            st.session_state.logged_in = True
-                            st.session_state.show_login = False
-                            st.success("Login realizado com sucesso!")
-                            st.rerun()
-                    else:
-                        st.error("Credenciais inválidas ou e-mail não confirmado")
-            
-            if st.button("Cadastrar novo usuário"):
-                st.session_state.show_login = False
-                st.session_state.show_signup = True
-                st.rerun()
+            if submit:
+                if verify_credentials(login, password):
+                    with closing(sqlite3.connect(DB_NAME)) as conn:
+                        cursor = conn.cursor()
+                        cursor.execute('''
+                            SELECT user_id, user_name FROM tbl_usuarios WHERE login = ?
+                        ''', (login,))
+                        result = cursor.fetchone()
+                        
+                    if result:
+                        st.session_state.user_id = result[0]
+                        st.session_state.user_name = result[1]
+                        st.session_state.logged_in = True
+                        st.session_state.show_login = False
+                        st.success("Login realizado com sucesso!")
+                        st.rerun()
+                else:
+                    st.error("Credenciais inválidas ou e-mail não confirmado")
+        
+        if st.button("Cadastrar novo usuário"):
+            st.session_state.show_login = False
+            st.session_state.show_signup = True
+            st.rerun()
 
-    # Popup de cadastro
+    # Seção de cadastro
     if st.session_state.show_signup:
-        with st.popover("Cadastro de Usuário", use_container_width=True):
-            st.subheader("Novo Cadastro")
+        st.subheader("Novo Cadastro")
+        
+        with st.form("signup_form"):
+            user_name = st.text_input("Nome Completo")
+            login = st.text_input("Nome de Usuário")
+            email = st.text_input("E-mail")
+            password = st.text_input("Senha", type="password")
+            confirm_password = st.text_input("Confirmar Senha", type="password")
+            submit_signup = st.form_submit_button("Criar Conta")
             
-            with st.form("signup_form"):
-                user_name = st.text_input("Nome Completo")
-                login = st.text_input("Nome de Usuário")
-                email = st.text_input("E-mail")
-                password = st.text_input("Senha", type="password")
-                confirm_password = st.text_input("Confirmar Senha", type="password")
-                submit_signup = st.form_submit_button("Criar Conta")
-                
-                if submit_signup:
-                    if password != confirm_password:
-                        st.error("As senhas não coincidem")
-                    elif not user_name or not login or not email or not password:
-                        st.error("Todos os campos são obrigatórios")
-                    elif len(password) < 8:
-                        st.error("A senha deve ter pelo menos 8 caracteres")
-                    else:
-                        token = register_user(user_name, login, email, password)
-                        if token:
-                            if send_confirmation_email(email, token):
-                                st.success("Cadastro realizado! Um e-mail de confirmação foi enviado. Verifique sua caixa de entrada.")
-                                st.session_state.show_signup = False
-                                st.session_state.show_login = True
-                                st.rerun()
-                            else:
-                                st.error("Falha ao enviar e-mail de confirmação")
+            if submit_signup:
+                if password != confirm_password:
+                    st.error("As senhas não coincidem")
+                elif not user_name or not login or not email or not password:
+                    st.error("Todos os campos são obrigatórios")
+                elif len(password) < 8:
+                    st.error("A senha deve ter pelo menos 8 caracteres")
+                else:
+                    token = register_user(user_name, login, email, password)
+                    if token:
+                        if send_confirmation_email(email, token):
+                            st.success("Cadastro realizado! Um e-mail de confirmação foi enviado. Verifique sua caixa de entrada.")
+                            st.session_state.show_signup = False
+                            st.session_state.show_login = True
+                            st.rerun()
                         else:
-                            st.error("Usuário ou e-mail já cadastrado")
-            
-            if st.button("Voltar para Login"):
-                st.session_state.show_signup = False
-                st.session_state.show_login = True
-                st.rerun()
-
-    # Área logada
-    if st.session_state.logged_in:
-        st.success(f"Bem-vindo(a), {st.session_state.user_name}!")
-        st.subheader("Painel Principal")
+                            st.error("Falha ao enviar e-mail de confirmação")
+                    else:
+                        st.error("Usuário ou e-mail já cadastrado")
         
-        col1, col2, col3 = st.columns([1,1,1])
-        with col1:
-            if st.button("Acessar Sistema", type="secondary", use_container_width=True):
-                st.session_state.current_page = "home"
-                st.rerun()
-        
-        with col2:
-            if st.button("Alterar Senha", use_container_width=True):
-                st.info("Funcionalidade em desenvolvimento")
-        
-        with col3:
-            if st.button("Sair do Sistema", use_container_width=True):
-                # Resetar todos os estados de login
-                st.session_state.exit_app = True
-                st.session_state.logged_in = False
-                st.session_state.user_name = ""
-                st.session_state.user_id = None
-                st.session_state.current_page = "login"
-                st.session_state.show_login = True  # ADICIONADO
-                st.session_state.show_signup = False  # ADICIONADO
-                st.rerun()
+        if st.button("Voltar para Login"):
+            st.session_state.show_signup = False
+            st.session_state.show_login = True
+            st.rerun()
 
 if __name__ == "__main__":
     main()

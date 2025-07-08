@@ -92,35 +92,58 @@ def load_cultivar_ranges(cultivar_id):
     except:
         return {}
 
-# Funções de renderização
 def render_sidebar():
     """Renderiza a barra lateral"""
     with st.sidebar:
+        # Estilo específico para o selectbox na sidebar
+        st.markdown("""
+        <style>
+            .sidebar-selectbox div[data-baseweb="select"] {
+                width: 100% !important;
+            }
+            .sidebar-selectbox div[data-baseweb="select"] > div {
+                width: 100% !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+
         st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>🧮 Calculadora</h2>",
             unsafe_allow_html=True)
 
         st.markdown("---")
         
-        col1, col2 = st.columns(2)
-        return {
-            'params': {
-                'Temp': col1.number_input("Temperatura (°C)", 0.0, 50.0, 25.0, 0.1),
-                'pH': col2.number_input("pH", 0.0, 14.0, 5.5, 0.1),
-                'EC': col1.number_input("Condutividade (EC)", 0.0, 10.0, 1.0, 0.01),
-                'O2': col2.number_input("Oxigênio Dissolvido (O₂)", 0.0, 20.0, 4.0, 0.1),
-            },
-            'cultivar_idx': st.selectbox(
+        # Container para o selectbox com classe específica
+        with st.container():
+            st.markdown('<div class="sidebar-selectbox">', unsafe_allow_html=True)
+            cultivar_idx = st.selectbox(
                 "Selecione um cultivar:",
                 range(len(st.session_state.cultivares)),
                 format_func=lambda i: st.session_state.cultivares[i][1],
-                index=None
-            ),
-            'volume': st.number_input("Volume do tanque (L):", 10, 100000, 1000, 10)
+                index=None,
+                key="cultivar"
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # Campos numéricos
+        temp = st.number_input("Temperatura (°C)", 0.0, 50.0, 25.0, 0.1, key="temp")
+        ph = st.number_input("pH", 0.0, 14.0, 5.5, 0.1, key="ph")
+        ec = st.number_input("Condutividade (EC)", 0.0, 10.0, 1.0, 0.01, key="ec")
+        o2 = st.number_input("Oxigênio Dissolvido (O₂)", 0.0, 20.0, 4.0, 0.1, key="o2")
+        volume = st.number_input("Volume do tanque (L)", 10, 100000, 1000, 10, key="volume")
+
+        return {
+            'params': {
+                'Temp': temp,
+                'pH': ph,
+                'EC': ec,
+                'O2': o2,
+            },
+            'cultivar_idx': cultivar_idx,
+            'volume': volume
         }
 
 def render_table(df):
     """Renderiza uma tabela estilizada com largura total"""
-    # Aplicar classes CSS diretamente
     return f"""
     <div class="full-width-container">
         <div class="scrollable-table">
@@ -131,11 +154,9 @@ def render_table(df):
 
 def render_main_results(prediction, cultivar_idx, volume):
     """Renderiza os resultados principais da previsão"""
-    # Preparar dados básicos
     nutriente_names = [f"{nome} ({simbolo})" for nome, simbolo in 
                       zip(st.session_state.nomes_completos, st.session_state.colunas_saida)]
     
-    # Caso sem cultivar selecionado
     if cultivar_idx is None:
         df = pd.DataFrame({
             "Nutriente": nutriente_names,
@@ -144,7 +165,6 @@ def render_main_results(prediction, cultivar_idx, volume):
         st.markdown(render_table(df), unsafe_allow_html=True)
         return None, None
     
-    # Com cultivar selecionado
     cultivar_id = st.session_state.cultivares[cultivar_idx][0]
     st.subheader(f"Cultivar: :red[{st.session_state.cultivares[cultivar_idx][1]}]")
     faixas = load_cultivar_ranges(cultivar_id)
@@ -158,7 +178,6 @@ def render_main_results(prediction, cultivar_idx, volume):
         st.markdown(render_table(df), unsafe_allow_html=True)
         return None, None
     
-    # Processar resultados com faixas
     resultados, reposicao_abaixo, reposicao_acima = [], [], []
     
     for i, nut_id in enumerate(st.session_state.ids_nutrientes):
@@ -172,7 +191,7 @@ def render_main_results(prediction, cultivar_idx, volume):
             
             if valor < minimo:
                 status = "🔻"
-                reposicao_g = ((maximo-minimo)/2)-valor #((minimo - valor) * volume) / 1000
+                reposicao_g = ((maximo-minimo)/2)-valor
                 dif_perc = ((((maximo-minimo)/2)-valor) / valor) * 100
                 reposicao_abaixo.append({
                     "Nutriente": f"{st.session_state.nomes_completos[i]} ({st.session_state.colunas_saida[i]})",
@@ -202,7 +221,6 @@ def render_main_results(prediction, cultivar_idx, volume):
             "Status": status
         })
     
-    # Exibir tabela principal
     st.markdown(render_table(pd.DataFrame(resultados)), unsafe_allow_html=True)
     st.success("✅ Previsão realizada com sucesso!")
     return reposicao_abaixo, reposicao_acima
@@ -222,40 +240,31 @@ def render_reposicao_section(title, icon, data, caption):
             st.markdown(render_table(df), unsafe_allow_html=True)
             st.caption(caption)
 
-# Função principal
 def main():
-    # Carregar recursos
     load_resources()
     
-    # Inicializar dados essenciais
     if "db_data" not in st.session_state:
         st.session_state.db_data = load_db_data()
         st.session_state.update(st.session_state.db_data)
         st.session_state.model = load_model()
     
-    # Obter parâmetros do usuário
     sidebar_data = render_sidebar()
     
-    # Processar previsão quando solicitado
     if st.sidebar.button("🔍 Realizar Previsão", use_container_width=True):
-        # Executar JS para fechar sidebar
         if "toggle_js" in st.session_state:
             html(f"<script>{st.session_state.toggle_js}</script>")
         
-        # Fazer previsão
         try:
             input_data = pd.DataFrame([list(sidebar_data['params'].values())], 
                                      columns=['Temp', 'pH', 'EC', 'O2'])
             prediction = st.session_state.model.predict(input_data)[0]
             
-            # Renderizar resultados principais
             reposicao_abaixo, reposicao_acima = render_main_results(
                 prediction, 
                 sidebar_data['cultivar_idx'], 
                 sidebar_data['volume']
             )
             
-            # Renderizar seções de reposição
             st.subheader("🧪 Relatório dos Nutrientes")
             
             if reposicao_abaixo:
@@ -281,11 +290,8 @@ def main():
             st.error(f"Erro na previsão: {str(e)}")
 
     with st.sidebar:
-        # Adiciona espaço para empurrar os botões para o rodapé
-        # st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
+        st.markdown("---")
         
-        # Rodapé do sidebar com os botões
-        # st.markdown("---")
         col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("← Voltar", key="btn_back_calculadora", use_container_width=True):
