@@ -24,7 +24,7 @@ st.markdown(
         /* Novo: Estilos para posicionar o menu no canto superior direito */
         .menu-container {
             position: absolute;
-            top: 10px;
+            top: 0px;
             right: 10px;
             z-index: 1000;
         }
@@ -32,12 +32,12 @@ st.markdown(
         /* Aumentar a largura do menu */
         [data-testid="stSelectbox"] > div {
             width: auto !important;
-            min-width: 120px !important;
+            min-width: 80px !important;
         }
         
         /* Melhorar a visualização do menu */
         [data-testid="stSelectbox"] > div > div {
-            padding: 6px 12px !important;
+            padding: 3px 6px !important;
         }
     </style>
     """, unsafe_allow_html=True
@@ -132,7 +132,7 @@ def home_page():
         
         # Botão de menu com a inicial do usuário
         if st.session_state.user_name:
-            first_letter = st.session_state.user_name[0].upper()
+            first_letter = "🧑🏻‍💼" # st.session_state.user_name[0].upper()
         else:
             first_letter = "U"
         
@@ -168,12 +168,13 @@ def home_page():
         # Lista de funcionalidades
         features = [
             {"icon": "📅", "name": "Agenda de manejo 🚧", "page": "agenda"},
-            {"icon": "📚", "name": "Biblioteca", "page": "biblioteca"},
-            {"icon": "📂", "name": "Cadastros", "page": "cadastros"},
+            {"icon": "📚", "name": "Biblioteca 🚧", "page": "biblioteca"},
+            {"icon": "📂", "name": "Cadastros 🚧", "page": "cadastros"},
             {"icon": "🧮", "name": "Calculadora", "page": "calculadora"},
-            {"icon": "🤖", "name": "Chatbot", "page": "chatbot_gemini"},
+            {"icon": "🤖", "name": "Chatbot 🚧", "page": "chatbot_gemini"},
+            {"icon": "🧬", "name": "Nutrientes 🚧", "page": "nutrientes"},
             {"icon": "📈", "name": "Crescimento 🚧", "page": "crescimento"},
-            {"icon": "🐛", "name": "Detecção de doenças (modo simulado)", "page": "doencas"},
+            {"icon": "🐛", "name": "Detecção de doenças 🚧", "page": "doencas"},
             {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"}
         ]
         
