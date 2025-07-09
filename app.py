@@ -169,12 +169,12 @@ def home_page():
         features = [
             {"icon": "🧮", "name": "Calculadora Inteligente", "page": "calculadora"},
             {"icon": "🧬", "name": "Nutrientes por Cultivar 🚧", "page": "nutrientes"},
-            {"icon": "📅", "name": "Agenda de manejo 🚧", "page": "agenda"},
+            {"icon": "📅", "name": "Agenda 🚧", "page": "agenda"},
             {"icon": "📚", "name": "Biblioteca 🚧", "page": "biblioteca"},
-            {"icon": "📂", "name": "Cadastros 🚧", "page": "cadastros"},
             {"icon": "🤖", "name": "Chatbot 🚧", "page": "chatbot_gemini"},
+            {"icon": "📂", "name": "Cadastros 🚧", "page": "cadastros"},
             {"icon": "📈", "name": "Crescimento 🚧", "page": "crescimento"},
-            {"icon": "🐛", "name": "Detecção de doenças 🚧", "page": "doencas"},
+            {"icon": "🐛", "name": "Doenças 🚧", "page": "doencas"},
             {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"}
         ]
         

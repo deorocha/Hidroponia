@@ -14,9 +14,9 @@ st.set_page_config(
 )
 
 # Carrega o CSS customizado
-with open('./styles/style.css') as f:
-    css = f.read()
-st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
+#with open('./styles/style.css') as f:
+#    css = f.read()
+#st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 DB_NAME = "./dados/hidroponia.db"
 
@@ -61,10 +61,23 @@ def load_culturas_nutrientes(cultivar_id):
         ORDER BY cn.cnu_nutriente_id
         """
         df = pd.read_sql_query(query, conn, params=(cultivar_id,))
+        
+        # Apenas converter para float (sem alterar escala)
+        if not df.empty:
+            valor_cols = [
+                'cnu_valor_minimo', 
+                'cnu_valor_medio', 
+                'cnu_valor_maximo'
+            ]
+            
+            # Converter colunas para float
+            for col in valor_cols:
+                df[col] = df[col].astype(float)
+        
         return df
     except Exception as e:
         st.error(f"Erro ao carregar nutrientes: {str(e)}")
-        return pd.DataFrame()  # Retorna DataFrame vazio em caso de erro
+        return pd.DataFrame()
 
 def main():
     # Sidebar (menu)
@@ -90,10 +103,16 @@ def main():
         cultivar_id = cultivar_id_map.get(cultivar_nome, None)
         
         # Exibir ID da cultivar selecionada
-        if cultivar_id is not None:
-            st.markdown(f"**ID da cultivar selecionada:** `{cultivar_id}`")
-        else:
-            st.warning("Cultivar sem ID definido.")
+        #if cultivar_id is not None:
+        #    st.markdown(f"**ID da cultivar selecionada:** `{cultivar_id}`")
+        #else:
+        #    st.warning("Cultivar sem ID definido.")
+
+        nomes_sistemas = ["NFT", "DFT", "DWC", "Gotejamento", "Subirrigação", "Aeroponia", "Pavio", "Fluxo e Refluxo", "Aquaponia", "Substrato"]
+        nomes_etapas = ["Germinação", "Berçário", "Crescimento", "Fase final"]
+        sistema_procucao = st.selectbox('Selecione um Sistema:', options=nomes_sistemas, index=0)
+        etapa_producao = st.selectbox('Selecione a Etapa:', options=nomes_etapas, index=2)
+
         
         # Adiciona espaço para empurrar os botões para o rodapé
         st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
@@ -114,16 +133,13 @@ def main():
                 st.rerun()
 
     # Área principal - Dados dos nutrientes
-    st.title("Recomendações de Nutrientes")
-    
     if cultivar_id:
         # Carregar dados dos nutrientes para a cultivar selecionada
         df_nutrientes = load_culturas_nutrientes(cultivar_id)
         
         if not df_nutrientes.empty:
-            # Formatar e exibir os dados
-            st.subheader(f"Nutrientes para: {cultivar_nome}")
-            
+            st.subheader(f"Recomendações de Nutrientes para :red[{cultivar_nome}]")
+
             # Combinar nome e símbolo em uma única coluna
             df_nutrientes['Nutriente'] = df_nutrientes['nut_nome'] + " (" + df_nutrientes['nut_simbolo'] + ")"
             
@@ -147,9 +163,10 @@ def main():
                 df_display,
                 use_container_width=True,
                 hide_index=True,
+                row_height=20,
                 column_config={
                     "Id": st.column_config.NumberColumn(width="small"),
-                    "Nutriente": st.column_config.TextColumn(width="medium"),
+                    "Nutriente": st.column_config.TextColumn(width="small"),
                     "Mínimo": st.column_config.NumberColumn(format="%.3f"),
                     "Médio": st.column_config.NumberColumn(format="%.3f"),
                     "Máximo": st.column_config.NumberColumn(format="%.3f"),
