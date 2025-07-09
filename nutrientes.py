@@ -138,7 +138,7 @@ def main():
         df_nutrientes = load_culturas_nutrientes(cultivar_id)
         
         if not df_nutrientes.empty:
-            st.subheader(f"Recomendações de Nutrientes para :red[{cultivar_nome}]")
+            st.markdown(f"Recomendações de Nutrientes para :red[{cultivar_nome}]")
 
             # Combinar nome e símbolo em uma única coluna
             df_nutrientes['Nutriente'] = df_nutrientes['nut_nome'] + " (" + df_nutrientes['nut_simbolo'] + ")"
