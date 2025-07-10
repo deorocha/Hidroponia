@@ -52,6 +52,7 @@ def load_culturas_nutrientes(cultivar_id):
             cn.cnu_valor_medio,
             cn.cnu_valor_maximo,
             cn.cnu_referencia,
+            cn.cnu_link,
             cn.cnu_observacao
         FROM tbl_culturas_nutrientes cn
         JOIN tbl_nutrientes n ON cn.cnu_nutriente_id = n.nut_id
@@ -150,12 +151,13 @@ def main():
                 'cnu_valor_maximo': 'Máximo',
                 'cnu_referencia': 'Fonte',
                 'cnu_observacao': 'Observação',
-                'nut_genero_id': 'Tipo'
+                'nut_genero_id': 'Tipo',
+                'cnu_link': 'Link'  # Adicionar coluna Link
             })
             
-            # Selecionar colunas relevantes para exibição
+            # Selecionar colunas relevantes para exibição (incluir Link)
             df_display = df_display[[
-                'Id', 'Nutriente', 'Mínimo', 'Médio', 'Máximo', 'Fonte', 'Observação', 'Tipo'
+                'Id', 'Nutriente', 'Mínimo', 'Médio', 'Máximo', 'Fonte', 'Observação', 'Tipo', 'Link'
             ]]
             
             # Configurar AgGrid
@@ -166,6 +168,41 @@ def main():
             
             # Configurar colunas específicas
             gb.configure_columns(['Id'], width=50, type=["numericColumn"])
+            
+            # Renderizador personalizado para links - VERSÃO CORRIGIDA
+            js_link_renderer = JsCode('''
+                class UrlCellRenderer {
+                    init(params) {
+                        this.eGui = document.createElement('div');
+                        this.eGui.style.display = 'flex';
+                        this.eGui.style.alignItems = 'center';
+                        this.eGui.style.height = '100%';
+                        
+                        if (params.value && params.data.Link && params.data.Link.trim() !== '') {
+                            const link = document.createElement('a');
+                            link.href = params.data.Link;
+                            link.target = '_blank';
+                            link.textContent = params.value;
+                            link.style.color = '#1e88e5';
+                            link.style.textDecoration = 'none';
+                            link.style.cursor = 'pointer';
+                            link.style.fontSize = '14px';
+                            
+                            this.eGui.appendChild(link);
+                        } else {
+                            this.eGui.textContent = params.value;
+                        }
+                    }
+                    
+                    getGui() {
+                        return this.eGui;
+                    }
+                    
+                    refresh() {
+                        return false;
+                    }
+                }
+            ''')
             
             # Configurar todas as colunas para desativar filtros
             for col in df_display.columns:
@@ -181,6 +218,16 @@ def main():
             
             # Configurar coluna Tipo como oculta
             gb.configure_column('Tipo', hide=True)
+            
+            # Configurar coluna Link como oculta
+            gb.configure_column('Link', hide=True)
+            
+            # Configurar coluna Fonte com renderizador personalizado
+            gb.configure_column(
+                'Fonte',
+                cellRenderer=js_link_renderer,
+                autoEscapeHtml=False  # Importante para renderizar HTML
+            )
 
             # CORREÇÃO: Usando JsCode para cellStyle
             cell_style_jscode = JsCode("""
@@ -224,7 +271,7 @@ def main():
                 'suppressFilterButton': True  # Remove botão de filtro
             }
             
-            # CSS para cabeçalho - REMOVER COMPLETAMENTE OS FILTROS
+            # CSS para cabeçalho e links
             st.markdown("""
             <style>
                 /* Estilo para cabeçalho */
@@ -255,6 +302,21 @@ def main():
                 .ag-header-cell::after {
                     content: none !important;
                 }
+                
+                /* Estilo para links */
+                .ag-cell a {
+                    color: #1e88e5 !important;
+                    text-decoration: none !important;
+                }
+                .ag-cell a:hover {
+                    text-decoration: underline !important;
+                }
+                
+                /* Centralizar conteúdo das células verticalmente */
+                .ag-cell {
+                    display: flex !important;
+                    align-items: center !important;
+                }
             </style>
             """, unsafe_allow_html=True)
             
@@ -265,7 +327,7 @@ def main():
                 update_mode=GridUpdateMode.NO_UPDATE,
                 fit_columns_on_grid_load=False,
                 height=600,
-                theme='streamlit',
+                theme='alpine',  # Tema mais compatível
                 allow_unsafe_jscode=True,
                 domLayout='autoHeight'
             )
