@@ -12,6 +12,7 @@ scipy<1.12
 sentence-transformers
 db-sqlite3
 streamlit
+streamlit-aggrid
 streamlit-calendar
 streamlit-scroll-navigation
 transformers
