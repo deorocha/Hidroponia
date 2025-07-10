@@ -7,6 +7,7 @@ import joblib
 import sqlite3
 from PIL import Image
 import os
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode  # Removido JsCode
 
 # Configuração inicial da página
 st.set_page_config(
@@ -23,6 +24,62 @@ CSS_PATH = "./styles/style.css"
 JS_PATH = "./scripts/script_calc.js"
 IMG_DIR = "./imagens"
 DB_NAME = "./dados/hidroponia.db"
+
+# Função para configurar grid no estilo nutrientes.py
+def configure_grid(df, hidden_columns=None):
+    gb = GridOptionsBuilder.from_dataframe(df)
+    
+    # Configurações padrão
+    gb.configure_grid_options(
+        suppressMenuHide=True,
+        suppressFieldDotNotation=True,
+        domLayout='autoHeight'
+    )
+    
+    # Configurar todas as colunas
+    for col in df.columns:
+        # Configurações comuns
+        col_opts = {
+            'filter': False,
+            'suppressMenu': True,
+            'suppressMovable': True,
+            'suppressSizeToFit': False,
+            'autoSize': True,
+        }
+        
+        # Alinhamento numérico para colunas de valores
+        if col in ['Previsto', 'Mínimo', 'Máximo', 'Valor', 'Dif. (%)', 'Repor (g)*', 'Repor (L)**']:
+            col_opts['type'] = ['numericColumn']
+            col_opts['cellStyle'] = {'textAlign': 'right'}
+        else:
+            col_opts['cellStyle'] = {'textAlign': 'left'}
+            
+        gb.configure_column(col, **col_opts)
+    
+    # Ocultar colunas especificadas
+    if hidden_columns:
+        for col in hidden_columns:
+            gb.configure_column(col, hide=True)
+    
+    # Aplicar estilo condicional usando classes CSS
+    if 'Tipo' in df.columns:
+        gb.configure_grid_options(
+            rowClassRules={
+                'macronutriente': 'data.Tipo === 1',
+                'micronutriente': 'data.Tipo === 2'
+            }
+        )
+    
+    grid_options = gb.build()
+    grid_options['headerHeight'] = 30
+    grid_options['rowHeight'] = 30
+    grid_options['defaultColDef'] = {
+        'headerClass': 'header-class',
+        'suppressMenu': True,
+        'suppressFilterButton': True,
+    }
+    
+    return grid_options
 
 # Carregar recursos externos
 def load_resources():
@@ -45,6 +102,55 @@ def load_resources():
         }
         for key, path in img_paths.items():
             st.session_state[key] = Image.open(path) if os.path.exists(path) else None
+
+    # CSS adicional para AgGrid
+    aggrid_css = """
+    <style>
+        /* Estilo para cabeçalho */
+        .header-class {
+            background-color: #FFF5D9 !important;
+            text-align: center !important;
+        }
+        
+        /* Centralizar texto do cabeçalho */
+        .ag-header-cell-label {
+            justify-content: center !important;
+        }
+        
+        /* Remover completamente ícones de filtro e menu */
+        .ag-header-cell-menu-button,
+        .ag-header-icon.ag-header-cell-menu-button,
+        .ag-icon.ag-icon-menu,
+        .ag-icon.ag-icon-filter,
+        .ag-header-cell-filter-button {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        
+        /* Remover espaço reservado para ícones */
+        .ag-header-cell::after {
+            content: none !important;
+        }
+        
+        /* Centralizar conteúdo das células verticalmente */
+        .ag-cell {
+            display: flex !important;
+            align-items: center !important;
+        }
+        
+        /* Estilos condicionais para linhas */
+        .ag-row.macronutriente {
+            background-color: #ECF5E7 !important;
+        }
+        .ag-row.micronutriente {
+            background-color: #ECF4FA !important;
+        }
+    </style>
+    """
+    st.markdown(aggrid_css, unsafe_allow_html=True)
 
 # Funções de dados
 @st.cache_data
@@ -110,23 +216,20 @@ def render_sidebar():
         st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>🧮 Calculadora</h2>",
             unsafe_allow_html=True)
 
-        st.markdown("---")
-        
         # Container para o selectbox com classe específica
         with st.container():
             st.markdown('<div class="sidebar-selectbox">', unsafe_allow_html=True)
             cultivar_idx = st.selectbox(
-                "Selecione um cultivar:",
+                "Cultivar:",
                 range(len(st.session_state.cultivares)),
                 format_func=lambda i: st.session_state.cultivares[i][1],
+                placeholder="Selecione um cultivar",
                 index=None,
                 key="cultivar"
             )
             st.markdown('</div>', unsafe_allow_html=True)
 
         # Campos numéricos com rótulos na mesma linha
-        # st.markdown("<div style='margin-bottom: 10px;'><strong>Parâmetros da Solução:</strong></div>", unsafe_allow_html=True)
-        
         def create_inline_input(label, min_val, max_val, default, step, key):
             col1, col2 = st.columns([0.5, 0.5])
             with col1:
@@ -151,27 +254,40 @@ def render_sidebar():
             'volume': volume
         }
 
-def render_table(df):
-    """Renderiza uma tabela estilizada com largura total"""
-    return f"""
-    <div class="full-width-container">
-        <div class="scrollable-table">
-            {df.to_html(index=False, escape=False)}
-        </div>
-    </div>
-    """
-
 def render_main_results(prediction, cultivar_idx, volume):
-    """Renderiza os resultados principais da previsão"""
+    """Renderiza os resultados principais da previsão usando AgGrid"""
+    # Mapear símbolo para tipo (1: macronutriente, 2: micronutriente)
+    tipo_por_simbolo = {}
+    for simbolo in st.session_state.macronutrientes:
+        tipo_por_simbolo[simbolo] = 1
+    for simbolo in st.session_state.micronutrientes:
+        tipo_por_simbolo[simbolo] = 2
+    
     nutriente_names = [f"{nome} ({simbolo})" for nome, simbolo in 
                       zip(st.session_state.nomes_completos, st.session_state.colunas_saida)]
     
     if cultivar_idx is None:
-        df = pd.DataFrame({
+        # Construir DataFrame sem faixas
+        data = {
             "Nutriente": nutriente_names,
-            "Valor Previsto": [f"{v:.4f}" for v in prediction]
-        })
-        st.markdown(render_table(df), unsafe_allow_html=True)
+            "Valor Previsto": [f"{v:.3f}" for v in prediction],
+            "Tipo": [tipo_por_simbolo.get(simbolo, 0) for simbolo in st.session_state.colunas_saida]
+        }
+        df = pd.DataFrame(data)
+        
+        # Configurar grid
+        hidden_columns = ['Tipo']
+        grid_options = configure_grid(df, hidden_columns=hidden_columns)
+        
+        # Exibir
+        AgGrid(
+            df,
+            gridOptions=grid_options,
+            update_mode=GridUpdateMode.NO_UPDATE,
+            fit_columns_on_grid_load=True,
+            height=min(400, (len(df) + 1) * 30 + 40),
+            theme='alpine'
+        )
         return None, None
     
     cultivar_id = st.session_state.cultivares[cultivar_idx][0]
@@ -180,44 +296,62 @@ def render_main_results(prediction, cultivar_idx, volume):
     
     if not faixas:
         st.warning("⚠️ Nenhuma faixa definida para este cultivar.")
-        df = pd.DataFrame({
+        # Construir DataFrame sem faixas
+        data = {
             "Nutriente": nutriente_names,
-            "Valor Previsto": [f"{v:.4f}" for v in prediction]
-        })
-        st.markdown(render_table(df), unsafe_allow_html=True)
+            "Valor Previsto": [f"{v:.3f}" for v in prediction],
+            "Tipo": [tipo_por_simbolo.get(simbolo, 0) for simbolo in st.session_state.colunas_saida]
+        }
+        df = pd.DataFrame(data)
+        hidden_columns = ['Tipo']
+        grid_options = configure_grid(df, hidden_columns=hidden_columns)
+        AgGrid(
+            df,
+            gridOptions=grid_options,
+            update_mode=GridUpdateMode.NO_UPDATE,
+            fit_columns_on_grid_load=True,
+            height=min(400, (len(df) + 1) * 30 + 40),
+            theme='alpine'
+        )
         return None, None
     
     resultados, reposicao_abaixo, reposicao_acima = [], [], []
     
     for i, nut_id in enumerate(st.session_state.ids_nutrientes):
         valor = prediction[i]
-        valor_fmt = f"{valor:.4f}"
+        valor_fmt = f"{valor:.3f}"
         status, min_fmt, max_fmt = "", "N/A", "N/A"
+        
+        # Obter símbolo e tipo
+        simbolo = st.session_state.colunas_saida[i]
+        tipo = tipo_por_simbolo.get(simbolo, 0)
         
         if nut_id in faixas:
             minimo, maximo = faixas[nut_id]
-            min_fmt, max_fmt, med_fmt = f"{minimo:.4f}", f"{maximo:.4f}", f"{(maximo-minimo)/2:.4f}"
+            min_fmt, max_fmt = f"{minimo:.3f}", f"{maximo:.3f}"
             
             if valor < minimo:
                 status = "🔻"
                 reposicao_g = ((maximo-minimo)/2)-valor
                 dif_perc = ((((maximo-minimo)/2)-valor) / valor) * 100
                 reposicao_abaixo.append({
-                    "Nutriente": f"{st.session_state.nomes_completos[i]} ({st.session_state.colunas_saida[i]})",
+                    "Nutriente": f"{st.session_state.nomes_completos[i]} ({simbolo})",
                     "Valor": valor_fmt,
                     "Mínimo": min_fmt,
-                    "Média": med_fmt,
+                    "Média": f"{(maximo-minimo)/2:.3f}",
                     "Dif. (%)": f"{dif_perc:.2f}",
-                    "Repor (g)*": f"{reposicao_g:.4f}"
+                    "Repor (g)*": f"{reposicao_g:.3f}",
+                    "Tipo": tipo
                 })
             elif valor > maximo:
                 status = "🔼"
                 reposicao_l = (valor - maximo) * volume / maximo
                 reposicao_acima.append({
-                    "Nutriente": f"{st.session_state.nomes_completos[i]} ({st.session_state.colunas_saida[i]})",
+                    "Nutriente": f"{st.session_state.nomes_completos[i]} ({simbolo})",
                     "Valor": valor_fmt,
                     "Máximo": max_fmt,
-                    "Repor (L)**": f"{reposicao_l:.4f}"
+                    "Repor (L)**": f"{reposicao_l:.3f}",
+                    "Tipo": tipo
                 })
             else:
                 status = "✅"
@@ -227,15 +361,27 @@ def render_main_results(prediction, cultivar_idx, volume):
             "Previsto": valor_fmt,
             "Mínimo": min_fmt,
             "Máximo": max_fmt,
-            "Status": status
+            "Status": status,
+            "Tipo": tipo
         })
     
-    st.markdown(render_table(pd.DataFrame(resultados)), unsafe_allow_html=True)
+    # Construir DataFrame para resultados principais
+    df_resultados = pd.DataFrame(resultados)
+    hidden_columns = ['Tipo']
+    grid_options = configure_grid(df_resultados, hidden_columns=hidden_columns)
+    AgGrid(
+        df_resultados,
+        gridOptions=grid_options,
+        update_mode=GridUpdateMode.NO_UPDATE,
+        fit_columns_on_grid_load=True,
+        height=min(400, (len(df_resultados) + 1) * 30 + 40),
+        theme='alpine'
+    )
     st.success("✅ Previsão realizada com sucesso!")
     return reposicao_abaixo, reposicao_acima
 
 def render_reposicao_section(title, icon, data, caption):
-    """Renderiza uma seção de reposição"""
+    """Renderiza uma seção de reposição usando AgGrid"""
     with st.container():
         col1, col2 = st.columns([0.05, 0.95])
         with col1:
@@ -246,7 +392,19 @@ def render_reposicao_section(title, icon, data, caption):
         
         if data:
             df = pd.DataFrame(data)
-            st.markdown(render_table(df), unsafe_allow_html=True)
+            # Configurar grid
+            hidden_columns = ['Tipo']
+            grid_options = configure_grid(df, hidden_columns=hidden_columns)
+            
+            # Exibir
+            AgGrid(
+                df,
+                gridOptions=grid_options,
+                update_mode=GridUpdateMode.NO_UPDATE,
+                fit_columns_on_grid_load=True,
+                height=min(300, (len(df) + 1) * 30 + 40),
+                theme='alpine'
+            )
             st.caption(caption)
 
 def main():
@@ -298,8 +456,6 @@ def main():
             st.error(f"Erro na previsão: {str(e)}")
 
     with st.sidebar:
-        # st.markdown("---")
-        
         col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("← Voltar", key="btn_back_calculadora", use_container_width=True):
