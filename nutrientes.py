@@ -131,8 +131,14 @@ def main():
         df_nutrientes = load_culturas_nutrientes(cultivar_id)
         
         if not df_nutrientes.empty:
-            st.write(f"Recomendações de Nutrientes para :red[{cultivar_nome}]")
-
+            # Título da tabela
+            st.markdown(
+                f"<h5 style='text-align: center; padding: 0px; margin-top: 40px; margin-bottom: 0px;'>"
+                f"Recomendações de Nutrientes para <span style='color: #e74c3c;'>{cultivar_nome}</span>"
+                f"</h5>",
+                unsafe_allow_html=True
+            )
+            
             # Combinar nome e símbolo em uma única coluna
             df_nutrientes['Nutriente'] = df_nutrientes['nut_nome'] + " (" + df_nutrientes['nut_simbolo'] + ")"
             
@@ -155,15 +161,26 @@ def main():
             # Configurar AgGrid
             gb = GridOptionsBuilder.from_dataframe(df_display)
             
-            # Configurar colunas
-            gb.configure_columns(['Id'], width=50, type=["numericColumn"])
-            gb.configure_columns(['Nutriente'], width=150)
-            gb.configure_columns(['Mínimo', 'Médio', 'Máximo'], width=100, type=["numericColumn"])
-            gb.configure_columns(['Fonte'], width=150)
-            gb.configure_columns(['Observação'], width=300)
+            # Desativar completamente os filtros
+            gb.configure_grid_options(suppressMenuHide=True, suppressFieldDotNotation=True)
             
-            # ADICIONADO: Ocultar coluna Tipo
-            gb.configure_column('Tipo', hide=True)  # Esta linha oculta a coluna Tipo
+            # Configurar colunas específicas
+            gb.configure_columns(['Id'], width=50, type=["numericColumn"])
+            
+            # Configurar todas as colunas para desativar filtros
+            for col in df_display.columns:
+                gb.configure_column(
+                    col,
+                    autoSize=True,
+                    filter=False,  # Desativa filtro
+                    suppressMenu=True,  # Remove menu
+                    suppressFilterButton=True,  # Remove botão de filtro
+                    suppressMovable=True,  # Remove opção de mover coluna
+                    suppressSizeToFit=False  # Permite autoSize
+                )
+            
+            # Configurar coluna Tipo como oculta
+            gb.configure_column('Tipo', hide=True)
 
             # CORREÇÃO: Usando JsCode para cellStyle
             cell_style_jscode = JsCode("""
@@ -177,22 +194,24 @@ def main():
                 }
             """)
 
-            # Configurar estilo condicional para todas as colunas
+            # Aplicar estilo condicional para todas as colunas
             for col in ['Id', 'Nutriente', 'Mínimo', 'Médio', 'Máximo', 'Fonte', 'Observação']:
                 gb.configure_column(
-                    col, 
+                    col,
                     cellStyle=cell_style_jscode
                 )
-            
-            # Configurar cabeçalho
+
+            # Configurações gerais
             gb.configure_default_column(
                 resizable=True,
-                filterable=True,
+                filter=False,  # Desativa filtros globalmente
                 sortable=True,
                 editable=False,
-                wrapText=True
+                wrapText=False,
+                suppressMenu=True,  # Remove menu
+                suppressFilterButton=True  # Remove botão de filtro
             )
-            
+
             # Configurar estilo do cabeçalho
             grid_options = gb.build()
             grid_options['headerHeight'] = 30
@@ -200,14 +219,41 @@ def main():
             
             # Adicionar estilo para o cabeçalho
             grid_options['defaultColDef'] = {
-                'headerClass': 'header-class'
+                'headerClass': 'header-class',
+                'suppressMenu': True,  # Remove menu
+                'suppressFilterButton': True  # Remove botão de filtro
             }
             
-            # CSS para cabeçalho
+            # CSS para cabeçalho - REMOVER COMPLETAMENTE OS FILTROS
             st.markdown("""
             <style>
+                /* Estilo para cabeçalho */
                 .header-class {
                     background-color: #FFF5D9 !important;
+                    text-align: center !important;
+                }
+                
+                /* Centralizar texto do cabeçalho */
+                .ag-header-cell-label {
+                    justify-content: center !important;
+                }
+                
+                /* Remover completamente ícones de filtro e menu */
+                .ag-header-cell-menu-button,
+                .ag-header-icon.ag-header-cell-menu-button,
+                .ag-icon.ag-icon-menu,
+                .ag-icon.ag-icon-filter,
+                .ag-header-cell-filter-button {
+                    display: none !important;
+                    width: 0 !important;
+                    height: 0 !important;
+                    opacity: 0 !important;
+                    visibility: hidden !important;
+                }
+                
+                /* Remover espaço reservado para ícones */
+                .ag-header-cell::after {
+                    content: none !important;
                 }
             </style>
             """, unsafe_allow_html=True)
@@ -217,10 +263,11 @@ def main():
                 df_display,
                 gridOptions=grid_options,
                 update_mode=GridUpdateMode.NO_UPDATE,
-                fit_columns_on_grid_load=True,
+                fit_columns_on_grid_load=False,
                 height=600,
                 theme='streamlit',
-                allow_unsafe_jscode=True
+                allow_unsafe_jscode=True,
+                domLayout='autoHeight'
             )
             
         else:
