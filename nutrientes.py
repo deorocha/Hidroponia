@@ -3,6 +3,8 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, JsCode
+import numpy as np
 
 # Configuração inicial da página
 st.set_page_config(
@@ -12,11 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
     menu_items={'About': None, 'Get help': None, 'Report a bug': None}
 )
-
-# Carrega o CSS customizado
-#with open('./styles/style.css') as f:
-#    css = f.read()
-#st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 DB_NAME = "./dados/hidroponia.db"
 
@@ -28,10 +25,10 @@ def load_culturas():
         cursor = conn.cursor()
         
         cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivares ORDER BY clt_nome")
-        cultivares = cursor.fetchall()
+        cultivare = cursor.fetchall()
         
         # Processar dados
-        data = {'cultivares': cultivares}
+        data = {'cultivares': cultivare}
         return data
     except Exception as e:
         st.error(f"Erro no banco: {str(e)}")
@@ -50,6 +47,7 @@ def load_culturas_nutrientes(cultivar_id):
             cn.cnu_nutriente_id,
             n.nut_nome,
             n.nut_simbolo,
+            n.nut_genero_id,
             cn.cnu_valor_minimo,
             cn.cnu_valor_medio,
             cn.cnu_valor_maximo,
@@ -85,6 +83,8 @@ def main():
         st.markdown("<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>🧬 Nutrientes</h2>",
                     unsafe_allow_html=True)
 
+        st.markdown("---")
+        
         dados_cultivares = load_culturas()
         
         # Criar lista de nomes e dicionário de mapeamento nome->ID
@@ -101,19 +101,12 @@ def main():
         
         # Obter ID correspondente ao nome selecionado
         cultivar_id = cultivar_id_map.get(cultivar_nome, None)
-        
-        # Exibir ID da cultivar selecionada
-        #if cultivar_id is not None:
-        #    st.markdown(f"**ID da cultivar selecionada:** `{cultivar_id}`")
-        #else:
-        #    st.warning("Cultivar sem ID definido.")
 
         nomes_sistemas = ["NFT", "DFT", "DWC", "Gotejamento", "Subirrigação", "Aeroponia", "Pavio", "Fluxo e Refluxo", "Aquaponia", "Substrato"]
         nomes_etapas = ["Germinação", "Berçário", "Crescimento", "Fase final"]
-        sistema_procucao = st.selectbox('Selecione um Sistema:', options=nomes_sistemas, index=0)
+        sistema_producao = st.selectbox('Selecione um Sistema:', options=nomes_sistemas, index=0)
         etapa_producao = st.selectbox('Selecione a Etapa:', options=nomes_etapas, index=2)
 
-        
         # Adiciona espaço para empurrar os botões para o rodapé
         st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
         
@@ -138,7 +131,7 @@ def main():
         df_nutrientes = load_culturas_nutrientes(cultivar_id)
         
         if not df_nutrientes.empty:
-            st.markdown(f"Recomendações de Nutrientes para :red[{cultivar_nome}]")
+            st.write(f"Recomendações de Nutrientes para :red[{cultivar_nome}]")
 
             # Combinar nome e símbolo em uma única coluna
             df_nutrientes['Nutriente'] = df_nutrientes['nut_nome'] + " (" + df_nutrientes['nut_simbolo'] + ")"
@@ -150,28 +143,86 @@ def main():
                 'cnu_valor_medio': 'Médio',
                 'cnu_valor_maximo': 'Máximo',
                 'cnu_referencia': 'Fonte',
-                'cnu_observacao': 'Observação'
+                'cnu_observacao': 'Observação',
+                'nut_genero_id': 'Tipo'
             })
             
             # Selecionar colunas relevantes para exibição
             df_display = df_display[[
-                'Id', 'Nutriente', 'Mínimo', 'Médio', 'Máximo', 'Fonte', 'Observação'
+                'Id', 'Nutriente', 'Mínimo', 'Médio', 'Máximo', 'Fonte', 'Observação', 'Tipo'
             ]]
             
-            # Estilizar a tabela
-            st.dataframe(
-                df_display,
-                use_container_width=True,
-                hide_index=True,
-                row_height=20,
-                column_config={
-                    "Id": st.column_config.NumberColumn(width="small"),
-                    "Nutriente": st.column_config.TextColumn(width="small"),
-                    "Mínimo": st.column_config.NumberColumn(format="%.3f"),
-                    "Médio": st.column_config.NumberColumn(format="%.3f"),
-                    "Máximo": st.column_config.NumberColumn(format="%.3f"),
+            # Configurar AgGrid
+            gb = GridOptionsBuilder.from_dataframe(df_display)
+            
+            # Configurar colunas
+            gb.configure_columns(['Id'], width=50, type=["numericColumn"])
+            gb.configure_columns(['Nutriente'], width=150)
+            gb.configure_columns(['Mínimo', 'Médio', 'Máximo'], width=100, type=["numericColumn"])
+            gb.configure_columns(['Fonte'], width=150)
+            gb.configure_columns(['Observação'], width=300)
+            
+            # ADICIONADO: Ocultar coluna Tipo
+            gb.configure_column('Tipo', hide=True)  # Esta linha oculta a coluna Tipo
+
+            # CORREÇÃO: Usando JsCode para cellStyle
+            cell_style_jscode = JsCode("""
+                function(params) {
+                    if (params.data.Tipo === 1) {
+                        return {backgroundColor: '#ECF5E7'};
+                    } else if (params.data.Tipo === 2) {
+                        return {backgroundColor: '#ECF4FA'};
+                    }
+                    return null;
                 }
+            """)
+
+            # Configurar estilo condicional para todas as colunas
+            for col in ['Id', 'Nutriente', 'Mínimo', 'Médio', 'Máximo', 'Fonte', 'Observação']:
+                gb.configure_column(
+                    col, 
+                    cellStyle=cell_style_jscode
+                )
+            
+            # Configurar cabeçalho
+            gb.configure_default_column(
+                resizable=True,
+                filterable=True,
+                sortable=True,
+                editable=False,
+                wrapText=True
             )
+            
+            # Configurar estilo do cabeçalho
+            grid_options = gb.build()
+            grid_options['headerHeight'] = 30
+            grid_options['rowHeight'] = 30
+            
+            # Adicionar estilo para o cabeçalho
+            grid_options['defaultColDef'] = {
+                'headerClass': 'header-class'
+            }
+            
+            # CSS para cabeçalho
+            st.markdown("""
+            <style>
+                .header-class {
+                    background-color: #FFF5D9 !important;
+                }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            # Exibir a tabela
+            AgGrid(
+                df_display,
+                gridOptions=grid_options,
+                update_mode=GridUpdateMode.NO_UPDATE,
+                fit_columns_on_grid_load=True,
+                height=600,
+                theme='streamlit',
+                allow_unsafe_jscode=True
+            )
+            
         else:
             st.warning("Nenhum dado de nutriente encontrado para esta cultivar.")
     else:
