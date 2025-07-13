@@ -168,14 +168,14 @@ def home_page():
         # Lista de funcionalidades
         features = [
             {"icon": "🧮", "name": "Calculadora Inteligente", "page": "calculadora"},
-            {"icon": "🧬", "name": "Nutrientes por Cultivar 🚧", "page": "nutrientes"},
-            {"icon": "📅", "name": "Agenda 🚧", "page": "agenda"},
-            {"icon": "📚", "name": "Biblioteca 🚧", "page": "biblioteca"},
-            {"icon": "🤖", "name": "Chatbot 🚧", "page": "chatbot_gemini"},
-            {"icon": "📂", "name": "Cadastros 🚧", "page": "cadastros"},
-            {"icon": "📈", "name": "Crescimento 🚧", "page": "crescimento"},
-            {"icon": "🐛", "name": "Doenças 🚧", "page": "doencas"},
-            {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"}
+            {"icon": "🧬", "name": "Nutrientes por Cultivar", "page": "nutrientes"},
+            {"icon": "📈", "name": "Crescimento Inteligente", "page": "crescimento"},
+            {"icon": "📚", "name": "Biblioteca hidropônica 🚧", "page": "biblioteca"},
+            {"icon": "🤖", "name": "Pergunte ao especialista 🚧", "page": "chatbot_gemini"},
+            {"icon": "📅", "name": "Agenda de tarefas 🚧", "page": "agenda"},
+            {"icon": "🐛", "name": "Detector de Doenças 🚧", "page": "doencas"},
+            {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"},
+            {"icon": "📂", "name": "Cadastros do Sistema 🚧", "page": "cadastros"}
         ]
         
         for feature in features:

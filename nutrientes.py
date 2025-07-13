@@ -98,7 +98,7 @@ def main():
             nomes_cultivares.append(clt_nome)
             cultivar_id_map[clt_nome] = clt_id
 
-        cultivar_nome = st.selectbox('Selecione uma cultivar:', options=nomes_cultivares)
+        cultivar_nome = st.selectbox('Cultivar:', placeholder="Selecione um cultivar", options=nomes_cultivares)
         
         # Obter ID correspondente ao nome selecionado
         cultivar_id = cultivar_id_map.get(cultivar_nome, None)
