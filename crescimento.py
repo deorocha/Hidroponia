@@ -19,6 +19,18 @@ st.set_page_config(
     menu_items={'About': None, 'Get help': None, 'Report a bug': None}
 )
 
+custom_html = """
+<style>
+    .banner {
+        width: 100%;
+        height: 1px;
+        overflow: hidden;
+    }
+</style>
+"""
+st.components.v1.html(custom_html)
+
+
 DB_NAME = "./dados/hidroponia.db"
 
 def calcular_parametros(p_inicial, p_final, dias):
