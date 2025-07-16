@@ -404,7 +404,7 @@ def main():
         df = df.set_index('Dia')
         
         # Exibir tabela sem índice usando st.dataframe
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, use_container_width=False)
 
     else:
         # Mensagem inicial
