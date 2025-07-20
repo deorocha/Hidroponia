@@ -351,13 +351,20 @@ def render_main_results(prediction, cultivar_idx, volume):
             gridOptions=grid_options,
             update_mode=GridUpdateMode.NO_UPDATE,
             fit_columns_on_grid_load=False,
-            height=min(400, (len(df) + 1) * 30 + 40),
+            height=min(400, (len(df) + 1) * 30 + 40), # Alterado
             theme='alpine'
         )
         return None, None
     
     cultivar_id = st.session_state.cultivares[cultivar_idx][0]
-    st.subheader(f"Cultivar: :red[{st.session_state.cultivares[cultivar_idx][1]}]")
+    cultivar_name = st.session_state.cultivares[cultivar_idx][1]
+    # st.subheader(f"Cultivar: :red[{st.session_state.cultivares[cultivar_idx][1]}]")
+    st.markdown(
+        f"<h3 style='margin-top:0; margin-bottom:0; padding-top:0; padding-bottom:0;'>"
+        f"Cultivar: <span style='color:red'>{cultivar_name}</span></h3>",
+        unsafe_allow_html=True
+    )
+ 
     faixas = load_cultivar_ranges(cultivar_id)
     
     if not faixas:
@@ -460,7 +467,8 @@ def render_reposicao_section(title, icon, data, caption):
             if icon:
                 st.image(icon, width=30)
         with col2:
-            st.subheader(title)
+            # st.subheader(title)
+            st.markdown("##### " + title)
         
         if data:
             df = pd.DataFrame(data)
