@@ -25,8 +25,8 @@ JS_PATH = "./scripts/script_calc.js"
 IMG_DIR = "./imagens"
 DB_NAME = "./dados/hidroponia.db"
 
-# Função para configurar grid no estilo nutrientes.py
-def configure_grid(df, hidden_columns=None):
+# Função para configurar grid com larguras específicas
+def configure_grid(df, hidden_columns=None, table_type="main"):
     gb = GridOptionsBuilder.from_dataframe(df)
     
     # Configurações padrão
@@ -36,6 +36,36 @@ def configure_grid(df, hidden_columns=None):
         domLayout='autoHeight'
     )
     
+    # Definir proporções de flex para cada tipo de tabela
+    flex_configs = {
+        "main": {  # Tabela principal (Cultivar)
+            "Nutriente": 30,
+            "Previsto": 15,
+            "Mínimo": 15,
+            "Médio": 15,
+            "Máximo": 15,
+            "Status": 10
+        },
+        "below": {  # Nutrientes abaixo do mínimo
+            "Nutriente": 30,
+            "Previsto": 10,
+            "Mínimo": 10,
+            "Médio": 10,
+            "Máximo": 10,
+            "Dif. (%)": 15,
+            "Repor (g)*": 15
+        },
+        "above": {  # Nutrientes acima do máximo
+            "Nutriente": 30,
+            "Previsto": 10,
+            "Mínimo": 10,
+            "Médio": 10,
+            "Máximo": 10,
+            "Dif. (%)": 15,
+            "Repor (L)**": 15
+        }
+    }
+    
     # Configurar todas as colunas
     for col in df.columns:
         # Configurações comuns
@@ -44,11 +74,16 @@ def configure_grid(df, hidden_columns=None):
             'suppressMenu': True,
             'suppressMovable': True,
             'suppressSizeToFit': False,
-            'autoSize': True,
+            'autoSize': False,  # Desabilitar autoSize para usar flex
         }
         
+        # Definir flex se estiver na configuração
+        if col in flex_configs[table_type]:
+            col_opts['flex'] = flex_configs[table_type][col]
+            col_opts['minWidth'] = 100  # Largura mínima para evitar quebras
+        
         # Alinhamento numérico para colunas de valores
-        if col in ['Previsto', 'Mínimo', 'Máximo', 'Valor', 'Dif. (%)', 'Repor (g)*', 'Repor (L)**']:
+        if col in ['Previsto', 'Mínimo', 'Médio', 'Máximo', 'Valor', 'Dif. (%)', 'Repor (g)*', 'Repor (L)**']:
             col_opts['type'] = ['numericColumn']
             col_opts['cellStyle'] = {'textAlign': 'right'}
         else:
@@ -148,6 +183,11 @@ def load_resources():
         .ag-row.micronutriente {
             background-color: #ECF4FA !important;
         }
+        
+        /* Garantir que a tabela ocupe 100% da largura */
+        .ag-theme-alpine {
+            width: 100% !important;
+        }
     </style>
     """
     st.markdown(aggrid_css, unsafe_allow_html=True)
@@ -189,13 +229,20 @@ def load_db_data():
 
 @st.cache_data
 def load_cultivar_ranges(cultivar_id):
-    """Carrega faixas do cultivar com cache"""
+    """Carrega faixas do cultivar com cache da tbl_culturas_nutrientes"""
     try:
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
-        cursor.execute("SELECT fax_nut_id, fax_minimo, fax_maximo FROM tbl_faixas WHERE fax_clt_id = ?", (cultivar_id,))
-        return {nut_id: (minimo, maximo) for nut_id, minimo, maximo in cursor.fetchall()}
-    except:
+        # Buscar valores mínimo, médio e máximo da nova tabela
+        cursor.execute("""
+            SELECT cnu_nutriente_id, cnu_valor_minimo, cnu_valor_medio, cnu_valor_maximo 
+            FROM tbl_culturas_nutrientes 
+            WHERE cnu_cultura_id = ?
+        """, (cultivar_id,))
+        # Retornar dicionário: nut_id -> (minimo, medio, maximo)
+        return {nut_id: (minimo, medio, maximo) for nut_id, minimo, medio, maximo in cursor.fetchall()}
+    except Exception as e:
+        st.error(f"Erro ao carregar faixas: {e}")
         return {}
 
 def render_sidebar():
@@ -241,7 +288,7 @@ def render_sidebar():
         ph = create_inline_input("pH", 0.0, 14.0, 5.5, 0.1, "ph")
         ec = create_inline_input("Condutividade (EC)", 0.0, 10.0, 1.0, 0.01, "ec")
         o2 = create_inline_input("Oxigênio Dissolvido (O₂)", 0.0, 20.0, 4.0, 0.1, "o2")
-        volume = create_inline_input("Volume do tanque (L)", 10, 100000, 1000, 10, "volume")
+        volume = create_inline_input("Volume do tanque (L)", 1, 100000, 1000, 10, "volume")
 
         return {
             'params': {
@@ -277,14 +324,14 @@ def render_main_results(prediction, cultivar_idx, volume):
         
         # Configurar grid
         hidden_columns = ['Tipo']
-        grid_options = configure_grid(df, hidden_columns=hidden_columns)
+        grid_options = configure_grid(df, hidden_columns=hidden_columns, table_type="main")
         
         # Exibir
         AgGrid(
             df,
             gridOptions=grid_options,
             update_mode=GridUpdateMode.NO_UPDATE,
-            fit_columns_on_grid_load=True,
+            fit_columns_on_grid_load=False,
             height=min(400, (len(df) + 1) * 30 + 40),
             theme='alpine'
         )
@@ -304,12 +351,12 @@ def render_main_results(prediction, cultivar_idx, volume):
         }
         df = pd.DataFrame(data)
         hidden_columns = ['Tipo']
-        grid_options = configure_grid(df, hidden_columns=hidden_columns)
+        grid_options = configure_grid(df, hidden_columns=hidden_columns, table_type="main")
         AgGrid(
             df,
             gridOptions=grid_options,
             update_mode=GridUpdateMode.NO_UPDATE,
-            fit_columns_on_grid_load=True,
+            fit_columns_on_grid_load=False,
             height=min(400, (len(df) + 1) * 30 + 40),
             theme='alpine'
         )
@@ -320,25 +367,26 @@ def render_main_results(prediction, cultivar_idx, volume):
     for i, nut_id in enumerate(st.session_state.ids_nutrientes):
         valor = prediction[i]
         valor_fmt = f"{valor:.3f}"
-        status, min_fmt, max_fmt = "", "N/A", "N/A"
+        status, min_fmt, med_fmt, max_fmt = "", "N/A", "N/A", "N/A"
         
         # Obter símbolo e tipo
         simbolo = st.session_state.colunas_saida[i]
         tipo = tipo_por_simbolo.get(simbolo, 0)
         
         if nut_id in faixas:
-            minimo, maximo = faixas[nut_id]
-            min_fmt, max_fmt = f"{minimo:.3f}", f"{maximo:.3f}"
+            minimo, medio, maximo = faixas[nut_id]
+            min_fmt, med_fmt, max_fmt = f"{minimo:.3f}", f"{medio:.3f}", f"{maximo:.3f}"
             
             if valor < minimo:
                 status = "🔻"
-                reposicao_g = ((maximo-minimo)/2)-valor
-                dif_perc = ((((maximo-minimo)/2)-valor) / valor) * 100
+                reposicao_g = medio - valor  # Meta é o valor médio
+                dif_perc = ((medio - valor) / valor) * 100
                 reposicao_abaixo.append({
                     "Nutriente": f"{st.session_state.nomes_completos[i]} ({simbolo})",
-                    "Valor": valor_fmt,
+                    "Previsto": valor_fmt,
                     "Mínimo": min_fmt,
-                    "Média": f"{(maximo-minimo)/2:.3f}",
+                    "Médio": med_fmt,
+                    "Máximo": max_fmt,
                     "Dif. (%)": f"{dif_perc:.2f}",
                     "Repor (g)*": f"{reposicao_g:.3f}",
                     "Tipo": tipo
@@ -346,10 +394,14 @@ def render_main_results(prediction, cultivar_idx, volume):
             elif valor > maximo:
                 status = "🔼"
                 reposicao_l = (valor - maximo) * volume / maximo
+                dif_perc = ((valor - maximo) / maximo) * 100
                 reposicao_acima.append({
                     "Nutriente": f"{st.session_state.nomes_completos[i]} ({simbolo})",
-                    "Valor": valor_fmt,
+                    "Previsto": valor_fmt,
+                    "Mínimo": min_fmt,
+                    "Médio": med_fmt,
                     "Máximo": max_fmt,
+                    "Dif. (%)": f"{dif_perc:.2f}",
                     "Repor (L)**": f"{reposicao_l:.3f}",
                     "Tipo": tipo
                 })
@@ -360,6 +412,7 @@ def render_main_results(prediction, cultivar_idx, volume):
             "Nutriente": nutriente_names[i],
             "Previsto": valor_fmt,
             "Mínimo": min_fmt,
+            "Médio": med_fmt,
             "Máximo": max_fmt,
             "Status": status,
             "Tipo": tipo
@@ -368,12 +421,12 @@ def render_main_results(prediction, cultivar_idx, volume):
     # Construir DataFrame para resultados principais
     df_resultados = pd.DataFrame(resultados)
     hidden_columns = ['Tipo']
-    grid_options = configure_grid(df_resultados, hidden_columns=hidden_columns)
+    grid_options = configure_grid(df_resultados, hidden_columns=hidden_columns, table_type="main")
     AgGrid(
         df_resultados,
         gridOptions=grid_options,
         update_mode=GridUpdateMode.NO_UPDATE,
-        fit_columns_on_grid_load=True,
+        fit_columns_on_grid_load=False,
         height=min(400, (len(df_resultados) + 1) * 30 + 40),
         theme='alpine'
     )
@@ -394,14 +447,17 @@ def render_reposicao_section(title, icon, data, caption):
             df = pd.DataFrame(data)
             # Configurar grid
             hidden_columns = ['Tipo']
-            grid_options = configure_grid(df, hidden_columns=hidden_columns)
+            
+            # Determinar o tipo de tabela baseado no título
+            table_type = "below" if "abaixo" in title else "above"
+            grid_options = configure_grid(df, hidden_columns=hidden_columns, table_type=table_type)
             
             # Exibir
             AgGrid(
                 df,
                 gridOptions=grid_options,
                 update_mode=GridUpdateMode.NO_UPDATE,
-                fit_columns_on_grid_load=True,
+                fit_columns_on_grid_load=False,
                 height=min(300, (len(df) + 1) * 30 + 40),
                 theme='alpine'
             )
