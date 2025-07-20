@@ -1,4 +1,13 @@
-# calculadora.py
+"""
+    Autor : André Luiz Rocha
+    Data  : 01/06/2025 - 13:10
+    L.U.  : 20/07/2025 - 18:00
+    Programa: calculadora.py
+    Função: 
+    Pendências:
+        - 
+        - 
+"""
 
 import streamlit as st
 from streamlit.components.v1 import html
@@ -106,8 +115,8 @@ def configure_grid(df, hidden_columns=None, table_type="main"):
         )
     
     grid_options = gb.build()
-    grid_options['headerHeight'] = 30
-    grid_options['rowHeight'] = 30
+    grid_options['headerHeight'] = 25
+    grid_options['rowHeight'] = 25
     grid_options['defaultColDef'] = {
         'headerClass': 'header-class',
         'suppressMenu': True,
@@ -145,11 +154,13 @@ def load_resources():
         .header-class {
             background-color: #FFF5D9 !important;
             text-align: center !important;
+            padding: 2px !important;  /* Reduzido */
         }
         
         /* Centralizar texto do cabeçalho */
         .ag-header-cell-label {
             justify-content: center !important;
+            line-height: 20px !important;  /* Adicionado */
         }
         
         /* Remover completamente ícones de filtro e menu */
@@ -174,6 +185,8 @@ def load_resources():
         .ag-cell {
             display: flex !important;
             align-items: center !important;
+            padding: 0 5px !important;  /* Reduzido */
+            line-height: 22px !important; /* Reduzido */
         }
         
         /* Estilos condicionais para linhas */
@@ -187,6 +200,12 @@ def load_resources():
         /* Garantir que a tabela ocupe 100% da largura */
         .ag-theme-alpine {
             width: 100% !important;
+        }
+        
+        /* Reduzir tamanho da fonte */
+        .ag-theme-alpine .ag-cell,
+        .ag-theme-alpine .ag-header-cell {
+            font-size: 13px !important;  /* Adicionado */
         }
     </style>
     """
@@ -427,7 +446,7 @@ def render_main_results(prediction, cultivar_idx, volume):
         gridOptions=grid_options,
         update_mode=GridUpdateMode.NO_UPDATE,
         fit_columns_on_grid_load=False,
-        height=min(400, (len(df_resultados) + 1) * 30 + 40),
+        height=min(400, (len(df_resultados) + 1) * 25 + 30),
         theme='alpine'
     )
     st.success("✅ Previsão realizada com sucesso!")
@@ -458,7 +477,7 @@ def render_reposicao_section(title, icon, data, caption):
                 gridOptions=grid_options,
                 update_mode=GridUpdateMode.NO_UPDATE,
                 fit_columns_on_grid_load=False,
-                height=min(300, (len(df) + 1) * 30 + 40),
+                height=min(300, (len(df) + 1) * 25 + 30),
                 theme='alpine'
             )
             st.caption(caption)
