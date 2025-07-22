@@ -1,11 +1,13 @@
 """
     Autor : André Luiz Rocha
     Data  : 01/06/2025 - 13:10
-    L.U.  : 20/07/2025 - 18:00
+    L.U.  : 20/07/2025 - 19:37
     Programa: calculadora.py
-    Função: 
+    Função: Calcula as quantidades de nutrientes à partir dos parâmetros ambientais
     Pendências:
-        - 
+        - Cálculo da reposição de água para nutrientes acima do máximo;
+        - Fazer um relatório resumido de procedimentos para o manejo,
+          com opções de 'Imprimir' e 'Compartilhar';
         - 
 """
 
@@ -213,7 +215,7 @@ def load_resources():
 
 # Funções de dados
 @st.cache_data
-def load_model(path="./modelos/hidroponia_modelo.pkl"):
+def load_ia_model(path="./modelos/hidroponia_modelo.pkl"):
     """Carrega o modelo ML com cache"""
     return joblib.load(path) if os.path.exists(path) else None
 
@@ -405,7 +407,7 @@ def render_main_results(prediction, cultivar_idx, volume):
             
             if valor < minimo:
                 status = "🔻"
-                reposicao_g = medio - valor  # Meta é o valor médio
+                reposicao_g = ((medio - valor) * volume) / 1000  # Meta é o valor médio
                 dif_perc = ((medio - valor) / valor) * 100
                 reposicao_abaixo.append({
                     "Nutriente": f"{st.session_state.nomes_completos[i]} ({simbolo})",
@@ -414,7 +416,7 @@ def render_main_results(prediction, cultivar_idx, volume):
                     "Médio": med_fmt,
                     "Máximo": max_fmt,
                     "Dif. (%)": f"{dif_perc:.2f}",
-                    "Repor (g)*": f"{reposicao_g:.3f}",
+                    "Repor (g)*": f"{reposicao_g:.2f}",
                     "Tipo": tipo
                 })
             elif valor > maximo:
@@ -428,7 +430,7 @@ def render_main_results(prediction, cultivar_idx, volume):
                     "Médio": med_fmt,
                     "Máximo": max_fmt,
                     "Dif. (%)": f"{dif_perc:.2f}",
-                    "Repor (L)**": f"{reposicao_l:.3f}",
+                    "Repor (L)**": f"{reposicao_l:.2f}",
                     "Tipo": tipo
                 })
             else:
@@ -496,13 +498,13 @@ def main():
     if "db_data" not in st.session_state:
         st.session_state.db_data = load_db_data()
         st.session_state.update(st.session_state.db_data)
-        st.session_state.model = load_model()
+        st.session_state.model = load_ia_model()
     
     sidebar_data = render_sidebar()
     
     if st.sidebar.button("🔍 Realizar Previsão", use_container_width=True):
-        if "toggle_js" in st.session_state:
-            html(f"<script>{st.session_state.toggle_js}</script>")
+        #if "toggle_js" in st.session_state:
+        #    html(f"<script>{st.session_state.toggle_js}</script>")
         try:
             input_data = pd.DataFrame([list(sidebar_data['params'].values())], 
                                      columns=['Temp', 'pH', 'EC', 'O2'])

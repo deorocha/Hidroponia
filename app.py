@@ -204,10 +204,10 @@ else:
             if st.button("Voltar (Módulo incompleto)", key="error_module_no_main_button_2"):
                 st.session_state.current_page = "home"
                 st.rerun()
-        else:
-            if st.button("Voltar (Módulo não encontrado)", key="error_module_load_fail_button_2"):
-                st.session_state.current_page = "home"
-                st.rerun()
+        #else:
+        #    if st.button("Voltar (Módulo não encontrado)", key="error_module_load_fail_button_2"):
+        #        st.session_state.current_page = "home"
+        #        st.rerun()
     except Exception as e:
         st.error(f"Erro na página '{st.session_state.current_page}': {str(e)}")
         if st.button("Voltar (Erro na página)", key="error_page_render_button_2"):
