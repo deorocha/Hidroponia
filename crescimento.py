@@ -433,15 +433,17 @@ def main():
                 st.rerun()
 
         with st.expander("Fases do desenvolvimento:"):
-            st.write('''
-                1. Germinação: A semente absorve água e começa a desenvolver a radícula (raiz) e o epicótilo (caule).
-                2. Crescimento Vegetativo: A planta desenvolve ativamente raízes, caules e folhas, aumentando de tamanho e preparando-se para a fase adulta.
-                3. Fase Juvenil: A planta continua crescendo, com desenvolvimento das partes vegetativas, preparando-se para a floração.
-                4. Fase Adulta/Floração: A planta atinge a maturidade sexual, desenvolvendo flores que produzirão sementes para a reprodução.
-                5. Frutificação e Maturação: As flores são polinizadas e desenvolvem frutos, que contêm as sementes.
-                6. Senescência: A planta envelhece e pode perder folhas e flores, com diminuição da produção de energia.
-            ''')
-
+            st.markdown('''
+                <div style="font-size: 12px">
+                    1. Germinação: A semente absorve água e começa a desenvolver a radícula (raiz) e o epicótilo (caule).<br>
+                    2. Crescimento Vegetativo: A planta desenvolve ativamente raízes, caules e folhas...<br>
+                    3. Fase Juvenil: A planta continua crescendo, com desenvolvimento das partes vegetativas, preparando-se para a floração.<br>
+                    4. Fase Adulta/Floração: A planta atinge a maturidade sexual, desenvolvendo flores que produzirão sementes para a reprodução.<br>
+                    5. Frutificação e Maturação: As flores são polinizadas e desenvolvem frutos, que contêm as sementes.<br>
+                    6. Senescência: A planta envelhece e pode perder folhas e flores, com diminuição da produção de energia.
+                </div>
+            ''', unsafe_allow_html=True)
+    
     # Conteúdo principal
     if st.session_state.get('mostrar_grafico') and 'dados_grafico' in st.session_state:
         dados = st.session_state.dados_grafico
