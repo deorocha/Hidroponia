@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="HortaTec",
     page_icon="🌿",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # Oculta os botões do Streamlit
@@ -39,6 +39,13 @@ st.markdown(
         [data-testid="stSelectbox"] > div > div {
             padding: 3px 6px !important;
         }
+
+        /* Aumenta a altura dos botões */
+        .stButton button {
+            height: auto !important;
+            min-height: 30px;
+            padding: 0px 0px;
+
     </style>
     """, unsafe_allow_html=True
 )
@@ -161,34 +168,35 @@ def home_page():
             st.session_state.show_login = True
             st.rerun()
 
-    # Se estivermos mostrando o formulário de alteração de senha, não exibimos a lista de funcionalidades
-    if st.session_state.show_change_password:
-        change_password_section()
-    else:
-        # Lista de funcionalidades
-        features = [
-            {"icon": "🧮", "name": "Calculadora Inteligente", "page": "calculadora"},
-            {"icon": "🧬", "name": "Nutrientes por Cultivar", "page": "nutrientes"},
-            {"icon": "📈", "name": "Crescimento Inteligente", "page": "crescimento"},
-            {"icon": "🧑‍🌾", "name": "Pergunte ao especialista", "page": "chatbot_ollama"},
-            {"icon": "📚", "name": "Biblioteca hidropônica 🚧", "page": "biblioteca"},
-            {"icon": "📅", "name": "Agenda de tarefas 🚧", "page": "agenda"},
-            {"icon": "🐛", "name": "Detector de Doenças 🚧", "page": "doencas"},
-            {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"},
-            {"icon": "📂", "name": "Cadastros do Sistema 🚧", "page": "cadastros"}
-        ]
-        
-        for feature in features:
-            if st.button(
-                label=f"{feature['icon']} {feature['name']}",
-                key=f"btn_{feature['page']}",
-                use_container_width=True
-            ):
-                st.session_state.current_page = feature['page']
-                st.rerun()
+    with st.sidebar:
+        # Se estivermos mostrando o formulário de alteração de senha, não exibimos a lista de funcionalidades
+        if st.session_state.show_change_password:
+            change_password_section()
+        else:
+            # Lista de funcionalidades
+            features = [
+                {"icon": "🧮", "name": "Calculadora Inteligente", "page": "calculadora"},
+                {"icon": "🧬", "name": "Nutrientes por Cultivar", "page": "nutrientes"},
+                {"icon": "📈", "name": "Crescimento Inteligente", "page": "crescimento"},
+                {"icon": "🧑‍🌾", "name": "Pergunte ao especialista", "page": "chatbot_ollama"},
+                {"icon": "📚", "name": "Biblioteca hidropônica 🚧", "page": "biblioteca"},
+                {"icon": "📅", "name": "Agenda de tarefas 🚧", "page": "agenda"},
+                {"icon": "🐛", "name": "Detector de Doenças 🚧", "page": "doencas"},
+                {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"},
+                {"icon": "📂", "name": "Cadastros do Sistema 🚧", "page": "cadastros"}
+            ]
+            
+            for feature in features:
+                if st.button(
+                    label=f"{feature['icon']} {feature['name']}",
+                    key=f"btn_{feature['page']}",
+                    use_container_width=True
+                ):
+                    st.session_state.current_page = feature['page']
+                    st.rerun()
 
-    # Rodapé
-    st.caption("© 2025 HortaTec | Versão 1.0")
+        # Rodapé
+        st.caption("© 2025 HortaTec | Versão 1.0")
 
 # --- Sistema de navegação principal ---
 if st.session_state.current_page == "home":
