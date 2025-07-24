@@ -1,8 +1,10 @@
+base64
 beautifulsoup4
 db-sqlite3
 faiss-cpu
 google-generativeai
 joblib
+json
 keras
 langchain-community
 langchain-huggingface
@@ -12,6 +14,7 @@ pandas
 pdfplumber
 plotly>=5.18
 Pillow
+requests
 scikit-learn
 scipy<1.12
 sentence-transformers
@@ -23,3 +26,4 @@ streamlit-scroll-navigation
 transformers
 unicodedata2
 tensorflow
+time
