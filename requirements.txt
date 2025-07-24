@@ -13,6 +13,7 @@ pandas
 pdfplumber
 plotly>=5.18
 Pillow
+requests
 scikit-learn
 scipy<1.12
 sentence-transformers
