@@ -1,3 +1,4 @@
+pip>=25.1.1
 base64
 beautifulsoup4
 db-sqlite3
