@@ -2,9 +2,9 @@
 
 import streamlit as st
 import requests
-import json
-import time
-import base64
+#import json
+#import time
+# import base64
 
 # Configurações da API
 API_URL = "https://api.together.xyz/v1/chat/completions"
@@ -34,15 +34,15 @@ except Exception as e:
 # API Key (mantida fixa)
 API_KEY = "d5091edfe2b28cc56a5bc0ad8b2743131d7f31631554a91711c1990359d87bf9"
 
-def img_to_base64(img_path):
-    with open(img_path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
+#def img_to_base64(img_path):
+#    with open(img_path, "rb") as f:
+#        return base64.b64encode(f.read()).decode()
 
-chat_png64 = img_to_base64("./imagens/chatbot.png")
-user_png64 = img_to_base64("./imagens/farm.png")
+#chat_png64 = img_to_base64("./imagens/chatbot.png")
+#user_png64 = img_to_base64("./imagens/farm.png")
 
-img_tag_chat = f"<img src='data:image/png;base64,{chat_png64}' style='height:1.5em; vertical-align:middle;'>"
-img_tag_user = f"<img src='data:image/png;base64,{user_png64}' style='height:1.5em; vertical-align:middle;'>"
+#img_tag_chat = f"<img src='data:image/png;base64,{chat_png64}' style='height:1.5em; vertical-align:middle;'>"
+#img_tag_user = f"<img src='data:image/png;base64,{user_png64}' style='height:1.5em; vertical-align:middle;'>"
 
 def main():
     if "model_select" not in st.session_state:
@@ -50,7 +50,8 @@ def main():
 
     # Sidebar para configurações
     with st.sidebar:
-        st.markdown(f"<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>{img_tag_chat} Chatbot</h2>", unsafe_allow_html=True)
+        #st.markdown(f"<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>{img_tag_chat} Chatbot</h2>", unsafe_allow_html=True)
+        st.markdown(f"<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>🤖 Chatbot</h2>", unsafe_allow_html=True)
         st.markdown("#### ⚙️ Configurações")
         
         # Configurações do modelo com keys únicas
@@ -112,7 +113,7 @@ def main():
         with st.chat_message("assistant", avatar="🤖"):
             message_placeholder = st.empty()
             full_response = ""
-            start_time = time.time()
+            #start_time = time.time()
             
             try:
                 # Preparar cabeçalhos e payload
@@ -165,10 +166,10 @@ def main():
                                     continue
                 
                 # Calcular métricas de desempenho
-                end_time = time.time()
-                duration = end_time - start_time
-                token_count = len(full_response.split())  # Estimativa simplificada
-                speed = token_count / duration if duration > 0 else 0
+                #end_time = time.time()
+                #duration = end_time - start_time
+                #token_count = len(full_response.split())  # Estimativa simplificada
+                #speed = token_count / duration if duration > 0 else 0
                 
                 # Exibir resposta final com métricas
                 message_placeholder.markdown(full_response)
