@@ -275,16 +275,6 @@ def main():
                     extract_pdf_structure.clear()
                     st.success("Cache limpo! O documento será reprocessado.")
                     st.rerun()
-                else:
-                    st.error(f"Arquivo não encontrado: {PDF_FILE}")
-                    st.markdown("""
-                    **Solução:**
-                    1. Coloque seu arquivo PDF na mesma pasta deste script
-                    2. Renomeie-o para `biblioteca.pdf`
-                    3. Ou ajuste a variável `PDF_FILE` no código
-                    """)
-                    st.image("https://via.placeholder.com/600x200?text=Coloque+o+PDF+na+pasta", 
-                             use_container_width=True)
 
             # Adiciona espaço para empurrar os botões para o rodapé
             st.markdown("<div style='flex-grow: 1;'></div>", unsafe_allow_html=True)
