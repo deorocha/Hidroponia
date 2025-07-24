@@ -4,6 +4,7 @@ db-sqlite3
 faiss-cpu
 google-generativeai
 joblib
+json
 keras
 langchain-community
 langchain-huggingface
