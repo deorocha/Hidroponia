@@ -22,7 +22,7 @@ st.set_page_config(
     page_title="Crescimento",
     page_icon="📈",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
     menu_items={'About': None, 'Get help': None, 'Report a bug': None}
 )
 
