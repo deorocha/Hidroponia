@@ -1,7 +1,7 @@
 """
     Autor : André Luiz Rocha
     Data  : 05/06/2025 - 07:25
-    L.U.  : 22/07/2025 - 19:54
+    L.U.  : 24/07/2025 - 01:38
     Programa: crescimento_2.py
     Função: Simulação de crescimento sigmoidal com Plotly
     Pendências:
@@ -431,6 +431,16 @@ def main():
             if st.button("🚪 Sair", use_container_width=True):
                 st.session_state.current_page = "login"
                 st.rerun()
+
+        with st.expander("Fases do desenvolvimento:"):
+            st.write('''
+                1. Germinação: A semente absorve água e começa a desenvolver a radícula (raiz) e o epicótilo (caule).
+                2. Crescimento Vegetativo: A planta desenvolve ativamente raízes, caules e folhas, aumentando de tamanho e preparando-se para a fase adulta.
+                3. Fase Juvenil: A planta continua crescendo, com desenvolvimento das partes vegetativas, preparando-se para a floração.
+                4. Fase Adulta/Floração: A planta atinge a maturidade sexual, desenvolvendo flores que produzirão sementes para a reprodução.
+                5. Frutificação e Maturação: As flores são polinizadas e desenvolvem frutos, que contêm as sementes.
+                6. Senescência: A planta envelhece e pode perder folhas e flores, com diminuição da produção de energia.
+            ''')
 
     # Conteúdo principal
     if st.session_state.get('mostrar_grafico') and 'dados_grafico' in st.session_state:
