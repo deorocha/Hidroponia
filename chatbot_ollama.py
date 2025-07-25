@@ -3,8 +3,6 @@
 import streamlit as st
 import requests
 import json
-#import time
-# import base64
 
 # Configurações da API
 API_URL = "https://api.together.xyz/v1/chat/completions"
@@ -23,6 +21,18 @@ st.set_page_config(
     }
 )
 
+st.markdown("""
+    <style>
+        .block-container {
+            margin-top: 1rem;
+            padding-top: 0rem; /* Adjust this value to your desired top padding */
+            padding-bottom: 0rem;
+            padding-left: 5rem;
+            padding-right: 5rem;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Ler instrução do arquivo
 try:
     with open('./chatbot_temas.txt', 'r', encoding='utf-8') as f:
@@ -33,16 +43,6 @@ except Exception as e:
 
 # API Key (mantida fixa)
 API_KEY = "d5091edfe2b28cc56a5bc0ad8b2743131d7f31631554a91711c1990359d87bf9"
-
-#def img_to_base64(img_path):
-#    with open(img_path, "rb") as f:
-#        return base64.b64encode(f.read()).decode()
-
-#chat_png64 = img_to_base64("./imagens/chatbot.png")
-#user_png64 = img_to_base64("./imagens/farm.png")
-
-#img_tag_chat = f"<img src='data:image/png;base64,{chat_png64}' style='height:1.5em; vertical-align:middle;'>"
-#img_tag_user = f"<img src='data:image/png;base64,{user_png64}' style='height:1.5em; vertical-align:middle;'>"
 
 def main():
     if "model_select" not in st.session_state:
@@ -92,25 +92,20 @@ def main():
         if message["role"] == "system":  # Não exibir instrução do sistema
             continue
 
-        avatar = "🤖" if message["role"] == "assistant" else "👨‍🌾"
+        avatar = "./imagens/chatbot.png" if message["role"] == "assistant" else "./imagens/farm.png"
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
-
-        #with st.chat_message(message["role"]):
-        #    avatar_img = img_tag_chat if message["role"] == "assistant" else img_tag_user
-        #    # Exibe o avatar como imagem inline com o texto da mensagem
-        #    st.markdown(f"{avatar_img} {message['content']}", unsafe_allow_html=True)
 
     # Processar entrada do usuário
     if prompt := st.chat_input("Digite sua mensagem..."):
         # Adicionar mensagem do usuário ao histórico
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        with st.chat_message("user", avatar="👨‍🌾"):
+        with st.chat_message("user", avatar="./imagens/farm.png"):
             st.markdown(prompt)
         
         # Gerar resposta com indicador de desempenho
-        with st.chat_message("assistant", avatar="🤖"):
+        with st.chat_message("assistant", avatar="./imagens/chatbot.png"):
             message_placeholder = st.empty()
             full_response = ""
             #start_time = time.time()
@@ -164,12 +159,6 @@ def main():
                                             message_placeholder.markdown(full_response + "▌")
                                 except json.JSONDecodeError:
                                     continue
-                
-                # Calcular métricas de desempenho
-                #end_time = time.time()
-                #duration = end_time - start_time
-                #token_count = len(full_response.split())  # Estimativa simplificada
-                #speed = token_count / duration if duration > 0 else 0
                 
                 # Exibir resposta final com métricas
                 message_placeholder.markdown(full_response)
