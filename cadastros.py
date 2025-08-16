@@ -1,4 +1,12 @@
-# cadastros.py
+"""
+    Autor : André Luiz Rocha
+    Data  : 15/07/2025 - 07:25
+    L.U.  : 05/08/2025 - 01:30
+    Programa: cadastros.py
+    Função: Cadastrar dados nas tabelas do Sistema
+    Pendências:
+        - 
+"""
 
 import streamlit as st
 import db_utils

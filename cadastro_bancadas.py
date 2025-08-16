@@ -16,10 +16,10 @@ def show():
                 bcd_nome TEXT NOT NULL UNIQUE,
                 bcd_descricao TEXT,
                 bcd_qtd_furos INTEGER,
-                bcd_id_tanque INTEGER,
-                bcd_id_estufa INTEGER,
-                FOREIGN KEY (bcd_id_tanque) REFERENCES tbl_tanques(tan_id),
-                FOREIGN KEY (bcd_id_estufa) REFERENCES tbl_estufas(est_id)
+                bcd_tanque_id INTEGER,
+                bcd_estufa_id INTEGER,
+                FOREIGN KEY (bcd_tanque_id) REFERENCES tbl_tanques(tan_id),
+                FOREIGN KEY (bcd_estufa_id) REFERENCES tbl_estufas(est_id)
             )
         ''')
         conn.commit()
@@ -38,7 +38,7 @@ def show():
     # Obter dados para os dropdowns
     try:
         tanques = db_utils.get_data('tbl_tanques')
-        tanque_options = {row['tan_id']: row['tan_nome'] for _, row in tanques.iterrows()} if not tanques.empty else {}
+        tanque_options = {row['tan_id']: row['tan_descricao'] for _, row in tanques.iterrows()} if not tanques.empty else {}
         tanque_name_to_id = {name: id for id, name in tanque_options.items()}
     except Exception as e:
         st.error(f"Erro ao carregar tanques: {str(e)}")
@@ -58,20 +58,20 @@ def show():
     try:
         df = db_utils.get_data('tbl_bancadas')
         if df.empty:
-            df = pd.DataFrame(columns=["bcd_id", "bcd_nome", "bcd_descricao", "bcd_qtd_furos", "bcd_id_tanque", "bcd_id_estufa"])
+            df = pd.DataFrame(columns=["bcd_id", "bcd_nome", "bcd_descricao", "bcd_qtd_furos", "bcd_tanque_id", "bcd_estufa_id"])
         else:
             # Garantir que IDs são números inteiros
             df['bcd_id'] = df['bcd_id'].astype('Int64')
     except Exception as e:
         st.error(f"Erro ao carregar dados: {str(e)}")
-        df = pd.DataFrame(columns=["bcd_id", "bcd_nome", "bcd_descricao", "bcd_qtd_furos", "bcd_id_tanque", "bcd_id_estufa"])
+        df = pd.DataFrame(columns=["bcd_id", "bcd_nome", "bcd_descricao", "bcd_qtd_furos", "bcd_tanque_id", "bcd_estufa_id"])
     
     # Adicionar colunas temporárias para exibição
-    df['tanque_nome'] = df['bcd_id_tanque'].map(lambda x: tanque_options.get(x, "Não selecionado"))
-    df['estufa_nome'] = df['bcd_id_estufa'].map(lambda x: estufa_options.get(x, "Não selecionado"))
+    df['tanque_nome'] = df['bcd_tanque_id'].map(lambda x: tanque_options.get(x, "Não selecionado"))
+    df['estufa_nome'] = df['bcd_estufa_id'].map(lambda x: estufa_options.get(x, "Não selecionado"))
     
     # Garantir tipos de dados corretos
-    for col in ["bcd_id", "bcd_id_tanque", "bcd_id_estufa"]:
+    for col in ["bcd_id", "bcd_tanque_id", "bcd_estufa_id"]:
         if col in df.columns and df[col].dtype != 'Int64':
             df[col] = df[col].astype('Int64')
     
@@ -98,7 +98,7 @@ def show():
             df[col] = None
     
     # Converter IDs para Int64 para evitar problemas com NaN
-    for col in ["bcd_id_tanque", "bcd_id_estufa"]:
+    for col in ["bcd_tanque_id", "bcd_estufa_id"]:
         if col in df.columns:
             df[col] = df[col].astype('Int64')
     
@@ -113,15 +113,15 @@ def show():
     )
     
     # Atualizar IDs com base nas seleções
-    edited_df['bcd_id_tanque'] = edited_df['tanque_nome'].map(tanque_name_to_id)
-    edited_df['bcd_id_estufa'] = edited_df['estufa_nome'].map(estufa_name_to_id)
+    edited_df['bcd_tanque_id'] = edited_df['tanque_nome'].map(tanque_name_to_id)
+    edited_df['bcd_estufa_id'] = edited_df['estufa_nome'].map(estufa_name_to_id)
     
     # Tratar casos onde nenhum tanque/estufa foi selecionado
-    edited_df['bcd_id_tanque'] = edited_df['bcd_id_tanque'].where(
+    edited_df['bcd_tanque_id'] = edited_df['bcd_tanque_id'].where(
         edited_df['tanque_nome'] != "Não selecionado", 
         pd.NA
     )
-    edited_df['bcd_id_estufa'] = edited_df['bcd_id_estufa'].where(
+    edited_df['bcd_estufa_id'] = edited_df['bcd_estufa_id'].where(
         edited_df['estufa_nome'] != "Não selecionado", 
         pd.NA
     )
@@ -150,7 +150,7 @@ def show():
                 if not missing:
                     try:
                         # Remover colunas temporárias
-                        save_df = edited_df[["bcd_id", "bcd_nome", "bcd_descricao", "bcd_qtd_furos", "bcd_id_tanque", "bcd_id_estufa"]].copy()
+                        save_df = edited_df[["bcd_id", "bcd_nome", "bcd_descricao", "bcd_qtd_furos", "bcd_tanque_id", "bcd_estufa_id"]].copy()
                         
                         # Salvar usando UPSERT para manter AUTOINCREMENT
                         conn = sqlite3.connect('./dados/hidroponia.db')
@@ -162,8 +162,8 @@ def show():
                                 'bcd_nome': row['bcd_nome'],
                                 'bcd_descricao': row['bcd_descricao'] if not pd.isna(row['bcd_descricao']) else None,
                                 'bcd_qtd_furos': row['bcd_qtd_furos'] if not pd.isna(row['bcd_qtd_furos']) else None,
-                                'bcd_id_tanque': row['bcd_id_tanque'] if not pd.isna(row['bcd_id_tanque']) else None,
-                                'bcd_id_estufa': row['bcd_id_estufa'] if not pd.isna(row['bcd_id_estufa']) else None
+                                'bcd_tanque_id': row['bcd_tanque_id'] if not pd.isna(row['bcd_tanque_id']) else None,
+                                'bcd_estufa_id': row['bcd_estufa_id'] if not pd.isna(row['bcd_estufa_id']) else None
                             }
                             
                             if pd.notna(data['bcd_id']):
@@ -173,16 +173,16 @@ def show():
                                     SET bcd_nome = :bcd_nome, 
                                         bcd_descricao = :bcd_descricao,
                                         bcd_qtd_furos = :bcd_qtd_furos,
-                                        bcd_id_tanque = :bcd_id_tanque,
-                                        bcd_id_estufa = :bcd_id_estufa
+                                        bcd_tanque_id = :bcd_tanque_id,
+                                        bcd_estufa_id = :bcd_estufa_id
                                     WHERE bcd_id = :bcd_id
                                 ''', data)
                             else:
                                 # INSERT para novo registro
                                 cursor.execute('''
                                     INSERT INTO tbl_bancadas 
-                                    (bcd_nome, bcd_descricao, bcd_qtd_furos, bcd_id_tanque, bcd_id_estufa)
-                                    VALUES (:bcd_nome, :bcd_descricao, :bcd_qtd_furos, :bcd_id_tanque, :bcd_id_estufa)
+                                    (bcd_nome, bcd_descricao, bcd_qtd_furos, bcd_tanque_id, bcd_estufa_id)
+                                    VALUES (:bcd_nome, :bcd_descricao, :bcd_qtd_furos, :bcd_tanque_id, :bcd_estufa_id)
                                 ''', data)
                         
                         conn.commit()

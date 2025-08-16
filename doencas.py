@@ -1,4 +1,7 @@
 # doencas.py
+# Referências:
+# - Conjunto de dados de reconhecimento de doenças de plantas:
+#   https://www.kaggle.com/datasets/rashikrahmanpritom/plant-disease-recognition-dataset
 
 import streamlit as st
 from keras.models import load_model

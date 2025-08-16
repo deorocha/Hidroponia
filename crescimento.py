@@ -92,6 +92,9 @@ CORES_FASE_BG = {
     "Acelerada": "#ECF5E7",
     "Saturação": "#FFF5D9"
 }
+# Mapeamento de IDs de fase para nomes
+FASE_ID_TO_NAME = {1: "Lenta", 2: "Acelerada", 3: "Saturação"}
+FASE_NAME_TO_ID = {"Lenta": 1, "Acelerada": 2, "Saturação": 3}
 
 # Funções núcleo corrigidas
 def calcular_parametros(p_inicial, p_final, dias):
@@ -348,10 +351,107 @@ def carregar_cultivares():
         st.error(f"Erro no banco: {e}")
         return []
 
+@st.cache_data
+def carregar_bancadas():
+    """Carrega dados de bancadas com cache"""
+    try:
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT bcd_id, bcd_nome 
+                FROM tbl_bancadas
+            """)
+            return cursor.fetchall()
+    except Exception as e:
+        st.error(f"Erro ao carregar bancadas: {e}")
+        return []
+
+def carregar_dados_crescimento(bancada_id, cultivar_id, data_plantio):
+    """Carrega dados de crescimento para a combinação selecionada"""
+    try:
+        # Converter data para formato SQL
+        data_plantio_str = data_plantio.strftime("%Y-%m-%d")
+        
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT cre_data, cre_peso_real 
+                FROM tbl_crescimento
+                WHERE cre_bancada_id = ? 
+                  AND cre_cultivar_id = ? 
+                  AND cre_data_plantio = ?
+            """, (bancada_id, cultivar_id, data_plantio_str))
+            
+            # Retornar como dicionário {data: peso_real}
+            return {row[0]: row[1] for row in cursor.fetchall()}
+    except Exception as e:
+        st.error(f"Erro ao carregar dados de crescimento: {e}")
+        return {}
+
+def salvar_dados_crescimento(bancada_id, cultivar_id, data_plantio, dias_list, pesos_previstos, fases_previstas, pesos_reais):
+    """Salva dados de crescimento na tabela tbl_crescimento"""
+    try:
+        data_plantio_str = data_plantio.strftime("%Y-%m-%d")
+        
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            
+            # Para cada dia no período
+            for dia in dias_list:
+                data_medicao = data_plantio + datetime.timedelta(days=dia-1)
+                data_medicao_str = data_medicao.strftime("%Y-%m-%d")
+                idx = dia - 1  # Índice para acessar listas
+                
+                # Converter fase para ID
+                fase_id = FASE_NAME_TO_ID.get(fases_previstas[idx], None) if idx < len(fases_previstas) else None
+                
+                # Verificar se já existe registro para esta data
+                cursor.execute("""
+                    SELECT cre_id 
+                    FROM tbl_crescimento
+                    WHERE cre_bancada_id = ?
+                      AND cre_cultivar_id = ?
+                      AND cre_data_plantio = ?
+                      AND cre_data = ?
+                """, (bancada_id, cultivar_id, data_plantio_str, data_medicao_str))
+                
+                resultado = cursor.fetchone()
+                
+                if resultado:
+                    # Atualizar registro existente
+                    cre_id = resultado[0]
+                    cursor.execute("""
+                        UPDATE tbl_crescimento
+                        SET cre_peso_esperado = ?,
+                            cre_peso_real = ?,
+                            cre_fase_id = ?
+                        WHERE cre_id = ?
+                    """, (pesos_previstos[idx], pesos_reais[idx], fase_id, cre_id))
+                else:
+                    # Inserir novo registro
+                    cursor.execute("""
+                        INSERT INTO tbl_crescimento (
+                            cre_bancada_id, cre_cultivar_id, cre_data_plantio, cre_data, 
+                            cre_peso_esperado, cre_peso_real, cre_fase_id
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        bancada_id, cultivar_id, data_plantio_str, data_medicao_str,
+                        pesos_previstos[idx], pesos_reais[idx], fase_id
+                    ))
+            
+            conn.commit()
+            st.success("Dados salvos com sucesso!")
+            return True
+    except Exception as e:
+        st.error(f"Erro ao salvar dados: {e}")
+        return False
+
 # Função principal corrigida
 def main():
     # Inicialização de estado
     st.session_state.setdefault('mostrar_grafico', False)
+    st.session_state.setdefault('dados_grafico', {})
+    st.session_state.setdefault('pesos_reais', [])
     
     # Botão de toggle sidebar
     st.components.v1.html("""
@@ -373,6 +473,10 @@ def main():
     with st.sidebar:
         st.markdown("<h2 style='margin:0;'>📈 Crescimento</h2>", unsafe_allow_html=True)
 
+        bancadas = carregar_bancadas()
+        nomes_bancadas = [b[1] for b in bancadas]
+        bancada_selecionada = st.selectbox('Bancada:', nomes_bancadas)
+
         cultivares = carregar_cultivares()
         nomes_cultivares = [c[1] for c in cultivares]
         cultivar_info = {c[1]: (c[0], c[2], c[3]) for c in cultivares}
@@ -380,6 +484,21 @@ def main():
         cultivar_nome = st.selectbox('Cultivar:', nomes_cultivares)
         clt_id, periodo_default, peso_default = cultivar_info.get(cultivar_nome, (None, 35, 260.0))
 
+        col1, col2 = st.columns([1, 1], vertical_alignment="center")
+        with col1:
+            st.markdown("##### Data do plantio:")
+        with col2:
+            data_plantio = st.date_input("", datetime.date.today(), format="DD/MM/YYYY")
+
+        # Obter IDs para consulta
+        bancada_id = next((b[0] for b in bancadas if b[1] == bancada_selecionada), None)
+        cultivar_id = next((c[0] for c in cultivares if c[1] == cultivar_nome), None)
+        
+        # Carregar dados de crescimento se todos os parâmetros estiverem selecionados
+        dados_existentes = {}
+        if bancada_id and cultivar_id and data_plantio:
+            dados_existentes = carregar_dados_crescimento(bancada_id, cultivar_id, data_plantio)
+        
         col1, col2 = st.columns([1, 1], vertical_alignment="center")
         with col1:
             st.markdown("##### Período (dias):")
@@ -392,36 +511,48 @@ def main():
         with col2:
             peso_esperado = st.number_input("", 0.0, 1000.0, float(peso_default), step=1.0, format="%.2f")
         
-        col1, col2 = st.columns([1, 1], vertical_alignment="center")
-        with col1:
-            st.markdown("##### Data do plantio:")
-        with col2:
-            data_plantio = st.date_input("", datetime.date.today(), format="DD/MM/YYYY")
-
         if st.button("📈 Mostrar Gráfico", use_container_width=True):
-            try:
-                dados_sigmoidal = gerar_dados_sigmoidal(5.0, peso_esperado, periodo_dias)
-                if dados_sigmoidal[0] is not None:
-                    st.session_state.dados_grafico = {
-                        'dias_list': dados_sigmoidal[0],
-                        'pesos_list': dados_sigmoidal[1],
-                        'fases_list': dados_sigmoidal[2],
-                        'K': dados_sigmoidal[3],
-                        'p_inicial': 5.0,
-                        'p_final': peso_esperado,
-                        'dias': periodo_dias,
-                        'data_inicial': data_plantio,
-                        'cultivar_nome': cultivar_nome
-                    }
-                    st.session_state.mostrar_grafico = True
-                    st.session_state.pesos_reais = [None] * len(dados_sigmoidal[0])
-            except Exception as e:
-                st.error(f"Erro: {e}")
+            if not bancada_id or not cultivar_id or not data_plantio:
+                st.error("Selecione Bancada, Cultivar e Data do plantio")
+            else:
+                try:
+                    dados_sigmoidal = gerar_dados_sigmoidal(5.0, peso_esperado, periodo_dias)
+                    if dados_sigmoidal[0] is not None:
+                        st.session_state.dados_grafico = {
+                            'dias_list': dados_sigmoidal[0],
+                            'pesos_list': dados_sigmoidal[1],
+                            'fases_list': dados_sigmoidal[2],
+                            'K': dados_sigmoidal[3],
+                            'p_inicial': 5.0,
+                            'p_final': peso_esperado,
+                            'dias': periodo_dias,
+                            'data_inicial': data_plantio,
+                            'cultivar_nome': cultivar_nome,
+                            'bancada_id': bancada_id,
+                            'cultivar_id': cultivar_id
+                        }
+                        st.session_state.mostrar_grafico = True
+                        
+                        # Inicializar pesos reais como None
+                        pesos_reais = [None] * len(dados_sigmoidal[0])
+                        
+                        # Preencher com dados existentes se disponíveis
+                        if dados_existentes:
+                            # Criar lista de datas do período
+                            datas_periodo = [data_plantio + datetime.timedelta(days=i) for i in range(periodo_dias)]
+                            datas_periodo_str = [d.strftime("%Y-%m-%d") for d in datas_periodo]
+                            
+                            # Preencher pesos reais
+                            for i, data_str in enumerate(datas_periodo_str):
+                                if data_str in dados_existentes:
+                                    pesos_reais[i] = dados_existentes[data_str]
+                        
+                        st.session_state.pesos_reais = pesos_reais
+                        
+                except Exception as e:
+                    st.error(f"Erro: {e}")
 
         # Rodapé
-        #st.markdown("<div style='flex-grow:1;'></div>", unsafe_allow_html=True)
-
-        # Rodapé do sidebar com os botões
         col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("← Voltar", use_container_width=True):
@@ -444,7 +575,7 @@ def main():
                 </div>
             ''', unsafe_allow_html=True)
     
-    # Conteúdo principal
+    # Conteúdo principal - Só mostra se os parâmetros estiverem selecionados
     if st.session_state.get('mostrar_grafico') and 'dados_grafico' in st.session_state:
         dados = st.session_state.dados_grafico
         
@@ -489,7 +620,7 @@ def main():
                 'Data': datas_str,
                 'Fase': dados['fases_list'],
                 'Previsto (g)': [f"{p:.2f}" for p in dados['pesos_list']],
-                'Real (g)': st.session_state.get('pesos_reais', [None] * len(dados['dias_list']))
+                'Real (g)': st.session_state.pesos_reais if 'pesos_reais' in st.session_state else [None] * len(dados['dias_list'])
             })
 
             # Container para título e botão de atualização
@@ -498,14 +629,29 @@ def main():
                 st.markdown("#### Dados de Crescimento")
             with col_botao:
                 # Botão de atualização
-                if st.button("🔄 Atualizar", key="btn_atualizar_grafico", use_container_width=True):
+                if st.button("💾 Salvar Dados", key="btn_salvar_dados", use_container_width=True):
                     if 'data_editor' in st.session_state:
                         edited_data = st.session_state.data_editor['edited_rows']
                         novos_pesos = st.session_state.pesos_reais.copy()
+                        
+                        # Atualizar pesos reais com dados editados
                         for idx, val in edited_data.items():
                             if 'Real (g)' in val:
                                 novos_pesos[idx] = val['Real (g)']
+                        
                         st.session_state.pesos_reais = novos_pesos
+                        
+                        # Salvar no banco de dados
+                        salvar_dados_crescimento(
+                            bancada_id=dados['bancada_id'],
+                            cultivar_id=dados['cultivar_id'],
+                            data_plantio=dados['data_inicial'],
+                            dias_list=dados['dias_list'],
+                            pesos_previstos=dados['pesos_list'],
+                            fases_previstas=dados['fases_list'],
+                            pesos_reais=novos_pesos
+                        )
+                        
                         st.rerun()            
 
             # Calcular altura necessária para exibir todas as linhas
@@ -543,7 +689,7 @@ def main():
             st.markdown("""
             <div style="text-align:center; padding:100px 0;">
                 <h2>📈 Simulação de Crescimento</h2>
-                <p>Selecione um cultivar e clique em "Mostrar Gráfico"</p>
+                <p>Selecione Bancada, Cultivar e Data do plantio<br>e clique em "Mostrar Gráfico"</p>
             </div>
             """, unsafe_allow_html=True)
 

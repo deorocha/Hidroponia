@@ -34,7 +34,7 @@ def load_culturas():
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         
-        cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivares ORDER BY clt_nome")
+        cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivares WHERE clt_selecionado=1 ORDER BY clt_nome")
         cultivare = cursor.fetchall()
         
         # Processar dados
@@ -135,7 +135,7 @@ def main():
                     f"</h5>",
                     unsafe_allow_html=True
                 )
-                
+
                 # Combinar nome e símbolo em uma única coluna
                 df_nutrientes['Nutriente'] = df_nutrientes['nut_nome'] + " (" + df_nutrientes['nut_simbolo'] + ")"
                 

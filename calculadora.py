@@ -1,7 +1,7 @@
 """
     Autor : André Luiz Rocha
     Data  : 01/06/2025 - 13:10
-    L.U.  : 20/07/2025 - 19:37
+    L.U.  : 05/08/2025 - 21:21
     Programa: calculadora.py
     Função: Calcula as quantidades de nutrientes à partir dos parâmetros ambientais
     Pendências:
@@ -31,7 +31,7 @@ st.set_page_config(
 
 # Diretórios de recursos
 RESOURCES_DIR = "resources"
-CSS_PATH = "./styles/style.css"
+#CSS_PATH = "./styles/style.css"
 JS_PATH = "./scripts/script_calc.js"
 IMG_DIR = "./imagens"
 DB_NAME = "./dados/hidroponia.db"
@@ -131,9 +131,9 @@ def configure_grid(df, hidden_columns=None, table_type="main"):
 def load_resources():
     """Carrega CSS, JS e imagens externos"""
     # CSS
-    if os.path.exists(CSS_PATH):
-        with open(CSS_PATH) as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    #if os.path.exists(CSS_PATH):
+    #    with open(CSS_PATH) as f:
+    #        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     
     # JS
     if os.path.exists(JS_PATH) and "toggle_js" not in st.session_state:
@@ -229,7 +229,7 @@ def load_db_data():
         cursor.execute("SELECT nut_simbolo, nut_nome, nut_tipo, nut_id FROM tbl_nutrientes")
         nutrientes = cursor.fetchall() or []
         
-        cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivares")
+        cursor.execute("SELECT clt_id, clt_nome FROM tbl_cultivares WHERE clt_selecionado=1")
         cultivares = cursor.fetchall() or []
         
         # Processar dados
@@ -301,12 +301,12 @@ def render_sidebar():
         def create_inline_input(label, min_val, max_val, default, step, key):
             col1, col2 = st.columns([0.5, 0.5])
             with col1:
-                st.markdown(f"<div style='line-height: 2.8;'>{label}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='line-height: 2.8; font-size: 12px;'>{label}</div>", unsafe_allow_html=True)
             with col2:
                 return st.number_input("", min_val, max_val, default, step, key=key, label_visibility="collapsed")
 
         temp = create_inline_input("Temperatura (°C)", 0.0, 50.0, 25.0, 0.1, "temp")
-        ph = create_inline_input("pH", 0.0, 14.0, 5.5, 0.1, "ph")
+        ph = create_inline_input("Potencial (pH)", 0.0, 14.0, 5.5, 0.1, "ph")
         ec = create_inline_input("Condutividade (EC)", 0.0, 10.0, 1.0, 0.01, "ec")
         o2 = create_inline_input("Oxigênio Dissolvido (O₂)", 0.0, 20.0, 4.0, 0.1, "o2")
         volume = create_inline_input("Volume do tanque (L)", 1, 100000, 1000, 10, "volume")
@@ -495,7 +495,8 @@ def render_reposicao_section(title, icon, data, caption):
 def main():
     load_resources()
     
-    if "db_data" not in st.session_state:
+    # CORREÇÃO 1: Verificar diretamente o modelo ao invés de db_data
+    if "model" not in st.session_state:
         st.session_state.db_data = load_db_data()
         st.session_state.update(st.session_state.db_data)
         st.session_state.model = load_ia_model()
@@ -503,18 +504,23 @@ def main():
     sidebar_data = render_sidebar()
     
     if st.sidebar.button("🔍 Realizar Previsão", use_container_width=True):
-        #if "toggle_js" in st.session_state:
-        #    html(f"<script>{st.session_state.toggle_js}</script>")
         try:
+            # Inicializar variáveis para evitar erros
+            reposicao_abaixo = []
+            reposicao_acima = []
+            
             input_data = pd.DataFrame([list(sidebar_data['params'].values())], 
                                      columns=['Temp', 'pH', 'EC', 'O2'])
             prediction = st.session_state.model.predict(input_data)[0]
             
-            reposicao_abaixo, reposicao_acima = render_main_results(
+            # Receber resultados e garantir que sejam listas
+            repos_abaixo, repos_acima = render_main_results(
                 prediction, 
                 sidebar_data['cultivar_idx'], 
                 sidebar_data['volume']
             )
+            reposicao_abaixo = repos_abaixo or []
+            reposicao_acima = repos_acima or []
             
             st.subheader("🧪 Relatório dos Nutrientes")
             
@@ -536,6 +542,126 @@ def main():
             
             if not reposicao_abaixo and not reposicao_acima:
                 st.info("✅ Todos os nutrientes estão dentro das faixas recomendadas")
+                
+            # CSS embutido diretamente no componente
+            box_component = f"""
+            <style>
+                .custom-box {{
+                    width: 800px;
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    margin: 20px auto;
+                    overflow: hidden;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                }}
+
+                .custom-title-bar {{
+                    height: 40px;
+                    background-color: #e8f9ee;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0 15px;
+                    color: black;
+                }}
+
+                .custom-title {{
+                    font-weight: 600;
+                    font-size: 16px;
+                }}
+
+                .custom-icons {{
+                    display: flex;
+                    gap: 15px;
+                }}
+
+                .custom-icon {{
+                    cursor: pointer;
+                    font-size: 18px;
+                    transition: all 0.3s;
+                }}
+
+                .custom-icon:hover {{
+                    transform: scale(1.1);
+                    color: #3498db;
+                }}
+
+                .custom-content {{
+                    padding: 20px;
+                    color: #333;
+                }}
+                
+                .reposicao-table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 10px;
+                    font-size: 14px;
+                }}
+                
+                .reposicao-table th {{
+                    background-color: #f2f2f2;
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                }}
+                
+                .reposicao-table td {{
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                }}
+                
+                .reposicao-table tr:nth-child(even) {{
+                    background-color: #f9f9f9;
+                }}
+                
+                /* ALTERAÇÃO PRINCIPAL: Alinhamento de colunas numéricas */
+                .reposicao-table th:nth-child(n+2),
+                .reposicao-table td:nth-child(n+2) {{
+                    text-align: right;
+                    font-family: monospace;
+                }}
+                
+                .reposicao-table th:first-child,
+                .reposicao-table td:first-child {{
+                    text-align: left;
+                }}
+            </style>
+
+            <div class="custom-box">
+                <div class="custom-title-bar">
+                    <div class="custom-title">📊 Relatório de Manejo - Reposições</div>
+                    <div class="custom-icons">
+                        <span class="custom-icon" title="Imprimir" onclick="alert('Função de impressão acionada!')">🖨️</span>
+                        <span class="custom-icon" title="Compartilhar" onclick="alert('Função de compartilhamento acionada!')">📤</span>
+                    </div>
+                </div>
+                <div class="custom-content">
+                    <h4>Nutrientes abaixo do mínimo:</h4>
+                    {
+                        '<table class="reposicao-table">'
+                        '<tr><th>Nutriente</th><th>Previsto</th><th>Mínimo</th><th>Médio</th><th>Máximo</th><th>Dif. (%)</th><th>Repor (g)*</th></tr>' + 
+                        ''.join([f'<tr><td>{item["Nutriente"]}</td><td>{item["Previsto"]}</td><td>{item["Mínimo"]}</td><td>{item["Médio"]}</td><td>{item["Máximo"]}</td><td>{item["Dif. (%)"]}</td><td>{item["Repor (g)*"]}</td></tr>' 
+                                for item in reposicao_abaixo]) + 
+                        '</table>' 
+                        if reposicao_abaixo 
+                        else '<p>Nenhum nutriente abaixo do mínimo</p>'
+                    }
+                    <h4>Nutrientes acima do máximo:</h4>
+                    {
+                        '<table class="reposicao-table">'
+                        '<tr><th>Nutriente</th><th>Previsto</th><th>Mínimo</th><th>Médio</th><th>Máximo</th><th>Dif. (%)</th><th>Repor (L)**</th></tr>' + 
+                        ''.join([f'<tr><td>{item["Nutriente"]}</td><td>{item["Previsto"]}</td><td>{item["Mínimo"]}</td><td>{item["Médio"]}</td><td>{item["Máximo"]}</td><td>{item["Dif. (%)"]}</td><td>{item["Repor (L)**"]}</td></tr>' 
+                                for item in reposicao_acima]) + 
+                        '</table>' 
+                        if reposicao_acima 
+                        else '<p>Nenhum nutriente acima do máximo</p>'
+                    }
+                </div>
+            </div>
+            """
+
+            # Renderização
+            html(box_component, height=340 + (len(reposicao_abaixo) * 30) + (len(reposicao_acima) * 30))
                 
         except Exception as e:
             st.error(f"Erro na previsão: {str(e)}")

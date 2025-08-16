@@ -1,4 +1,14 @@
-# biblioteca.py
+"""
+    Autor : André Luiz Rocha
+    Data  : 01/06/2025 - 13:10
+    L.U.  : 16/08/2025 - 11:04
+    Programa: biblioteca.py
+    Função: Responde a perguntes à partir de palavras chave
+    Pendências:
+        - Implementar pesquisas por mais de um termo; [RESOLVIDO]
+        - Implementar ícones que permitam ao usuário imprimir/compartilhar respostas;
+        - 
+"""
 
 import streamlit as st
 import pdfplumber
@@ -42,15 +52,16 @@ def main():
         st.session_state.sharpness = 1.5
 
     # Função para destacar termos no texto
-    def highlight_text(text, search_term):
-        if not search_term:
+    def highlight_text(text, search_terms):
+        if not search_terms:
             return text
         
         # Preservar quebras de linha
         lines = text.split('\n')
         highlighted_lines = []
         
-        pattern = re.compile(re.escape(search_term), re.IGNORECASE)
+        # Criar padrão combinado para todos os termos
+        pattern = re.compile("|".join([re.escape(term) for term in search_terms]), re.IGNORECASE)
         
         for line in lines:
             highlighted = pattern.sub(
@@ -143,22 +154,31 @@ def main():
             'content': hierarchy
         }], page_contents
 
-    # Função de busca com ordenação por relevância
+    # Função de busca com ordenação por relevância (agora suporta múltiplos termos)
     def search_in_hierarchy(hierarchy, search_term):
         if not hierarchy or not hierarchy[0]['content']:
             return [], 0
             
+        # Dividir o termo de busca em palavras individuais
+        search_terms = [term.strip().lower() for term in search_term.split() if term.strip()]
+        if not search_terms:
+            return [], 0
+            
         results = []
-        search_lower = search_term.lower()
         
         for qa in hierarchy[0]['content']:
             # Buscar tanto na pergunta quanto na resposta
             question_text = qa['question'].lower()
             answer_text = qa['answer'].lower()
+            full_text = question_text + " " + answer_text
             
-            if search_lower in question_text or search_lower in answer_text:
+            # Verificar se TODOS os termos estão presentes no texto (pergunta ou resposta)
+            if all(term in full_text for term in search_terms):
                 # Calcular relevância baseada na frequência
-                relevance = question_text.count(search_lower) * 3 + answer_text.count(search_lower)
+                relevance = 0
+                for term in search_terms:
+                    relevance += question_text.count(term) * 3  # Peso maior para perguntas
+                    relevance += answer_text.count(term)        # Peso padrão para respostas
                 results.append({
                     'node': qa,
                     'relevance': relevance
@@ -200,9 +220,12 @@ def main():
                     st.stop()
         
             # Busca
-            search_term = st.sidebar.text_input("Procurar:", placeholder="Digite um termo ou pergunta...")
+            search_term = st.sidebar.text_input("Procurar:", placeholder="Digite palavras-chave separadas por espaço...")
         
         if search_term:
+            # Dividir termos de busca
+            search_terms_list = [term.strip().lower() for term in search_term.split() if term.strip()]
+            
             with st.spinner(f"Buscando por '{search_term}'..."):
                 results, total_results = search_in_hierarchy(hierarchy, search_term)
             
@@ -212,44 +235,43 @@ def main():
                 st.sidebar.success(f"Encontrados {total_results} resultados (ordenados por relevância)")
                 
                 for i, result in enumerate(results):
-                    # Exibir o expander com a pergunta
                     with st.expander(f"**P.{i+1}:** {result['question']} (Página {result['page']})", expanded=False):
-                        # Preparar versões destacadas para exibição interna
-                        highlighted_question = highlight_text(result['question'], search_term)
-                        highlighted_answer = highlight_text(result['answer'], search_term)
+                        # Usar lista de termos para destacar
+                        highlighted_question = highlight_text(result['question'], search_terms_list)
+                        highlighted_answer = highlight_text(result['answer'], search_terms_list)
                         
                         st.markdown(f"**Pergunta:**<br>{highlighted_question}", unsafe_allow_html=True)
                         st.markdown(f"**Resposta:**<br>{highlighted_answer}", unsafe_allow_html=True)
                         
                         # Renderizar a imagem da página
-                      #  try:
-                      #      with st.spinner(f"Renderizando página {result['page']} em alta qualidade..."):
-                      #          img = generate_full_width_image(
-                      #              PDF_FILE, 
-                      #              result['page'], 
-                      #              resolution=st.session_state.resolution,
-                      #              sharpness=st.session_state.sharpness
-                      #          )
-                      #          
-                      #          # Exibir imagem em largura total
-                      #          st.image(img, caption=f"Página {result['page']}", use_container_width=True)
-                      #          
-                      #          # Botão de download abaixo da imagem
-                      #          buf = BytesIO()
-                      #          img.save(buf, format="JPEG")
-                      #          byte_im = buf.getvalue()
-                      #          
-                      #          st.download_button(
-                      #              label=f"⬇️ Baixar imagem da página {result['page']}",
-                      #              data=byte_im,
-                      #              file_name=f"pagina_{result['page']}.jpg",
-                      #              mime="image/jpeg",
-                      #              use_container_width=True
-                      #          )
-                      #          
-                      #          st.caption("📝 Dica: Para melhor visualização, use o zoom do navegador (Ctrl + Scroll)")
-                      #  except Exception as e:
-                      #      st.warning(f"Não foi possível carregar a imagem: {str(e)}")
+                        # try:
+                        #     with st.spinner(f"Renderizando página {result['page']} em alta qualidade..."):
+                        #         img = generate_full_width_image(
+                        #             PDF_FILE, 
+                        #             result['page'], 
+                        #             resolution=st.session_state.resolution,
+                        #             sharpness=st.session_state.sharpness
+                        #         )
+                        #         
+                        #         # Exibir imagem em largura total
+                        #         st.image(img, caption=f"Página {result['page']}", use_container_width=True)
+                        #         
+                        #         # Botão de download abaixo da imagem
+                        #         buf = BytesIO()
+                        #         img.save(buf, format="JPEG")
+                        #         byte_im = buf.getvalue()
+                        #         
+                        #         st.download_button(
+                        #             label=f"⬇️ Baixar imagem da página {result['page']}",
+                        #             data=byte_im,
+                        #             file_name=f"pagina_{result['page']}.jpg",
+                        #             mime="image/jpeg",
+                        #             use_container_width=True
+                        #         )
+                        #         
+                        #         st.caption("📝 Dica: Para melhor visualização, use o zoom do navegador (Ctrl + Scroll)")
+                        # except Exception as e:
+                        #     st.warning(f"Não foi possível carregar a imagem: {str(e)}")
 
         # Controles de qualidade na sidebar
         with st.sidebar:
