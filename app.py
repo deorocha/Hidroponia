@@ -177,7 +177,7 @@ def home_page():
             features = [
                 {"icon": "🧮", "name": "Calculadora Inteligente", "page": "calculadora"},
                 {"icon": "🧬", "name": "Nutrientes por Cultivar", "page": "nutrientes"},
-                {"icon": "📈", "name": "Crescimento Inteligente", "page": "cresc"},
+                {"icon": "📈", "name": "Crescimento Inteligente", "page": "crescimento"},
                 {"icon": "🧑‍🌾", "name": "Pergunte ao especialista", "page": "chatbot_ollama"},
                 {"icon": "📚", "name": "Biblioteca hidropônica 🚧", "page": "biblioteca"},
                 {"icon": "📅", "name": "Agenda de tarefas 🚧", "page": "agenda"},
