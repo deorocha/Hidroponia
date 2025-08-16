@@ -179,7 +179,7 @@ def home_page():
                 {"icon": "🧬", "name": "Nutrientes por Cultivar", "page": "nutrientes"},
                 {"icon": "📈", "name": "Crescimento Inteligente", "page": "crescimento"},
                 {"icon": "🧑‍🌾", "name": "Pergunte ao especialista", "page": "chatbot_ollama"},
-                {"icon": "📚", "name": "Biblioteca hidropônica 🚧", "page": "biblioteca"},
+                {"icon": "📚", "name": "Biblioteca hidropônica", "page": "biblioteca"},
                 {"icon": "📅", "name": "Agenda de tarefas 🚧", "page": "agenda"},
                 {"icon": "🐛", "name": "Detector de Doenças 🚧", "page": "doencas"},
                 {"icon": "📶", "name": "Produtividade 🚧", "page": "produtividade"},
@@ -221,3 +221,4 @@ else:
         if st.button("Voltar (Erro na página)", key="error_page_render_button_2"):
             st.session_state.current_page = "home"
             st.rerun()
+
