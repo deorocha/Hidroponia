@@ -6,16 +6,6 @@ import json
 
 # Configurações da API
 API_URL = "https://api.together.xyz/v1/chat/completions"
-
-# Modelos serverless disponíveis
-AVAILABLE_MODELS = {
-    "Mistral 7B Instruct": "mistralai/Mistral-7B-Instruct-v0.1",
-    "Mixtral 8x7B Instruct": "mistralai/Mixtral-8x7B-Instruct-v0.1",
-    "Llama 2 70B Chat": "meta-llama/Llama-2-70b-chat-hf",
-    "Nous Hermes 2 Mixtral": "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
-    "CodeLlama 34B Instruct": "codellama/CodeLlama-34b-Instruct-hf"
-}
-
 DEFAULT_MODEL = "mistralai/Mistral-7B-Instruct-v0.1"
 
 # Configuração da página
@@ -63,20 +53,6 @@ def main():
         st.markdown(f"<h2 style='margin:0; padding:0; margin-top:0; padding-top:0; margin-bottom:0;'>🤖 Chatbot</h2>", unsafe_allow_html=True)
         st.markdown("#### ⚙️ Configurações")
         
-        # Seletor de modelo
-        selected_model_name = st.selectbox(
-            "Selecione o Modelo:",
-            options=list(AVAILABLE_MODELS.keys()),
-            index=0,
-            key="model_selector"
-        )
-        
-        # Atualizar o modelo selecionado na session state
-        st.session_state.model_select = AVAILABLE_MODELS[selected_model_name]
-        
-        # Mostrar qual modelo está sendo usado
-        st.info(f"Modelo: {selected_model_name}")
-        
         # Configurações do modelo
         max_tokens = st.slider("Tamanho da resposta", 128, 4096, 1024, key="max_tokens_slider")
         temperature = st.slider("Criatividade", 0.0, 1.0, 0.7, key="temperature_slider")
@@ -101,7 +77,7 @@ def main():
                 st.session_state.current_page = "login"
                 st.rerun()
 
-    # Inicializar histórico de mensagens SEM a instrução do sistema no histórico
+    # Inicializar histórico de mensagens
     if "messages" not in st.session_state:
         st.session_state.messages = [
             {"role": "assistant", "content": "Olá! Sou especialista em agricultura e hidroponia. Como posso ajudar?"}
@@ -138,7 +114,7 @@ def main():
                     {"role": "system", "content": SYSTEM_INSTRUCTION}
                 ]
                 
-                # Adicionar histórico de conversa (apenas as últimas 10 mensagens para não exceder o contexto)
+                # Adicionar histórico de conversa (apenas as últimas 10 mensagens)
                 for message in st.session_state.messages[-10:]:
                     api_messages.append(message)
                 
@@ -193,7 +169,7 @@ def main():
                 elif "402" in str(e):
                     error_msg += "\n\n💳 Você pode ter excedido seu crédito gratuito"
                 elif "400" in str(e) and "non-serverless" in str(e):
-                    error_msg += "\n\n🔧 Este modelo requer endpoint dedicado. Tente outro modelo na sidebar."
+                    error_msg += "\n\n🔧 Este modelo requer endpoint dedicado. Tente outro modelo."
                 elif "rate limit" in str(e).lower():
                     error_msg += "\n\n⏳ Limite de requisições excedido, tente novamente mais tarde"
                 
@@ -205,3 +181,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
