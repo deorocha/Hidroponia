@@ -6,7 +6,8 @@ import json
 
 # Configurações da API
 API_URL = "https://api.together.xyz/v1/chat/completions"
-DEFAULT_MODEL = "meta-llama/Llama-3-8b-chat-hf"
+# DEFAULT_MODEL = "meta-llama/Llama-3-8b-chat-hf"
+DEFAULT_MODEL = "mistralai/Mistral-7B-Instruct-v0.1"
 
 # Configuração da página
 st.set_page_config(
@@ -180,3 +181,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
